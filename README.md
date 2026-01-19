@@ -85,4 +85,55 @@ https://developer.paypal.com
 
 3. LLaamas a su API desde Spring Boot
 
+División del BACKEND por integrantes (según el anteproyecto JourneyMate)
+
+Integrante 1 – Backend base y Base de Datos
+Rol: Gestión de datos y lógica principal
+Responsabilidades:
+Diseño e implementación del modelo relacional:
+Usuario
+Reserva
+Hotel
+Actividad
+Punto de interés
+Creación de entidades JPA y relaciones.
+Configuración de PostgreSQL.
+Repositorios (JpaRepository).
+Servicios CRUD principales.
+Validaciones de negocio básicas.
+Relacionado con el anteproyecto:
+Objetivo específico 1 (Base de datos).
+Objetivo específico 2 (Backend Spring Boot).
+Módulos: Bases de Datos y Acceso a Datos.
+
+Integrante 2 – Seguridad y Usuarios
+Rol: Autenticación y control de acceso
+Responsabilidades:
+Registro y login de usuarios.
+Implementación de Spring Security + JWT.
+Gestión de roles (usuario / administrador).
+Encriptación de contraseñas (BCrypt).
+Protección de endpoints REST.
+Controladores de usuario.
+Validación de datos de entrada.
+Relacionado con el anteproyecto:
+Objetivo específico 6 (Autenticación JWT).
+Arquitectura basada en APIs.
+Módulo: Servicios y Procesos.
+
+Integrante 3 – Integraciones y funcionalidades avanzadas
+Rol: APIs externas y lógica turística
+Responsabilidades:
+Integración con Google Maps API (mapas y geolocalización).
+Integración con Skyscanner / APIs de viajes.
+Implementación del comparador de precios.
+Gestión de rutas turísticas personalizadas.
+Gestión de pagos (PayPal – sandbox).
+Base del módulo opcional de IA recomendadora.
+Manejo global de errores.
+Relacionado con el anteproyecto:
+Objetivos específicos 5, 7 y 9.
+Conceptos clave: geolocalización, comparador, IA.
+Módulo: Servicios y Procesos.
+
 

@@ -85,7 +85,7 @@ https://developer.paypal.com
 
 3. LLaamas a su API desde Spring Boot
 
-División del BACKEND por integrantes (según el anteproyecto JourneyMate)
+# División del BACKEND por integrantes (según el anteproyecto JourneyMate)
 
 Integrante 1 – Backend base y Base de Datos
 Rol: Gestión de datos y lógica principal

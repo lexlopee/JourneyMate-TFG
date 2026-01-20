@@ -15,6 +15,14 @@ Iniciamos el Android Studio y nos dirigimos al apartado de Plugins y le tenemos 
 
 ![alt text](image.png) 
 
+#Instalacion de Postamn
+1. En el navegador ir a la pagina oficial de Postman
+   [https://www.postman.com/downloads/ ](https://www.postman.com/downloads/)
+2. Pinchar en "Dowload for Windows"
+3. Se descargaŕa un archivo:
+   Postman-win64-Setup.exe
+4. Doble click y en el archivo descargado 
+
 
 # Enlace para crear nuestro proyecto de backend
 

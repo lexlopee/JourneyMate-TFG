@@ -15,7 +15,7 @@ Iniciamos el Android Studio y nos dirigimos al apartado de Plugins y le tenemos 
 
 ![alt text](image.png) 
 
-#Instalacion de Postamn
+# Instalacion de Postamn
 1. En el navegador ir a la pagina oficial de Postman
    [https://www.postman.com/downloads/ ](https://www.postman.com/downloads/)
 2. Pinchar en "Dowload for Windows"

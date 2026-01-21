@@ -13,7 +13,8 @@ Mirar como crear esto
 # Android Studio
 Iniciamos el Android Studio y nos dirigimos al apartado de Plugins y le tenemos que poner esto en el buscador. 
 
-![alt text](image.png) 
+<img width="780" height="645" alt="image" src="https://github.com/user-attachments/assets/170fc577-ae28-444f-8074-d592fce63a84" />
+
 
 # Instalacion de Postamn
 1. En el navegador ir a la pagina oficial de Postman

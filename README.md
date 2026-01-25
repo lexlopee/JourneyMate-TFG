@@ -10,6 +10,12 @@ mvn spring-boot:run
 # Creacion de la Base de Datos
 Mirar como crear esto
 
+<img width="1029" height="775" alt="image" src="https://github.com/user-attachments/assets/11ae753a-7506-4bf6-b644-eff11835d935" />
+
+
+
+Contraseña--> journeymate-bbdd
+
 # Android Studio
 Iniciamos el Android Studio y nos dirigimos al apartado de Plugins y le tenemos que poner esto en el buscador. 
 

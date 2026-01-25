@@ -266,36 +266,36 @@ exception/
 INTEGRANTE 3 — Integraciones externas + Funcionalidades avanzadas
 Rol: APIs externas, comparadores, rutas inteligentes, IA, pagos
 Carpetas que usa:
-   external/
-   service/external/
-   controller/external/
-   utils/geolocation/
-   exception/handler/
-   
+   - external/
+   - service/external/
+   - controller/external/
+   - utils/geolocation/
+   - exception/handler/
+-------   
 Carpetas específicas:
 external/
    - external/maps/ → Google Maps API
    - external/flights/ → Skyscanner
    - external/payments/ → PayPal
    - external/ai/ → IA recomendadora
-
+-------
 service/external/
    - Servicios que consumen APIs externas
    - Comparador de precios
    - Generación de rutas personalizadas
-
+--------
 controller/external/
    Endpoints como:
-      /maps/nearby
-      /flights/search
-      /payments/pay
-      /ai/recommend
-
+   - /maps/nearby
+   - /flights/search
+   - /payments/pay
+   - /ai/recommend
+--------
 utils/geolocation/
    - Cálculo de distancias
    - Conversión de coordenadas
    - Validación de lat/long
-
+--------
 exception/handler/
    - Manejo global de errores
    - Respuestas uniformes para APIs externas

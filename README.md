@@ -145,4 +145,157 @@ Objetivos específicos 5, 7 y 9.
 Conceptos clave: geolocalización, comparador, IA.
 Módulo: Servicios y Procesos.
 
+# BackEnd dvision por carpetas
+INTEGRANTE 1 — Backend base + Base de Datos
+Rol: Lógica principal, CRUD, entidades, repositorios, servicios base
+Carpetas que usa:
+   entity/
+   dao/
+   service/
+   controller/
+   config/app/
+   dto/
 
+Carpetas específicas dentro de cada dominio:
+Entidades (entity/)
+   - entity/user/ → solo Usuario (sin seguridad)
+   - entity/route/
+   - entity/interest/
+   - entity/booking/
+   - entity/payment/
+   - entity/service/
+   - entity/service_type/
+-----
+Repositorios (dao/)
+
+Todos los repositorios de CRUD:
+  - usuario
+  - ruta
+  - punto_interes
+  - reserva
+  - pago
+  - servicio_turistico
+  - vuelo, tren, hotel, etc.
+-------
+Servicios (service/)
+   - Servicios CRUD de todos los dominios anteriores
+-------
+Controladores (controller/)
+Endpoints CRUD de: 
+   - usuario (solo CRUD, no login)
+   - rutas
+   - puntos de interés
+   - reservas
+   - pagos
+   - servicios turísticos
+-------
+Configuración (config/app/)
+   - Datasource
+   - PostgreSQL
+   - Beans generales
+-------
+DTOs (dto/)
+   - Request y response para CRUD
+
+
+
+=================
+
+
+
+
+
+
+INTEGRANTE 2 — Seguridad y Usuarios
+Rol: Autenticación, autorización, JWT, roles, protección de endpoints
+Carpetas que usa:
+
+- config/security/
+- entity/user/
+- dao/user/
+- service/user/
+- controller/user/
+- utils/jwt/
+- exception/
+--------
+Carpetas específicas:
+config/security/
+   - Configuración de Spring Security
+   - Filtros JWT
+   - PasswordEncoder
+   - AuthenticationManager
+---------
+entity/user/
+   - Usuario
+   - Rol
+   - TokenJWT
+---------
+dao/user/  
+   - UsuarioRepository
+   - RolRepository
+   - TokenRepository
+---------
+service/user/
+  - Login
+  - Registro
+  - Gestión de roles
+  - Renovación de tokens 
+----------
+controller/user/
+   - /auth/login
+   - /auth/register
+   - /auth/refresh
+   - /auth/logout
+----------
+utils/jwt/
+   - Generación de tokens
+   - Validación
+   - Extracción de claims
+----------
+exception/
+   - Manejo de errores de autenticación
+   - Excepciones personalizadas
+
+
+
+=============
+
+
+
+
+INTEGRANTE 3 — Integraciones externas + Funcionalidades avanzadas
+Rol: APIs externas, comparadores, rutas inteligentes, IA, pagos
+Carpetas que usa:
+   external/
+   service/external/
+   controller/external/
+   utils/geolocation/
+   exception/handler/
+   
+Carpetas específicas:
+external/
+   - external/maps/ → Google Maps API
+   - external/flights/ → Skyscanner
+   - external/payments/ → PayPal
+   - external/ai/ → IA recomendadora
+
+service/external/
+   - Servicios que consumen APIs externas
+   - Comparador de precios
+   - Generación de rutas personalizadas
+
+controller/external/
+   Endpoints como:
+      /maps/nearby
+      /flights/search
+      /payments/pay
+      /ai/recommend
+
+utils/geolocation/
+   - Cálculo de distancias
+   - Conversión de coordenadas
+   - Validación de lat/long
+
+exception/handler/
+   - Manejo global de errores
+   - Respuestas uniformes para APIs externas

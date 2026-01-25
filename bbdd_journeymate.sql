@@ -255,8 +255,8 @@ CREATE TABLE journeymate.actividad(
 );
 
 
--- Creación de la Tabla TRANSPORTE
-CREATE TABLE journeymate.transporte(
+-- Creación de la Tabla VTC
+CREATE TABLE journeymate.vtc(
 	id_servicio INTEGER,
 	precio NUMERIC(5,2),
 	modelo VARCHAR(20),
@@ -264,8 +264,8 @@ CREATE TABLE journeymate.transporte(
 	hora_salida DATE,
 	distancia VARCHAR(6),
 	marca VARCHAR(20),
-	CONSTRAINT pk_id_ser_trans PRIMARY KEY (id_servicio),
-	CONSTRAINT fk_id_ser_trans FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio)
+	CONSTRAINT pk_id_ser_vtc PRIMARY KEY (id_servicio),
+	CONSTRAINT fk_id_ser_vtc FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio)
 );
 
 
@@ -291,12 +291,4 @@ CREATE TABLE journeymate.habitacion(
 	CONSTRAINT pk_id_hab PRIMARY KEY (id_habitacion),
 	CONSTRAINT fk_id_hot FOREIGN KEY (id_hotel) REFERENCES journeymate.hotel (id_servicio)
 );
-
-
-
-
-
-
-
-
 

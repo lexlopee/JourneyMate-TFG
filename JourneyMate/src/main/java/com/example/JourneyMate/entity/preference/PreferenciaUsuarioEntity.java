@@ -2,9 +2,7 @@ package com.example.JourneyMate.entity.preference;
 
 import com.example.JourneyMate.entity.user.UsuarioEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "preferencias_usuario", schema = "journeymate")

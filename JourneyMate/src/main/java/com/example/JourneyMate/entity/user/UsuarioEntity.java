@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class UsuarioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_usuario;
+    private Integer idUsuario;
     private String nombre;
     private String primerApellido;
     private String segundoApellido;

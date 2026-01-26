@@ -14,11 +14,11 @@ public class RolEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_rol;
+    private Integer idRol;
 
     private String nombre;
     private String descripcion;
 
     @OneToMany(mappedBy = "rol")
-    private List<UsuarioEntity> usuarios;
+    private List<UsuarioEntity> id_usuarios;
 }

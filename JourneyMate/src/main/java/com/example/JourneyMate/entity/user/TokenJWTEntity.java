@@ -12,7 +12,7 @@ public class TokenJWTEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_token;
+    private Integer idToken;
 
     private LocalDate fecha_expiacion;
     private LocalDate fecha_creacion;
@@ -20,5 +20,5 @@ public class TokenJWTEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-    private UsuarioEntity usuario;
+    private UsuarioEntity id_usuario;
 }

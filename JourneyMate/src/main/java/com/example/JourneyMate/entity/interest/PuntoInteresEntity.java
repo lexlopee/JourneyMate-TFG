@@ -2,9 +2,7 @@ package com.example.JourneyMate.entity.interest;
 
 import com.example.JourneyMate.entity.route.RutaPuntoInteresEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;

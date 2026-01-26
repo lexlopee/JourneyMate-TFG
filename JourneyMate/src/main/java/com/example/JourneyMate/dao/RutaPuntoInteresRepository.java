@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface RutaPuntoInteresRepository extends JpaRepository<RutaPuntoInteresEntity,Integer> {
+public interface RutaPuntoInteresRepository extends JpaRepository<RutaPuntoInteresEntity, Integer> {
     List<RutaPuntoInteresEntity> findByIdRutaOrderByOrden(Integer idRuta);
 }

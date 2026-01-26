@@ -4,11 +4,10 @@ import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
-
 import java.util.List;
+
 @Entity
 @Table(name = "hotel", schema = "journeymate")
 @Data

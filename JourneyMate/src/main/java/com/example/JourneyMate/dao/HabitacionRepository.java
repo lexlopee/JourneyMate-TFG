@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface HabitacionRepository extends JpaRepository<HabitacionEntity,Integer> {
+public interface HabitacionRepository extends JpaRepository<HabitacionEntity, Integer> {
 
     List<HabitacionEntity> findByHotelIdServicio(Integer idHotel);
 

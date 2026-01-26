@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "servicio_turistico", schema = "journeymate")
+@Data
 public class ServicioTuristicoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_servicio;
+    @Column(name = "id_servicio")
+    private Integer idServicio;
     private String name;
     private BigDecimal precio_base;
 }

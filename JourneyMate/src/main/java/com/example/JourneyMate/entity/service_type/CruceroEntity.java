@@ -16,5 +16,4 @@ public class CruceroEntity {
     private String naviera;
     private LocalDate fechaSalida;
     private LocalDate fechaLlegada;
-
 }

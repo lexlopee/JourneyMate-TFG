@@ -1,5 +1,6 @@
 package com.example.JourneyMate.entity.service_type;
 
+import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @Data
 @Entity
 
-public class VueloEntity {
+public class VueloEntity extends ServicioTuristicoEntity {
     private String compañia;
     private LocalDate fechaLlegada;
     private String origen;

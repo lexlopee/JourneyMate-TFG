@@ -1,5 +1,6 @@
 package com.example.JourneyMate.entity.service_type;
 
+import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @Table(name = "tren", schema = "journeymate")
 @Data
 
-public class TrenEntity {
+public class TrenEntity extends ServicioTuristicoEntity {
     private LocalDate fechaLlegada;
     private String compañia;
     private String origen;

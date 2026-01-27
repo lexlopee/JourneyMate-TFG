@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class RutaPuntoInteresEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_punto;
-    private Integer id_ruta;
+    private Integer idPunto;
+    private Integer idRuta;
     private int orden;
 }

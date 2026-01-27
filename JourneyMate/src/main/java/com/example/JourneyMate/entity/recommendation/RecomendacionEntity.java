@@ -16,8 +16,9 @@ import java.math.BigDecimal;
 public class RecomendacionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_recomendacion;
-    private Integer id_elemento;
-    private Integer id_usuario;
+    @Column(name = "id_recomendacion")
+    private Integer idRecomendacion;
+    private Integer idElemento;
+    private Integer idUsuario;
     private BigDecimal score;
 }

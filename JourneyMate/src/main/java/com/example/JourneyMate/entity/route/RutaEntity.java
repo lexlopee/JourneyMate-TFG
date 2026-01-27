@@ -14,7 +14,8 @@ public class RutaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_ruta;
+    @Column(name = "id_ruta")
+    private Integer idRuta;
 
     private String nombre;
     private LocalDate fecha_creacion;

@@ -13,7 +13,8 @@ public class PagoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_pago;
+    @Column(name = "id_pago")
+    private Integer idPago;
 
     @ManyToOne
     @JoinColumn(name = "id_reserva")

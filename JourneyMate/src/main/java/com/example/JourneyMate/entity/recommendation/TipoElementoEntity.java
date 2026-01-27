@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class TipoElementoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_elemento;
+    @Column(name = "id_elemento")
+    private Integer idElemento;
     private String name;
 }

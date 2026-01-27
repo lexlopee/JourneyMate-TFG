@@ -14,7 +14,8 @@ public class PuntoInteresEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_punto;
+    @Column(name = "id_punto")
+    private Integer idPunto;
 
     private String ciudad;
     private String nombre;

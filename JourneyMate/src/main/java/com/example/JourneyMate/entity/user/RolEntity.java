@@ -12,6 +12,7 @@ public class RolEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_rol")
     private Integer idRol;
 
     private String nombre;

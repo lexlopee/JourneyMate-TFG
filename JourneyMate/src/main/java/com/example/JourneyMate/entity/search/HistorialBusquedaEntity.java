@@ -13,7 +13,8 @@ public class HistorialBusquedaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_historial;
+    @Column(name = "id_historial")
+    private Integer idHistorial;
 
     private LocalDate fecha;
     private String termino;

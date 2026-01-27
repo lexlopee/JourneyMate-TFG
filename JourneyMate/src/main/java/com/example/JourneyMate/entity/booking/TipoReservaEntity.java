@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class TipoReservaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_tipo_reserva;
+    @Column(name = "id_tipo_reserva")
+    private Integer idTipoReserva;
     private String name;
 }

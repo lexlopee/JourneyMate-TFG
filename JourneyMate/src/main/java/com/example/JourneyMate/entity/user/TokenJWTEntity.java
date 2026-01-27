@@ -12,6 +12,7 @@ public class TokenJWTEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_token")
     private Integer idToken;
 
     private LocalDate fecha_expiacion;

@@ -305,3 +305,23 @@ utils/geolocation/
 exception/handler/
    - Manejo global de errores
    - Respuestas uniformes para APIs externas
+# Errores Proyectos
+Executing pre-compile tasks…
+Cleaning output directories…
+Running 'before' tasks
+Checking sources
+Copying resources… [JourneyMate]
+Dependency analysis found 0 affected files
+Updating dependency information… [JourneyMate]
+Parsing java… [JourneyMate]
+Dependency analysis found 0 affected files
+java: java.lang.ExceptionInInitializerError
+com.sun.tools.javac.code.TypeTag :: UNKNOWN
+java: java.lang.ExceptionInInitializerError
+Errors occurred while compiling module 'JourneyMate'
+javac 25.0.1 was used to compile java sources
+Finished, saving caches…
+Builder Java requested build stop
+Executing post-compile tasks…
+Synchronizing output directories…
+27/1/26, 10:43 - Build completed with 2 errors and 0 warnings in 3 sec, 670 ms

@@ -1,7 +1,9 @@
 package com.example.JourneyMate.config.security;
 
 import com.example.JourneyMate.entity.user.UsuarioEntity;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 

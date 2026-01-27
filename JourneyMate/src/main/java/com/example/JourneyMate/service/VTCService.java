@@ -6,7 +6,10 @@ import java.util.List;
 
 public interface VTCService {
     List<VTCEntity> findAll();
+
     VTCEntity findById(Integer idVTC);
+
     VTCEntity save(VTCEntity vtcEntity);
+
     void deleteById(Integer idVTC);
 }

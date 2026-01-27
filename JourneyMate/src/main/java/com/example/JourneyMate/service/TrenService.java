@@ -6,7 +6,10 @@ import java.util.List;
 
 public interface TrenService {
     List<TrenEntity> findAll();
+
     TrenEntity findById(Integer idTren);
-    TrenEntity save (TrenEntity trenEntity);
+
+    TrenEntity save(TrenEntity trenEntity);
+
     void deleteById(Integer idTren);
 }

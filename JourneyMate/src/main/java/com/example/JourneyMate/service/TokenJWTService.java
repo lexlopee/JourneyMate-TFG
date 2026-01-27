@@ -7,10 +7,15 @@ import java.util.Optional;
 
 public interface TokenJWTService {
     Optional<TokenJWTEntity> findByToken(String token);
+
     List<TokenJWTEntity> findByUsuario_IdUsuario(Integer idUsuario);
+
     List<TokenJWTEntity> findByAll();
+
     TokenJWTEntity findById(Integer idToken);
+
     TokenJWTEntity save(TokenJWTEntity tokenJWT);
-    void  deleteById(Integer idToken);
+
+    void deleteById(Integer idToken);
 
 }

@@ -1,4 +1,4 @@
-package com.example.JourneyMate.dao;
+package com.example.JourneyMate.dao.search;
 
 import com.example.JourneyMate.entity.search.HistorialBusquedaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

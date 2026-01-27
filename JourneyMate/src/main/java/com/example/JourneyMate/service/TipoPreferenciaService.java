@@ -6,9 +6,13 @@ import java.util.List;
 
 public interface TipoPreferenciaService {
     List<TipoPreferenciaEntity> findAll();
+
     TipoPreferenciaEntity findById(Integer idTipoPreferencia);
+
     TipoPreferenciaEntity findByNombre(String nombre);
-    TipoPreferenciaEntity save (TipoPreferenciaEntity tipoPreferencia);
+
+    TipoPreferenciaEntity save(TipoPreferenciaEntity tipoPreferencia);
+
     void deleteById(Integer idTipoPreferencia);
 
 }

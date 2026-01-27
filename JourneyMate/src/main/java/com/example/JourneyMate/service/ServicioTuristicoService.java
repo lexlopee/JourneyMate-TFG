@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface ServicioTuristicoService {
     List<ServicioTuristicoEntity> findByAll();
+
     ServicioTuristicoEntity findById(Integer idTuristico);
+
     ServicioTuristicoEntity save(ServicioTuristicoEntity servicioTuristico);
+
     void deleteById(Integer idTuristico);
 
 }

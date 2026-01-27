@@ -6,9 +6,13 @@ import java.util.List;
 
 public interface RutaPuntoInteresService {
     List<RutaPuntoInteresEntity> findByIdRutaOrderByOrden(Integer idRuta);
-    List<RutaPuntoInteresEntity>findByAll();
+
+    List<RutaPuntoInteresEntity> findByAll();
+
     RutaPuntoInteresEntity findById(Integer idRuta);
+
     RutaPuntoInteresEntity save(RutaPuntoInteresEntity rutaInteres);
+
     void deleteById(Integer idRutaInteres);
 
 }

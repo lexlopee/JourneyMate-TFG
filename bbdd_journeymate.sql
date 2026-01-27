@@ -13,6 +13,7 @@ CREATE TABLE journeymate.categoria(
 -- Creación de la Tabla ROL
 CREATE TABLE journeymate.rol(
 	id_rol INTEGER GENERATED ALWAYS AS IDENTITY,
+	descripcion VARCHAR (50) NOT NULL,
 	nombre VARCHAR(30) NOT NULL,
 	CONSTRAINT pk_id_rol PRIMARY KEY (id_rol)
 );
@@ -133,7 +134,7 @@ CREATE TABLE journeymate.preferencias_usuario(
 	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario)
 );
 
--- Creación de la Tabla Estado
+-- Creación de la Tabla ESTADO
 CREATE TABLE journeymate.estado(
 	id_estado INTEGER GENERATED ALWAYS AS IDENTITY,
 	nombre VARCHAR (30),
@@ -161,6 +162,23 @@ CREATE TABLE journeymate.servicio_turistico(
     nombre VARCHAR(20),
     precio_base NUMERIC(6,2),
     CONSTRAINT pk_id_ser PRIMARY KEY(id_servicio)
+);
+
+
+-- Creacion de la Tabla DIRECCION
+CREATE TABLE journeymate.direccion(
+	id_direccion INTEGER GENERATED ALWAYS AS IDENTITY,
+	id_servicio INTEGER, 
+	calle VARCHAR(100),
+	numero VARCHAR (10),
+	ciudad VARCHAR (50),
+	provincia VARCHAR (50),
+	pais VARCHAR (50),
+	codigo_postal VARCHAR (10),
+	latitud NUMERIC (9,6),
+	longitud NUMERIC (9,6),
+	CONSTRAINT pk_id_dir PRIMARY KEY (id_direccion),
+	CONSTRAINT fk_id_ser_dir FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio)
 );
 
 
@@ -237,9 +255,7 @@ CREATE TABLE journeymate.crucero(
 -- Creación de la Tabla APARTAMENTO
 CREATE TABLE journeymate.apartamento(
 	id_servicio INTEGER,
-	direcccion VARCHAR(30),
 	descripcion VARCHAR(50),
-	ciudad VARCHAR(30),
 	CONSTRAINT pk_id_ser_apar PRIMARY KEY (id_servicio),
 	CONSTRAINT fk_id_ser_apar FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio)
 );
@@ -248,7 +264,6 @@ CREATE TABLE journeymate.apartamento(
 -- Creación de la Tabla ACTIVIDAD
 CREATE TABLE journeymate.actividad(
 	id_servicio INTEGER,
-	ciudad VARCHAR(30),
 	descripcion VARCHAR(50),
 	CONSTRAINT pk_id_ser_act PRIMARY KEY (id_servicio),
 	CONSTRAINT fk_id_ser_act FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio)
@@ -273,15 +288,13 @@ CREATE TABLE journeymate.vtc(
 CREATE TABLE journeymate.hotel(
 	id_servicio INTEGER,
 	estrellas NUMERIC(5),
-	direccion VARCHAR(50),
 	descripcion VARCHAR(50),
-	ciudad VARCHAR(20),
 	CONSTRAINT pk_id_ser_hote PRIMARY KEY (id_servicio),
 	CONSTRAINT fk_id_ser_hote FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio)
 );
 
 
--- Creación de la Tabla Habitación
+-- Creación de la Tabla HABITACIÓN
 CREATE TABLE journeymate.habitacion(
 	id_habitacion INTEGER GENERATED ALWAYS AS IDENTITY,
 	id_hotel INTEGER,

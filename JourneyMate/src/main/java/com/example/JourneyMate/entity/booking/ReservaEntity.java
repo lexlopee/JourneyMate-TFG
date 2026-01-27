@@ -34,6 +34,8 @@ public class ReservaEntity {
     @JoinColumn(name = "id_tipo_reserva")
     private TipoReservaEntity tipoReserva;
 
+    @Column(name = "precio_total")
     private BigDecimal precio_total;
-    private LocalDate fecha_reserva;
+    @Column(name = "fecha_reserva")
+    private LocalDate fechaReserva;
 }

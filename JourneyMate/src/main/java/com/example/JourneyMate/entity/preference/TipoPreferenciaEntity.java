@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class TipoPreferenciaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_tipo_preferencia;
+    @Column(name = "id_tipo_preferencia")
+    private Integer idTipoPreferencia;
     private String name;
 }

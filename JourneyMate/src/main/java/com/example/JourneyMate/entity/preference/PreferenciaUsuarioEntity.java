@@ -11,7 +11,8 @@ public class PreferenciaUsuarioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_preferencia;
+    @Column(name = "id_preferencia")
+    private Integer idPreferencia;
 
     private Integer valor;
 

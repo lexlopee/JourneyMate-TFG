@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ActividadService {
     List<ActividadEntity> findByAll();
-    ActividadEntity findById(Integer id);
+    ActividadEntity findById(Integer idActividad);
     ActividadEntity save(ActividadEntity actividad);
-    void deleteById(Integer id);
+    void deleteById(Integer idActividad);
 }

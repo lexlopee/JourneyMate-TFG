@@ -1,4 +1,4 @@
-package com.example.JourneyMate.dao;
+package com.example.JourneyMate.dao.route;
 
 import com.example.JourneyMate.entity.route.RutaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

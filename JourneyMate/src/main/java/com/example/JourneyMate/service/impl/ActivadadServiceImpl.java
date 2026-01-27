@@ -1,4 +1,28 @@
 package com.example.JourneyMate.service.impl;
 
-public class ActivadadServiceImpl {
+import com.example.JourneyMate.entity.service_type.ActividadEntity;
+import com.example.JourneyMate.service.ActividadService;
+
+import java.util.List;
+
+public class ActivadadServiceImpl implements ActividadService {
+    @Override
+    public List<ActividadEntity> findByAll() {
+        return List.of();
+    }
+
+    @Override
+    public ActividadEntity findByIdActividad(Integer idActividad) {
+        return null;
+    }
+
+    @Override
+    public ActividadEntity saveActivadad(ActividadEntity actividad) {
+        return null;
+    }
+
+    @Override
+    public void deleteByIdActividad(Integer idActividad) {
+
+    }
 }

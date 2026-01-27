@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DataDTO {
-    private AggregationDTO aggregation; // Entra al segundo nivel
+    private AggregationDTO aggregation;
 }

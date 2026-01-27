@@ -6,7 +6,8 @@ CREATE SCHEMA journeymate AUTHORIZATION journeymate_bbdd;
 CREATE TABLE journeymate.categoria(
     id_categoria INTEGER GENERATED ALWAYS AS IDENTITY,
     nombre VARCHAR (50) NOT NULL,
-    CONSTRAINT pk_id_cat PRIMARY KEY (id_categoria)
+    CONSTRAINT pk_id_cat PRIMARY KEY (id_categoria),
+    CONSTRAINT uq_nom_cat UNIQUE (nombre)
 );
 
 
@@ -15,24 +16,26 @@ CREATE TABLE journeymate.rol(
 	id_rol INTEGER GENERATED ALWAYS AS IDENTITY,
 	descripcion VARCHAR (50) NOT NULL,
 	nombre VARCHAR(30) NOT NULL,
-	CONSTRAINT pk_id_rol PRIMARY KEY (id_rol)
+	CONSTRAINT pk_id_rol PRIMARY KEY (id_rol),
+	CONSTRAINT uq_nom_rol UNIQUE (nombre)
 );
 
 
 -- Creación de la Tabla USUARIO
 CREATE TABLE journeymate.usuario(
 	id_usuario INTEGER GENERATED ALWAYS AS IDENTITY,
-	telefono VARCHAR (13),
-	contraseña VARCHAR (30),
-	nombre VARCHAR (30),
-	primer_apellido VARCHAR (30),
+	telefono VARCHAR (15),
+	contraseña VARCHAR (30) NOT NULL ,
+	nombre VARCHAR (30) NOT NULL,
+	primer_apellido VARCHAR (30) NOT NULL,
 	segundo_apellido VARCHAR (30),
-	fecha_registro DATE,
+	fecha_registro DATE NOT NULL,
 	fecha_nacimiento DATE,
-	email VARCHAR (30), 
+	email VARCHAR (30) NOT NULL, 
 	id_rol INTEGER NOT NULL,
 	CONSTRAINT pk_id_usu PRIMARY KEY (id_usuario),
-	CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES journeymate.rol (id_rol)
+	CONSTRAINT uq_ema_usua UNIQUE (email),
+	CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES journeymate.rol (id_rol) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 
@@ -43,7 +46,7 @@ CREATE TABLE journeymate.ruta(
 	fecha_creacion DATE NOT NULL,
 	id_usuario INTEGER NOT NULL,
 	CONSTRAINT pk_id_rut PRIMARY KEY (id_ruta),
-	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario)
+	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario) ON DELETE CASCADE
 );
 
 
@@ -56,7 +59,8 @@ CREATE TABLE journeymate.punto_interes(
 	descripcion VARCHAR (50),
 	id_categoria INTEGER NOT NULL,
 	CONSTRAINT pk_id_pun PRIMARY KEY (id_punto),
-	CONSTRAINT fk_id_cate FOREIGN KEY (id_categoria) REFERENCES journeymate.categoria (id_categoria)
+	CONSTRAINT ck_lat_pun_int CHECK (latitud BETWEEN -90 AND 90),
+	CONSTRAINT fk_id_cate FOREIGN KEY (id_categoria) REFERENCES journeymate.categoria (id_categoria) ON DELETE RESTRICT
 );
 
 
@@ -67,8 +71,9 @@ CREATE TABLE journeymate.ruta_punto_interes (
     id_punto_interes INTEGER NOT NULL,
     orden INTEGER,
     CONSTRAINT pk_id_rut_pun_int PRIMARY KEY (id_ruta_punto_interes),	
+    CONSTRAINT uq_id_rut_punt_int UNIQUE (id_ruta, id_punto_interes),
     CONSTRAINT fk_id_ruta FOREIGN KEY (id_ruta) REFERENCES journeymate.ruta (id_ruta),
-    CONSTRAINT fk_id_punt_inte FOREIGN KEY (id_punto_interes) REFERENCES journeymate.punto_interes(id_punto)
+    CONSTRAINT fk_id_punt_inte FOREIGN KEY (id_punto_interes) REFERENCES journeymate.punto_interes(id_punto) ON DELETE CASCADE
 );
 
 -- Creación de la Tabla TOKEN_JWT
@@ -79,7 +84,7 @@ CREATE TABLE journeymate.token_jwt(
 	fecha_creacion DATE NOT NULL, 
 	token VARCHAR(100),
 	CONSTRAINT pk_id_tok PRIMARY KEY (id_token),
-	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario)
+	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario) ON DELETE CASCADE 
 );
 
 
@@ -92,12 +97,13 @@ CREATE TABLE journeymate.tipo_elemento(
 
 
 -- Creación de la Tabla RECOMENDADCION
-CREATE TABLE journeymate.recomendacion(
+CREATE TABLE journeymate.recomendacion (
 	id_recomendacion INTEGER GENERATED ALWAYS AS IDENTITY,
 	id_elemento INTEGER,
 	score NUMERIC (5), 
 	id_usuario INTEGER,
 	CONSTRAINT pk_id_reco PRIMARY KEY (id_recomendacion),
+	CONSTRAINT ck_sco_reco CHECK (score BETWEEN 0 AND 100),
 	CONSTRAINT fk_id_elem FOREIGN KEY (id_elemento) REFERENCES journeymate.tipo_elemento (id_elemento),
 	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario)
 );
@@ -130,6 +136,8 @@ CREATE TABLE journeymate.preferencias_usuario(
 	id_usuario INTEGER,
 	valor NUMERIC(3),
 	CONSTRAINT pk_id_pre PRIMARY KEY (id_preferencia),
+	CONSTRAINT uq_id_usu_tipo_pre UNIQUE (id_usuario, id_tipo_preferencia),
+	CONSTRAINT ck_val_pre_usu CHECK (valor BETWEEN 0 AND 10),
 	CONSTRAINT fk_id_tip_pre FOREIGN KEY (id_tipo_preferencia) REFERENCES journeymate.tipo_preferencia (id_tipo_preferencia),
 	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario)
 );
@@ -151,7 +159,7 @@ CREATE TABLE journeymate.tipo_reserva(
 -- Creación de la Tabla METODO
 CREATE TABLE journeymate.metodo(
 	id_metodo INTEGER GENERATED ALWAYS AS IDENTITY,
-	nombre VARCHAR (29),
+	nombre VARCHAR (30),
 	CONSTRAINT pk_id_metodo PRIMARY KEY (id_metodo)
 );
 
@@ -159,9 +167,10 @@ CREATE TABLE journeymate.metodo(
 -- Creación de la Tabla SERVICIO_TURISTICO
 CREATE TABLE journeymate.servicio_turistico(
     id_servicio INTEGER GENERATED ALWAYS AS IDENTITY,
-    nombre VARCHAR(20),
+    nombre VARCHAR(20) NOT NULL,
     precio_base NUMERIC(6,2),
-    CONSTRAINT pk_id_ser PRIMARY KEY(id_servicio)
+    CONSTRAINT pk_id_ser PRIMARY KEY(id_servicio),
+    CONSTRAINT ck_pre_bas_ser_tur CHECK (precio_base >= 0)
 );
 
 
@@ -190,13 +199,13 @@ CREATE TABLE journeymate.reserva(
 	id_tipo_reserva INTEGER,
 	id_usuario INTEGER,
 	precio_total NUMERIC(6,2),
-	telefono NUMERIC(15),
+	telefono VARCHAR(15),
 	fecha_reserva DATE,
 	CONSTRAINT pk_id_res PRIMARY KEY (id_reserva),
-	CONSTRAINT fk_id_ser FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico (id_servicio),
+	CONSTRAINT fk_id_ser FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico (id_servicio) ON DELETE RESTRICT,
 	CONSTRAINT fk_id_est FOREIGN KEY (id_estado) REFERENCES journeymate.estado (id_estado),
 	CONSTRAINT fk_id_tip_res FOREIGN KEY (id_tipo_reserva) REFERENCES journeymate.tipo_reserva (id_tipo_reserva),
-	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario)
+	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario) ON DELETE RESTRICT 
 );
 
 

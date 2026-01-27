@@ -1,4 +1,4 @@
-package com.example.JourneyMate.dao;
+package com.example.JourneyMate.dao.recommendation;
 
 import com.example.JourneyMate.entity.recommendation.RecomendacionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -8,5 +8,5 @@ import lombok.Data;
 public class BookingResponseDTO {
     private boolean status;
     private String message;
-    private DataDTO data; // Entra al primer nivel
+    private DataDTO data;
 }

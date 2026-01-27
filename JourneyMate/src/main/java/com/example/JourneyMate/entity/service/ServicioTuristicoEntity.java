@@ -6,14 +6,20 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "servicio_turistico", schema = "journeymate")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 public class ServicioTuristicoEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_servicio")
     private Integer idServicio;
-    private String name;
-    private BigDecimal precio_base;
+
+    @Column(name = "nombre")
+    private String nombre;
+
+    @Column(name = "precio_base")
+    private BigDecimal precioBase;
 }
+

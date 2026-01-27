@@ -10,7 +10,6 @@ public interface PuntoInteresRepository extends JpaRepository<PuntoInteresEntity
     List<PuntoInteresEntity> findByCiudadIgnoreCase(String ciudad);
 
     List<PuntoInteresEntity> findByCategoriaIdCategoria(Integer idCategoria);
-
-    List<PuntoInteresEntity> findByNombreIgnoreCase(String nombre); // Profesional
+    List<PuntoInteresEntity> findByNombreIgnoreCase(String nombre);
 }
 

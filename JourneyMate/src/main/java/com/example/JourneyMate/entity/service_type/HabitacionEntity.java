@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "habitacion", schema = "journeymate")
 @Data
-public class HabitacionEntity extends HotelEntity {
+public class HabitacionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +16,14 @@ public class HabitacionEntity extends HotelEntity {
     private Integer idHabitacion;
 
     @ManyToOne
-    @JoinColumn(name = "id_hotel")
+    @JoinColumn(name = "id_hotel", nullable = false)
     private HotelEntity hotel;
 
     private String tipo;
-    private BigDecimal precio_noche;
+
+    @Column(name = "precio_noche")
+    private BigDecimal precioNoche;
+
     private Integer capacidad;
 }
+

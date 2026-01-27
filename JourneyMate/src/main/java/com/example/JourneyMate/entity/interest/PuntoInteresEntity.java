@@ -14,12 +14,10 @@ public class PuntoInteresEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_punto")
     private Integer idPunto;
 
     private String ciudad;
     private String nombre;
-    private BigDecimal latitud;
     private String descripcion;
 
     @ManyToOne
@@ -29,3 +27,4 @@ public class PuntoInteresEntity {
     @OneToMany(mappedBy = "puntoInteres")
     private List<RutaPuntoInteresEntity> rutas;
 }
+

@@ -1,7 +1,7 @@
 package com.example.JourneyMate.controller.booking;
 
 import com.example.JourneyMate.external.flights.FlightStopDTO;
-import com.example.JourneyMate.service.booking.IBookingService;
+import com.example.JourneyMate.service.booking.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final IBookingService bookingService;
+    private final BookingService bookingService;
 
     // Endpoint: http://localhost:8080/api/v1/flights/summary
     @GetMapping("/summary")

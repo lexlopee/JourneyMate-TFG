@@ -25,5 +25,6 @@ public class TokenJWTEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-    private UsuarioEntity id_usuario;
+    private UsuarioEntity usuario;
+
 }

@@ -1,4 +1,4 @@
-package com.example.JourneyMate.service.prefence;
+package com.example.JourneyMate.service.preference;
 
 import com.example.JourneyMate.entity.preference.PreferenciaUsuarioEntity;
 

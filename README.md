@@ -11,7 +11,7 @@ La estructura del proyecto donde se encuentra el archivo 'docker-compose.yml' se
 - ├── pom.xml
 - ├── Dockerfile
 - └── docker-compose.yml
-  Todos antes de hacer commit tienen que hacer estos comandos si vamos a cambiar el código: 
+  - ¡Todos antes de hacer commit tienen que hacer estos comandos si vamos a cambiar el código!: 
   - Flujo de trabajo para desarrollar
      IMPORTANTE !!!  --> Cuando se cambia el código Java (controlador, servicio, repositorio,...)
      usar los siguientes comandos:

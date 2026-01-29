@@ -4,7 +4,21 @@
 Si hay Paginas Web en las cuales tenemos que iniciar sesion, lo suyo seria poner una cuenta conjunta o crear una cuenta para usarla solo para ello.
 
 # Ejecuccion del proyecto 
-mvn spring-boot:run
+La estructura del proyecto donde se encuentra el archivo 'docker-compose.yml' se ubica dentro del proyecto: 
+/JourneyMate
+- ├── src/
+- ├── target/
+- ├── pom.xml
+- ├── Dockerfile
+- └── docker-compose.yml
+  Todos antes de hacer commit tienen que hacer estos comandos si vamos a cambiar el código: 
+  - Flujo de trabajo para desarrollar
+     IMPORTANTE !!!  --> Cuando se cambia el código Java (controlador, servicio, repositorio,...)
+     usar los siguientes comandos:
+  - Compilar el backend, (abrir la terminal desde dentro de la carpeta del proyecto)
+       - comando --> mvn clean package -DskipTests
+  - Recontruit y arrancar Docker
+       - comando --> docker compose up --build (genera un .jar nuevo y Docker lo usa automáticamente)
 
 
 # Creacion de la Base de Datos

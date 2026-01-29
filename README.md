@@ -85,6 +85,23 @@ APIs de turismo
 - TripAdvisor API  (Reviews, lugares, actividades)
 - OpenTripMap (Lugares turísticos, POIs, mapas)
 - WikiVoyage API (Información turística abierta)
+Más APIs para utilizar
+APIs de motores de búsqueda o agencias de viajes
+- Kiwi (Tequila API) – motor de búsqueda de vuelos muy potente que combina rutas de muchas aerolíneas, incluso low-cost, y permite hacer búsquedas complejas de itinerarios.
+
+- Kayak API – API de búsqueda de vuelos, hoteles y coches (según algunas fuentes está disponible o a través de partners).
+
+- Expedia API – ofrece datos de vuelos y disponibilidad, parte de un ecosistema grande de viajes.
+
+APIs de distribución global (GDS) y proveedores algo más serios
+- Amadeus Flight APIs – muy usado en la industria, permite búsqueda de ofertas de vuelos, precios, etc. Tiene sandbox gratuito y cuotas mensuales.
+
+- Sabre APIs – otro GDS mundial que da acceso a datos de vuelos (schedules, tarifas, disponibilidad).
+
+APIs de datos de aviación (no tan comercial como SkyScanner)
+
+ datos de vuelos en tiempo real o rutas aunque no siempre tienen precios:
+- Aviationstack / AirLabs Data API – ofrecen datos de vuelos, aerolíneas, aeropuertos y del estado del vuelo (aunque no precios comerciales en todos los casos
 
 # Crear una cuenta de PayPal Developer
 https://developer.paypal.com 

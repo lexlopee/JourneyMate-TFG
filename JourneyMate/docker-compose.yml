@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: journey_db
+    environment:
+      POSTGRES_USER: journeymate_bbdd
+      POSTGRES_PASSWORD: journeymate-bbdd
+      POSTGRES_DB: journeymate-bbdd
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: journey_backend
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/journeymate-bbdd
+      SPRING_DATASOURCE_USERNAME: journeymate_bbdd
+      SPRING_DATASOURCE_PASSWORD: journeymate-bbdd
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

@@ -7,13 +7,13 @@ import java.util.List;
 public interface RutaService {
     List<RutaEntity> findByUsuarioIdUsuario(Integer idUsuario);
 
-    List<RutaEntity> findByAll();
+    List<RutaEntity> findAll();
 
-    RutaEntity findByUserId(Integer idUser);
+    RutaEntity findById(Integer idRuta);
 
     RutaEntity saveRuta(RutaEntity ruta);
 
-    void deleteByIdRuta(RutaEntity ruta);
+    void deleteBy(Integer idRuta);
 
 
 }

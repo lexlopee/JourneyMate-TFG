@@ -9,9 +9,9 @@ public interface PreferenciaUsuarioService {
 
     List<PreferenciaUsuarioEntity> finByAll();
 
-    PreferenciaUsuarioEntity findById(Integer idUsuario);
+    PreferenciaUsuarioEntity findById(Integer idPreferencia);
 
     PreferenciaUsuarioEntity save(PreferenciaUsuarioEntity preferenciaUsuario);
 
-    void deleteByHotelId(Integer idHotel);
+    void deleteByHotelId(Integer idPreferencia);
 }

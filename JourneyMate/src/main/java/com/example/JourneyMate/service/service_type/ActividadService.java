@@ -5,11 +5,11 @@ import com.example.JourneyMate.entity.service_type.ActividadEntity;
 import java.util.List;
 
 public interface ActividadService {
-    List<ActividadEntity> findByAll();
+    List<ActividadEntity> findAll();
 
     ActividadEntity findByIdActividad(Integer idActividad);
 
-    ActividadEntity saveActivadad(ActividadEntity actividad);
+    ActividadEntity saveActividad(ActividadEntity actividad);
 
     void deleteByIdActividad(Integer idActividad);
 

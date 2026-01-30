@@ -7,7 +7,7 @@ import java.util.List;
 public interface CruceroService {
     List<CruceroEntity> findAll();
 
-    CruceroEntity finByIdCrucero(Integer idCrucero);
+    CruceroEntity findByIdCrucero(Integer idCrucero);
 
     CruceroEntity save(CruceroEntity crucero);
 

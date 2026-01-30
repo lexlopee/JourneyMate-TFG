@@ -7,7 +7,7 @@ import java.util.List;
 public interface RutaPuntoInteresService {
     List<RutaPuntoInteresEntity> findByIdRutaOrderByOrden(Integer idRuta);
 
-    List<RutaPuntoInteresEntity> findByAll();
+    List<RutaPuntoInteresEntity> findAll();
 
     RutaPuntoInteresEntity findById(Integer idRuta);
 

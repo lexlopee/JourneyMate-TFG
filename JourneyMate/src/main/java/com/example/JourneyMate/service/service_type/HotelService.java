@@ -7,7 +7,7 @@ import java.util.List;
 public interface HotelService {
     List<HotelEntity> findByEstrellas(Integer estrellas);
 
-    List<HotelEntity> findByAll();
+    List<HotelEntity> findAll();
 
     HotelEntity findById(Integer idHotel);
 

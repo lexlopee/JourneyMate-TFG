@@ -11,5 +11,5 @@ public interface TipoElementoService {
 
     TipoElementoEntity save(TipoElementoEntity tipoElemento);
 
-    void deleteByIdTipoElemento(Integer idTipoElemento);
+    void deleteById(Integer idTipoElemento);
 }

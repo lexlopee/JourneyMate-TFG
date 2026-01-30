@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface RutaRepository extends JpaRepository<RutaEntity, Integer> {
-    List<RutaEntity> findByUsuarioIdUsuario(Integer idUsuario);
+    List<RutaEntity> findByUsuario_IdUsuario(Integer idUsuario);
 }

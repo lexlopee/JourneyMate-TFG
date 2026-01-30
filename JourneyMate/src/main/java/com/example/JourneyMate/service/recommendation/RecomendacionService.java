@@ -7,7 +7,7 @@ import java.util.List;
 public interface RecomendacionService {
     List<RecomendacionEntity> findByIdUsuario(Integer idUsuario);
 
-    List<RecomendacionEntity> findByAll();
+    List<RecomendacionEntity> findAll();
 
     RecomendacionEntity findById(Integer idRecomendacion);
 

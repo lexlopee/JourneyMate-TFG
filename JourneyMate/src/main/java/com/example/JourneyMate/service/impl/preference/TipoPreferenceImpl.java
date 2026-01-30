@@ -1,33 +1,38 @@
 package com.example.JourneyMate.service.impl.preference;
 
+import com.example.JourneyMate.dao.preference.TipoPreferenciaRepository;
 import com.example.JourneyMate.entity.preference.TipoPreferenciaEntity;
 import com.example.JourneyMate.service.preference.TipoPreferenciaService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 public class TipoPreferenceImpl implements TipoPreferenciaService {
-    @Override
-    public List<TipoPreferenciaEntity> findAll() {
-        return List.of();
-    }
+
+    @Autowired
+    private TipoPreferenciaRepository tipoPreferenciaRepository;
 
     @Override
+    public List<TipoPreferenciaEntity> findAll() {
+        return tipoPreferenciaRepository.findAll();
+    }
+    @Override
     public TipoPreferenciaEntity findById(Integer idTipoPreferencia) {
-        return null;
+        return tipoPreferenciaRepository.findById(idTipoPreferencia).orElse(null);
     }
 
     @Override
     public TipoPreferenciaEntity findByNombre(String nombre) {
-        return null;
+        return tipoPreferenciaRepository.findByName(nombre);
     }
 
     @Override
     public TipoPreferenciaEntity save(TipoPreferenciaEntity tipoPreferencia) {
-        return null;
+        return tipoPreferenciaRepository.save(tipoPreferencia);
     }
 
     @Override
     public void deleteById(Integer idTipoPreferencia) {
-
+        tipoPreferenciaRepository.deleteById(idTipoPreferencia);
     }
 }

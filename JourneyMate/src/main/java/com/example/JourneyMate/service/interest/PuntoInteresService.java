@@ -10,7 +10,7 @@ public interface PuntoInteresService {
 
     List<PuntoInteresEntity> findByCategoriaIdCategoria(Integer idCategoria);
 
-    List<PuntoInteresEntity> findByAll();
+    List<PuntoInteresEntity> findAll();
 
     PuntoInteresEntity findById(Integer idInteres);
 

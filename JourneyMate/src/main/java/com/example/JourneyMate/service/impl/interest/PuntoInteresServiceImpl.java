@@ -27,7 +27,7 @@ public class PuntoInteresServiceImpl implements PuntoInteresService {
     }
 
     @Override
-    public List<PuntoInteresEntity> findByAll() {
+    public List<PuntoInteresEntity> findAll() {
         return puntoInteresRepository.findAll();
     }
 

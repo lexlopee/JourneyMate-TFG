@@ -11,8 +11,8 @@ import java.util.List;
 @Service
 public class TipoReservaServiceImpl implements TipoReservaService {
 
-   @Autowired
-   private TipoReservaRepository tipoReservaRepository;
+    @Autowired
+    private TipoReservaRepository tipoReservaRepository;
 
     @Override
     public List<TipoReservaEntity> findAll() {

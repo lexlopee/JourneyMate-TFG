@@ -1,11 +1,14 @@
 package com.example.JourneyMate.service.impl.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
-import com.example.JourneyMate.service.transport.IFlightService;
+import com.example.JourneyMate.service.external.transport.IFlightService;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;

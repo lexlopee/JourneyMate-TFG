@@ -6,6 +6,7 @@ import com.example.JourneyMate.service.interest.CategoriaService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class CategoriaServiceImpl implements CategoriaService {
 

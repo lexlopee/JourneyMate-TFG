@@ -11,8 +11,8 @@ import java.util.List;
 @Service
 public class VTCServiceImpl implements VTCService {
 
-   @Autowired
-   private VTCRepository vtcRepository;
+    @Autowired
+    private VTCRepository vtcRepository;
 
     @Override
     public List<VTCEntity> findAll() {

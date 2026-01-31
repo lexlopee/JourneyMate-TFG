@@ -6,7 +6,7 @@ import com.example.JourneyMate.entity.service_type.VueloEntity;
 
 public class VueloMapper {
 
-    public static VueloEntity toEntity(VueloRequestDTO dto){
+    public static VueloEntity toEntity(VueloRequestDTO dto) {
         VueloEntity entity = new VueloEntity();
         entity.setCompañia(dto.getCompañia());
         entity.setFechaSalida(dto.getFechaSalida());
@@ -15,7 +15,8 @@ public class VueloMapper {
         entity.setDestino(dto.getDestino());
         return entity;
     }
-    public static VueloResponseDTO toDTO(VueloEntity entity){
+
+    public static VueloResponseDTO toDTO(VueloEntity entity) {
         VueloResponseDTO dto = new VueloResponseDTO();
         dto.setIdServicio(entity.getIdServicio());
         dto.setCompañia(entity.getCompañia());

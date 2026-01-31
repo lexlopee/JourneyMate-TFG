@@ -7,16 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class RecomendacionServiceImpl implements RecomendacionService {
 
-   @Autowired
-   private RecomendacionRepository recommendacionRepository;
+    @Autowired
+    private RecomendacionRepository recommendacionRepository;
 
     @Override
     public List<RecomendacionEntity> findByIdUsuario(Integer idUsuario) {
         return recommendacionRepository.findByIdUsuario(idUsuario);
     }
+
     @Override
     public List<RecomendacionEntity> findAll() {
         return recommendacionRepository.findAll();

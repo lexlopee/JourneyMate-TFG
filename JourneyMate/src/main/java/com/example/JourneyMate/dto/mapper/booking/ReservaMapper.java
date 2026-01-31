@@ -2,11 +2,11 @@ package com.example.JourneyMate.dto.mapper.booking;
 
 import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.dto.reserva.ReservaResponseDTO;
+import com.example.JourneyMate.entity.booking.EstadoEntity;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
+import com.example.JourneyMate.entity.booking.TipoReservaEntity;
 import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
 import com.example.JourneyMate.entity.user.UsuarioEntity;
-import com.example.JourneyMate.entity.booking.EstadoEntity;
-import com.example.JourneyMate.entity.booking.TipoReservaEntity;
 
 public class ReservaMapper {
 

@@ -1,6 +1,7 @@
 package com.example.JourneyMate.dto.reserva;
 
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

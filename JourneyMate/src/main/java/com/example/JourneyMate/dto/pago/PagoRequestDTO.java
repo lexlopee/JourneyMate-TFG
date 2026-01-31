@@ -1,6 +1,7 @@
 package com.example.JourneyMate.dto.pago;
 
 import lombok.Data;
+
 import java.time.LocalDate;
 
 @Data

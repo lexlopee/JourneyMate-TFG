@@ -13,8 +13,8 @@ import java.util.Optional;
 @Service
 public class ReservaServiceImpl implements ReservaService {
 
-   @Autowired
-   private ReservaRepository reservaRepository;
+    @Autowired
+    private ReservaRepository reservaRepository;
 
     @Override
     public List<ReservaEntity> findAll() {

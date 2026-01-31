@@ -1,17 +1,20 @@
-package com.example.JourneyMate.controller.transport;
+package com.example.JourneyMate.controller.external.transport;
 
 import com.example.JourneyMate.external.cruises.CruiseDTO;
-import com.example.JourneyMate.service.transport.ICruiseService;
+import com.example.JourneyMate.service.external.transport.ICruiseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cruises")
 @RequiredArgsConstructor
-public class CruiseController {
+public class ExternalCruiseController {
 
     private final ICruiseService cruiseService;
 

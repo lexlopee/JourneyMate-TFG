@@ -26,7 +26,7 @@ public class RutaServiceImpl implements RutaService {
 
     @Override
     public RutaEntity findById(Integer idRuta) {
-        return rutaRepository.findById(idRuta) .orElse(null);
+        return rutaRepository.findById(idRuta).orElse(null);
     }
 
     @Override

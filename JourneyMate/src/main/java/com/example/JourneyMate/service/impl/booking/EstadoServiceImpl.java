@@ -34,7 +34,7 @@ public class EstadoServiceImpl implements EstadoService {
     public EstadoEntity actualizar(Integer idEstado, EstadoEntity estado) {
         Optional<EstadoEntity> existente = estadoRepository.findById(idEstado);
 
-        if (existente.isEmpty()){
+        if (existente.isEmpty()) {
             return null;
         }
         estado.setIdEstado(idEstado);

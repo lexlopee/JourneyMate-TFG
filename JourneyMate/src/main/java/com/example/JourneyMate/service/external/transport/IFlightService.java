@@ -1,6 +1,7 @@
-package com.example.JourneyMate.service.transport;
+package com.example.JourneyMate.service.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
+
 import java.util.List;
 
 public interface IFlightService {

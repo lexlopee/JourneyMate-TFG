@@ -11,8 +11,8 @@ import java.util.List;
 @Service
 public class TrenServiceImpl implements TrenService {
 
-   @Autowired
-   private TrenRepository trenRepository;
+    @Autowired
+    private TrenRepository trenRepository;
 
     @Override
     public List<TrenEntity> findAll() {

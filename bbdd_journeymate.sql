@@ -1,5 +1,5 @@
 --DROP SCHEMA IF EXISTS journeymate CASCADE;
-CREATE SCHEMA journeymate AUTHORIZATION journeymate_bbdd;
+--CREATE SCHEMA journeymate AUTHORIZATION journeymate_bbdd;
 
 
 -- Creación de la Tabla CATEGORIA

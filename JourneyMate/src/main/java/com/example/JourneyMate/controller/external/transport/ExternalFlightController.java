@@ -1,17 +1,20 @@
-package com.example.JourneyMate.controller.transport;
+package com.example.JourneyMate.controller.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
-import com.example.JourneyMate.service.transport.IFlightService;
+import com.example.JourneyMate.service.external.transport.IFlightService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/flights")
 @RequiredArgsConstructor
-public class FlightController {
+public class ExternalFlightController {
 
     private final IFlightService flightService;
 

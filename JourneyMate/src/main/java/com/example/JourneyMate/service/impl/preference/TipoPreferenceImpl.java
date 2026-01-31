@@ -16,6 +16,7 @@ public class TipoPreferenceImpl implements TipoPreferenciaService {
     public List<TipoPreferenciaEntity> findAll() {
         return tipoPreferenciaRepository.findAll();
     }
+
     @Override
     public TipoPreferenciaEntity findById(Integer idTipoPreferencia) {
         return tipoPreferenciaRepository.findById(idTipoPreferencia).orElse(null);

@@ -1,6 +1,5 @@
 package com.example.JourneyMate.service.impl.service_type;
 
-import com.example.JourneyMate.dao.service.ServicioTuristicoRepository;
 import com.example.JourneyMate.dao.service_type.ApartamentoRepository;
 import com.example.JourneyMate.entity.service_type.ApartamentoEntity;
 import com.example.JourneyMate.service.service_type.ApartamentoService;

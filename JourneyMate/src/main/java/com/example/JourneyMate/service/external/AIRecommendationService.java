@@ -18,11 +18,9 @@ public class AIRecommendationService {
     public String getRecommendation(String preferencia, String presupuesto) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // Creamos el mensaje para la IA (El Prompt)
         String prompt = "Actúa como experto en viajes. El usuario busca un viaje " + preferencia +
                 " con presupuesto " + presupuesto + ". Recomienda un destino y 3 actividades brevemente.";
 
-        // Estructura necesaria para la API de Google
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(
                         Map.of("parts", List.of(
@@ -32,17 +30,19 @@ public class AIRecommendationService {
         );
 
         try {
-            String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=";
+            String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=";
+
             ResponseEntity<JsonNode> response = restTemplate.postForEntity(
                     GEMINI_URL + apiKey, requestBody, JsonNode.class);
 
-            // Extraemos el texto de la respuesta de la IA
+            assert response.getBody() != null;
             return response.getBody()
                     .path("candidates").get(0)
                     .path("content").path("parts").get(0)
                     .path("text").asText();
         } catch (Exception e) {
-            return "Lo siento, la IA está pensando en su próximo viaje. Inténtalo más tarde.";
+            System.err.println("Error llamando a Gemini: " + e.getMessage());
+            return "Error técnico: " + e.getMessage();
         }
     }
 }

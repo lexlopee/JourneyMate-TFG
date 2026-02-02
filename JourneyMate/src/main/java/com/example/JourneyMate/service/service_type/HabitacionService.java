@@ -14,7 +14,7 @@ public interface HabitacionService {
 
     void deleteById(Integer idHabitacion);
 
-    List<HabitacionEntity> findByHotelIdServicio(Integer idHotel);
+    List<HabitacionEntity> findByHotel_IdServicio(Integer idHotel);
 
     List<HabitacionEntity> findByCapacidadGreaterThanEqual(Integer capacidad);
 }

@@ -35,8 +35,9 @@ public class HabitacionServiceImpl implements HabitacionService {
     }
 
     @Override
-    public List<HabitacionEntity> findByHotelIdServicio(Integer idHotel) {
-        return habitacionRepository.findByHotel_IdHotel(idHotel);
+    public List<HabitacionEntity> findByHotel_IdServicio(Integer idHotel)
+    {
+        return habitacionRepository.findByHotel_IdServicio(idHotel);
     }
 
     @Override

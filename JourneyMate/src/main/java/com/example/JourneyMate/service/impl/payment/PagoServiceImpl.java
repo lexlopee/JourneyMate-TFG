@@ -16,7 +16,7 @@ public class PagoServiceImpl implements PagoService {
 
     @Override
     public List<PagoEntity> findByReservaIdReserva(Integer idReserva) {
-        return pagoRepository.findByReservaIdReserva(idReserva);
+        return pagoRepository.findByReserva_IdReserva(idReserva);
     }
 
     @Override
@@ -31,12 +31,12 @@ public class PagoServiceImpl implements PagoService {
 
     @Override
     public List<PagoEntity> findByHotelId(Integer idHotel) {
-        return pagoRepository.findByReserva_Hotel_IdHotel(idHotel);
+        return pagoRepository.findPagosByHotel(idHotel);
     }
 
     @Override
     public List<PagoEntity> findByHotelId(Integer idHotel, Integer idReserva, Integer idServicio) {
-        return pagoRepository.findByReserva_Hotel_IdHotelAndReserva_IdReservaAndReserva_Servicio_IdServicio(idHotel, idReserva, idServicio);
+        return pagoRepository.findPagosHotelCompleto(idHotel, idReserva, idServicio);
     }
 
     @Override
@@ -46,6 +46,6 @@ public class PagoServiceImpl implements PagoService {
 
     @Override
     public void deleteByHotelId(Integer idHotel) {
-        pagoRepository.deleteByReserva_Hotel_IdHotel(idHotel);
+        pagoRepository.deletePagosByHotel(idHotel);
     }
 }

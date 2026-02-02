@@ -52,7 +52,7 @@ public class HabitacionController {
     // 🔍 Filtro: habitaciones por hotel
     @GetMapping("/hotel/{idHotel}")
     public ResponseEntity<List<HabitacionEntity>> findByHotel(@PathVariable Integer idHotel) {
-        return ResponseEntity.ok(habitacionService.findByHotelIdServicio(idHotel));
+        return ResponseEntity.ok(habitacionService.findByHotel_IdServicio(idHotel));
     }
 
     // 🔍 Filtro: habitaciones por capacidad mínima

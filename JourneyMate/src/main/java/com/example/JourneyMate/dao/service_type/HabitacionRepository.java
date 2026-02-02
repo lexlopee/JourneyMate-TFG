@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface HabitacionRepository extends JpaRepository<HabitacionEntity, Integer> {
 
-    List<HabitacionEntity> findByHotel_IdHotel(Integer idHotel);
+    List<HabitacionEntity> findByHotel_IdServicio(Integer idHotel);
 
     List<HabitacionEntity> findByCapacidadGreaterThanEqual(Integer capacidad);
 }

@@ -5,6 +5,7 @@ import com.example.JourneyMate.entity.payment.PagoEntity;
 import java.util.List;
 
 public interface PagoService {
+
     List<PagoEntity> findByReservaIdReserva(Integer idReserva);
 
     List<PagoEntity> findById(Integer idPago);

@@ -7,9 +7,9 @@ services:
     environment:
       POSTGRES_USER: journeymate_bbdd
       POSTGRES_PASSWORD: journeymate-bbdd
-      POSTGRES_DB: journeymate-bbdd
+      POSTGRES_DB: journeymate_bbdd
     ports:
-      - "15432:5432"
+      - "15433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/journeymate-bbdd
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/journeymate_bbdd
       SPRING_DATASOURCE_USERNAME: journeymate_bbdd
       SPRING_DATASOURCE_PASSWORD: journeymate-bbdd
     ports:
@@ -27,3 +27,4 @@ services:
 
 volumes:
   postgres_data:
+

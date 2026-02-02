@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
-   @Autowired
-   private UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public Optional<UsuarioEntity> findByEmail(String email) {

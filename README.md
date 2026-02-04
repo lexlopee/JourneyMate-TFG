@@ -4,21 +4,37 @@
 Si hay Paginas Web en las cuales tenemos que iniciar sesion, lo suyo seria poner una cuenta conjunta o crear una cuenta para usarla solo para ello.
 
 # Ejecuccion del proyecto 
-La estructura del proyecto donde se encuentra el archivo 'docker-compose.yml' se ubica dentro del proyecto: 
-/JourneyMate
-- ├── src/
-- ├── target/
-- ├── pom.xml
-- ├── Dockerfile
-- └── docker-compose.yml
-  - ¡Todos antes de hacer commit tienen que hacer estos comandos si vamos a cambiar el código!: 
-  - Flujo de trabajo para desarrollar
-     IMPORTANTE !!!  --> Cuando se cambia el código Java (controlador, servicio, repositorio,...)
-     usar los siguientes comandos:
-  - Compilar el backend, (abrir la terminal desde dentro de la carpeta del proyecto)
-       - comando --> mvn clean package -DskipTests
-  - Recontruit y arrancar Docker
-       - comando --> docker compose up --build (genera un .jar nuevo y Docker lo usa automáticamente)
+Para ejecutar la base de datos y arrancar el backend hay que utilizar los siguientes comandos: 
+- cd JourneyMate
+- docker compose up -d
+- cd ..
+
+Insatalar las dependencias para que funcione
+Frontend Web (React + Vite)
+- cd journeymate-frontend
+- npm install
+arrancar con:
+- npm run dev
+
+Aplicación Móvil (Flutter – Android)
+Requisitos
+- Android Studio instalado
+- Un emulador Android creado
+- El emulador debe estar encendido
+  - Comandos:
+  - flutter devices
+    Arrancar app movil prueba
+  - cd journeymate_mobile
+  - flutter run -d android
+    
+Probar la API con Postman
+Para probar la API REST:
+1. Arrancar backend
+- cd JourneyMate
+  docker compose up -d
+  cd ..
+  
+Si se utiliza Windows hay que darle permisos de Ejecucion a los .bat (NO LOS TIENE)
 
 
 # Creacion de la Base de Datos
@@ -32,6 +48,19 @@ Iniciamos el Android Studio y nos dirigimos al apartado de Plugins y le tenemos 
 
 <img width="780" height="645" alt="image" src="https://github.com/user-attachments/assets/170fc577-ae28-444f-8074-d592fce63a84" />
 
+En Windows
+Instalas Flutter así:
+
+Descargas Flutter SDK desde la web oficial  --> https://flutter.dev/ 
+
+Lo descomprimes en C:\src\flutter
+
+Añades C:\src\flutter\bin al PATH
+
+Reinicias PowerShell o CMD
+
+Compruebas:
+    flutter --version
 
 # Instalacion de Postamn
 1. En el navegador ir a la pagina oficial de Postman

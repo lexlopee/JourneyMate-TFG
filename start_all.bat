@@ -15,5 +15,6 @@ cd ..
 
 echo Arrancando Flutter en Android...
 cd journeymate_mobile
-flutter run -d android
+flutter run -d emulator-5554 &
 cd ..
+

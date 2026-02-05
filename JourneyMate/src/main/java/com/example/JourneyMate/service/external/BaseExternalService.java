@@ -15,7 +15,7 @@ public abstract class BaseExternalService {
         this.restTemplate = restTemplate;
     }
 
-    // Este método centraliza la lógica duplicada de red y cabeceras
+    // Este metodo centraliza la lógica duplicada de red y cabeceras
     protected JsonNode executeGetRequest(String url, String apiKey, String apiHost) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-rapidapi-key", apiKey);

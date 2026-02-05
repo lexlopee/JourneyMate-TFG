@@ -1,10 +1,13 @@
 package com.example.JourneyMate.controller.auth;
 
+import com.example.JourneyMate.dto.auth.AuthResponse;
 import com.example.JourneyMate.dto.auth.LoginRequest;
 import com.example.JourneyMate.dto.auth.RegisterRequest;
-import com.example.JourneyMate.dto.auth.AuthResponse;
 import com.example.JourneyMate.service.auth.AuthService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")

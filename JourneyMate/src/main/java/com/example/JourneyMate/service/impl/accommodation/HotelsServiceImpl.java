@@ -1,8 +1,8 @@
 package com.example.JourneyMate.service.impl.accommodation;
 
 import com.example.JourneyMate.external.accommodations.HotelDTO;
-import com.example.JourneyMate.service.external.accommodation.IHotelService;
 import com.example.JourneyMate.service.external.BaseExternalService;
+import com.example.JourneyMate.service.external.accommodation.IHotelService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

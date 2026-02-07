@@ -1,5 +1,5 @@
 # Esperar a que Vite genere el archivo con el puerto
-$portFile = "journeymate-frontend/.vite/port.json"
+$portFile = "../JourneyMate/journeymate-frontend/.vite/port.json"
 
 Write-Host "Esperando a que Vite genere el puerto..."
 

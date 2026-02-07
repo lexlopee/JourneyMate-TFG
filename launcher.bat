@@ -25,45 +25,31 @@ goto menu
 
 :web
 call :stop_silent
-start "" cmd /k "call start_web.bat"
+start "" cmd /k "call scripts\windows\start_web.bat"
 goto menu
 
 :movil
 call :stop_silent
-start "" cmd /k "call start_mobile.bat"
+start "" cmd /k "call scripts\windows\start_mobile.bat"
 goto menu
 
 :todo
 call :stop_silent
-start "" cmd /k "call start_all.bat"
+start "" cmd /k "call scripts\windows\start_all.bat"
 goto menu
 
 :stop
 call :stop_silent
-echo Servicios detenidos correctamente.
+echo Servicios detenidos.
 timeout /t 1 >nul
 goto menu
 
 :stop_silent
-echo Cerrando procesos anteriores...
-
-REM Cerrar Vite
 taskkill /IM node.exe /F >nul 2>&1
-
-REM Cerrar Flutter
 taskkill /IM dart.exe /F >nul 2>&1
 taskkill /IM flutter.exe /F >nul 2>&1
-
-REM Cerrar emulador Android
 taskkill /IM qemu-system-x86_64.exe /F >nul 2>&1
-
-REM Parar Docker
-cd JourneyMate
-docker compose down >nul 2>&1
-cd ..
-
 exit /b
 
 :salir
-echo Saliendo del launcher. Hasta luego!
 exit

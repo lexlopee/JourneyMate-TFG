@@ -1,16 +1,13 @@
 @echo off
+REM Cambiar al directorio donde está este script
+cd /d "%~dp0"
+
 echo ============================================
-echo   Iniciando entorno de desarrollo JourneyMate
+echo   Iniciando entorno MOVIL JourneyMate
 echo ============================================
 
 echo.
-echo [1/3] Arrancando Docker Desktop...
-start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-timeout /t 5 >nul
-
-
-echo.
-echo [2/3] Detectando emulador Android...
+echo [1/3] Detectando emulador Android...
 
 set EMULATOR="%LOCALAPPDATA%\Android\Sdk\emulator\emulator.exe"
 
@@ -27,13 +24,12 @@ if "%AVD%"=="" (
 )
 
 echo Emulador encontrado: %AVD%
-echo Iniciando emulador...
-start "" %EMULATOR% -avd %AVD% -netdelay none -netspeed full
+start "" %EMULATOR% -avd %AVD%
 
-echo Esperando a que el emulador se conecte...
+echo.
+echo [2/3] Esperando a que el emulador arranque...
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
 
-echo Esperando a que Android termine de arrancar...
 :bootcheck
 for /f "tokens=1" %%b in ('"%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" shell getprop sys.boot_completed') do (
     if "%%b"=="1" goto bootdone
@@ -46,9 +42,7 @@ echo Android arrancado correctamente.
 
 echo.
 echo [3/3] Ejecutando Flutter...
-cd journeymate_mobile
-call flutter run
+cd ..\..\journeymate_mobile
+start "" cmd /k "flutter run -d emulator-5554"
 
-cd ..
-echo Proyecto cerrado. Volviendo a la carpeta original.
-pause
+exit

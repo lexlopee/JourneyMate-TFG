@@ -1,27 +1,16 @@
 @echo off
+cd /d "%~dp0"
+
 echo ============================================
 echo   Iniciando TODO el entorno JourneyMate
 echo ============================================
+echo.
+
+echo [1/4] Arrancando WEB (Vite)...
+start "" cmd /k "cd ..\..\journeymate-frontend && npm run dev"
 
 echo.
-echo [1/6] Arrancando Docker Desktop...
-start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-timeout /t 5 >nul
-
-echo.
-echo [2/6] Arrancando contenedores Docker...
-cd JourneyMate
-docker compose up -d
-cd ..
-
-echo.
-echo [3/6] Arrancando React (Vite) en nueva terminal...
-cd journeymate-frontend
-start "" cmd /k "npm run dev"
-cd ..
-
-echo.
-echo [4/6] Abriendo navegador cuando Vite esté listo...
+echo [2/4] Esperando a que Vite esté disponible...
 
 :wait_port
 powershell -command "(Invoke-WebRequest -Uri http://localhost:5173 -UseBasicParsing -TimeoutSec 1) >$null 2>&1"
@@ -30,10 +19,11 @@ if %errorlevel% neq 0 (
     goto wait_port
 )
 
+echo Vite está listo. Abriendo navegador...
 start "" http://localhost:5173
 
 echo.
-echo [5/6] Arrancando emulador Android...
+echo [3/4] Arrancando emulador Android...
 
 set EMULATOR="%LOCALAPPDATA%\Android\Sdk\emulator\emulator.exe"
 
@@ -49,13 +39,11 @@ if "%AVD%"=="" (
     exit /b
 )
 
-echo Emulador encontrado: %AVD%
-start "" %EMULATOR% -avd %AVD% -netdelay none -netspeed full
+start "" %EMULATOR% -avd %AVD%
 
-echo Esperando a que el emulador se conecte...
+echo Esperando a que el emulador arranque...
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
 
-echo Esperando a que Android termine de arrancar...
 :bootcheck
 for /f "tokens=1" %%b in ('"%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" shell getprop sys.boot_completed') do (
     if "%%b"=="1" goto bootdone
@@ -67,10 +55,7 @@ goto bootcheck
 echo Android arrancado correctamente.
 
 echo.
-echo [6/6] Ejecutando Flutter en Android en nueva terminal...
-start "" cmd /k "cd journeymate_mobile && flutter run -d emulator-5554"
+echo [4/4] Ejecutando Flutter en nueva terminal...
+start "" cmd /k "cd ..\..\journeymate_mobile && flutter run -d emulator-5554"
 
-echo.
-echo ============================================
-echo   TODO el entorno está arrancado correctamente
-echo ============================================
+exit

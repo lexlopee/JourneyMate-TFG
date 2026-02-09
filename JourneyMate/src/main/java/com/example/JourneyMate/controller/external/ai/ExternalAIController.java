@@ -1,4 +1,4 @@
-package com.example.JourneyMate.controller.external;
+package com.example.JourneyMate.controller.external.ai;
 
 import com.example.JourneyMate.service.external.AIRecommendationService;
 import lombok.RequiredArgsConstructor;

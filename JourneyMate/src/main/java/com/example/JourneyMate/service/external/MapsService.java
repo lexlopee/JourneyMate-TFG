@@ -48,13 +48,15 @@ public class MapsService extends BaseExternalService {
         // Conversión segura eliminando "Unchecked cast" warnings
         List<Map<String, Object>> predictions = objectMapper.convertValue(
                 response.get("predictions"),
-                new TypeReference<List<Map<String, Object>>>() {}
+                new TypeReference<List<Map<String, Object>>>() {
+                }
         );
 
         return predictions.stream().map(p -> {
             Map<String, Object> structured = objectMapper.convertValue(
                     p.get("structured_formatting"),
-                    new TypeReference<Map<String, Object>>() {}
+                    new TypeReference<Map<String, Object>>() {
+                    }
             );
 
             return MapPredictionDTO.builder()

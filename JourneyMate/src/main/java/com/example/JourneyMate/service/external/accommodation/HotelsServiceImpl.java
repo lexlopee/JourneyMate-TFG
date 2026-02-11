@@ -1,8 +1,7 @@
-package com.example.JourneyMate.service.impl.accommodation;
+package com.example.JourneyMate.service.external.accommodation;
 
 import com.example.JourneyMate.external.accommodations.HotelDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
-import com.example.JourneyMate.service.external.accommodation.IHotelService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,9 +17,6 @@ public class HotelsServiceImpl extends BaseExternalService implements IHotelServ
     @Value("${rapidapi.key}")
     private String apiKey;
 
-    @Value("${booking.hotels.url}") // Usamos la URL de hoteles
-    private String apiUrl;
-
     @Value("${booking.api.host}")
     private String apiHost;
 
@@ -34,7 +30,7 @@ public class HotelsServiceImpl extends BaseExternalService implements IHotelServ
                                        Integer pageNo, String currencyCode) {
 
         // Construcción de la URL con los parámetros específicos de la doc de hoteles
-        String url = UriComponentsBuilder.fromHttpUrl(apiUrl)
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels")
                 .queryParam("dest_id", destId)
                 .queryParam("search_type", searchType != null ? searchType : "CITY")
                 .queryParam("arrival_date", checkinDate)
@@ -70,13 +66,11 @@ public class HotelsServiceImpl extends BaseExternalService implements IHotelServ
                 .queryParam("query", query)
                 .toUriString();
 
-        // Reutilizamos tu metodo heredado para hacer la petición
         JsonNode response = executeGetRequest(url, apiKey, apiHost);
 
         if (response != null && response.path("status").asBoolean()) {
             JsonNode data = response.path("data");
             if (data.isArray() && !data.isEmpty()) {
-                // Retornamos el dest_id del primer resultado (el más relevante)
                 return data.get(0).path("dest_id").asText();
             }
         }

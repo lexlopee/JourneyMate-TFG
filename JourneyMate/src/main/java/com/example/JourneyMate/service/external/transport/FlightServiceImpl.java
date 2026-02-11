@@ -1,8 +1,7 @@
-package com.example.JourneyMate.service.impl.transport;
+package com.example.JourneyMate.service.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
-import com.example.JourneyMate.service.external.transport.IFlightService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,11 +20,16 @@ public class FlightServiceImpl extends BaseExternalService implements IFlightSer
     @Value("${booking.api.host}")
     private String apiHost;
 
-    @Value("${booking.flights.url}")
-    private String flightsUrl;
-
     public FlightServiceImpl(RestTemplate restTemplate) {
         super(restTemplate);
+    }
+
+    @Override
+    public JsonNode searchLocation(String query) {
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/flights/searchDestination")
+                .queryParam("query", query).toUriString();
+
+        return executeGetRequest(url, apiKey, apiHost);
     }
 
     @Override
@@ -33,7 +37,7 @@ public class FlightServiceImpl extends BaseExternalService implements IFlightSer
                                          String stops, Integer pageNo, Integer adults, String childrenAge,
                                          String sort, String cabinClass, String currencyCode) {
 
-        String url = UriComponentsBuilder.fromHttpUrl(flightsUrl)
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/flights/searchFlights")
                 .queryParam("fromId", fromId)
                 .queryParam("toId", toId)
                 .queryParam("departDate", departDate)

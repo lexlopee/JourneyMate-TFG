@@ -7,11 +7,10 @@ import java.util.Map;
 
 public interface IActivityService {
 
-    // Devolvemos una lista de mapas para evitar crear un DTO de localización
-    List<Map<String, String>> searchLocation(String query, String languageCode);
+    List<Map<String, String>> searchLocation(String query);
 
     List<ActivityDTO> searchActivities(
-            String id, // El ID de destino
+            String id,
             String startDate,
             String endDate,
             String sortBy,

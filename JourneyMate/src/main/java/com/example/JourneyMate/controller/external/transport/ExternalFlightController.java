@@ -2,6 +2,7 @@ package com.example.JourneyMate.controller.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
 import com.example.JourneyMate.service.external.transport.IFlightService;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,11 @@ import java.util.List;
 public class ExternalFlightController {
 
     private final IFlightService flightService;
+
+    @GetMapping("/location")
+    public ResponseEntity<JsonNode> searchLocation(@RequestParam String query) {
+        return ResponseEntity.ok(flightService.searchLocation(query));
+    }
 
     @GetMapping("/search")
     public ResponseEntity<List<FlightDTO>> searchFlights(

@@ -13,9 +13,7 @@ start "" %EMULATOR% -avd %AVD%
 
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
 
-cd /d "C:\Projects\JourneyMate-TFG\journeymate_mobile"
+cd /d "%~dp0..\..\..\..\journeymate_mobile"
 
-REM Flutter necesita terminal, pero la minimizamos
 start "" /min cmd /k "flutter run -d emulator-5554"
-
 exit

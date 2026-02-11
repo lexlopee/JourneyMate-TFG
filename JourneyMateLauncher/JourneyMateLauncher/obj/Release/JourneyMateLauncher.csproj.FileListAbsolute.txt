@@ -1,7 +1,3 @@
-C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\scripts\windows\launcher.bat
-C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\scripts\windows\start_all.bat
-C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\scripts\windows\start_mobile.bat
-C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\scripts\windows\start_web.bat
 C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\JourneyMateLauncher.exe.config
 C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\JourneyMateLauncher.exe
 C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Release\JourneyMateLauncher.pdb

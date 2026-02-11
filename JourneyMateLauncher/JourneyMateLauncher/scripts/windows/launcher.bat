@@ -1,7 +1,5 @@
 @echo off
 
-echo Cerrando todos los servicios y terminales...
-
 taskkill /IM node.exe /F >nul 2>&1
 taskkill /IM java.exe /F >nul 2>&1
 taskkill /IM mvn.cmd /F >nul 2>&1

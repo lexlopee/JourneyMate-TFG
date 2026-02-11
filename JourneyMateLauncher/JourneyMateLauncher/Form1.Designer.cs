@@ -41,7 +41,7 @@
             this.btnWeb.Name = "btnWeb";
             this.btnWeb.Size = new System.Drawing.Size(213, 38);
             this.btnWeb.TabIndex = 0;
-            this.btnWeb.Text = "Arranzar Web";
+            this.btnWeb.Text = "Arrancar Web";
             this.btnWeb.UseVisualStyleBackColor = true;
             this.btnWeb.Click += new System.EventHandler(this.btnWeb_Click);
             // 

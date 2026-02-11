@@ -75,18 +75,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="scripts\windows\launcher.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="scripts\windows\start_all.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="scripts\windows\start_mobile.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="scripts\windows\start_web.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="scripts\windows\launcher.bat" />
+    <None Include="scripts\windows\start_all.bat" />
+    <None Include="scripts\windows\start_mobile.bat" />
+    <None Include="scripts\windows\start_web.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

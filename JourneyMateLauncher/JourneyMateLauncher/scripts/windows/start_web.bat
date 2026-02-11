@@ -1,10 +1,8 @@
 @echo off
 echo Iniciando WEB JourneyMate...
 
-REM Ir al proyecto frontend
-cd /d "C:\Projects\JourneyMate-TFG\journeymate-frontend"
+cd /d "%~dp0..\..\..\..\journeymate-frontend"
 
-REM Ejecutar Vite en una terminal minimizada
 start "" /min cmd /k "npm run dev"
 
 echo Esperando a que Vite arranque...
@@ -16,7 +14,5 @@ if %errorlevel% neq 0 (
     goto wait_port
 )
 
-echo Vite está listo. Abriendo navegador...
 start "" http://localhost:5173
-
 exit

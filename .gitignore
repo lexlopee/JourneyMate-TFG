@@ -45,6 +45,8 @@ out/
 ### --- VS CODE ---
 .vscode/
 *.code-workspace
+.vs/
+
 
 ### --- SISTEMA ---
 .DS_Store

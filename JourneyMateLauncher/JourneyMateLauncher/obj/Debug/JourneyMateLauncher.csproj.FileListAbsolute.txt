@@ -1,0 +1,15 @@
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\scripts\windows\launcher.bat
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\scripts\windows\start_all.bat
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\scripts\windows\start_mobile.bat
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\scripts\windows\start_web.bat
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\JourneyMateLauncher.exe.config
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\JourneyMateLauncher.exe
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\bin\Debug\JourneyMateLauncher.pdb
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.csproj.AssemblyReference.cache
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.Form1.resources
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.Properties.Resources.resources
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.csproj.GenerateResource.cache
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.csproj.CoreCompileInputs.cache
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.exe
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.pdb
+C:\Projects\JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\obj\Debug\JourneyMateLauncher.exe.config

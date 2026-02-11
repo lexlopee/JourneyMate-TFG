@@ -7,11 +7,11 @@ echo ============================================
 echo.
 
 echo [1/3] Entrando en el proyecto frontend...
-cd ..\..\journeymate-frontend
+cd /d "C:\Projects\JourneyMate-TFG\journeymate-frontend"
 
 echo.
 echo [2/3] Arrancando React (Vite)...
-start "" cmd /k "npm run dev"
+start "" /min cmd /k "npm run dev"
 
 echo.
 echo [3/3] Esperando a que Vite esté disponible...

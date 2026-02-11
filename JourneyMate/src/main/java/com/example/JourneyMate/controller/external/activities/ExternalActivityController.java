@@ -18,36 +18,27 @@ public class ExternalActivityController {
     private final IActivityService activityService;
 
     /**
-     * PASO 1: Buscar la ubicación para obtener el ID de destino.
-     * Ejemplo: GET /api/v1/activities/location?query=Madrid
+     * PASO 1: Buscar la ubicación para obtener el ID de destino (UFI).
      */
     @GetMapping("/location")
-    public ResponseEntity<List<Map<String, String>>> getLocation(
-            @RequestParam String query,
-            @RequestParam(required = false, defaultValue = "es") String languageCode) {
-
-        List<Map<String, String>> locations = activityService.searchLocation(query, languageCode);
-        return ResponseEntity.ok(locations);
+    public ResponseEntity<List<Map<String, String>>> getLocation(@RequestParam String query) {
+        return ResponseEntity.ok(activityService.searchLocation(query));
     }
 
     /**
-     * PASO 2: Buscar actividades usando el ID obtenido en el paso anterior.
-     * Ejemplo: GET /api/v1/activities/search?id=eyJ1ZmkiOi0zOTA2MjV9
+     * PASO 2: Buscar actividades usando el ID obtenido (UFI).
      */
     @GetMapping("/search")
     public ResponseEntity<List<ActivityDTO>> searchActivities(
             @RequestParam String id,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
-            @RequestParam(required = false, defaultValue = "trending") String sortBy,
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "EUR") String currencyCode,
-            @RequestParam(required = false, defaultValue = "es") String languageCode,
-            @RequestParam(required = false) String typeFilters) {
+            @RequestParam(defaultValue = "trending") String sortBy,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "EUR") String currencyCode) {
 
-        List<ActivityDTO> activities = activityService.searchActivities(
-                id, startDate, endDate, sortBy, page, currencyCode, languageCode, typeFilters
-        );
-        return ResponseEntity.ok(activities);
+        return ResponseEntity.ok(activityService.searchActivities(
+                id, startDate, endDate, sortBy, page, currencyCode, "es", null
+        ));
     }
 }

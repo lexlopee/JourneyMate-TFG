@@ -1,8 +1,7 @@
-package com.example.JourneyMate.service.impl.transport;
+package com.example.JourneyMate.service.external.transport;
 
 import com.example.JourneyMate.external.cars.CarDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
-import com.example.JourneyMate.service.external.transport.ICarService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,21 +22,16 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
     @Value("${booking.api.host}")
     private String apiHost;
 
-    @Value("${booking.cars.url.location}")
-    private String locationUrl;
-
-    @Value("${booking.cars.url.search}")
-    private String searchUrl;
 
     public CarServiceImpl(RestTemplate restTemplate) {
         super(restTemplate);
     }
 
     @Override
-    public List<Map<String, Object>> searchCarLocation(String query, String languagecode) {
-        String url = UriComponentsBuilder.fromHttpUrl(locationUrl)
+    public List<Map<String, Object>> searchCarLocation(String query) {
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/cars/searchDestination")
                 .queryParam("query", query)
-                .queryParam("languagecode", languagecode != null ? languagecode : "es")
+                .queryParam("languagecode", "es")
                 .toUriString();
 
         JsonNode response = executeGetRequest(url, apiKey, apiHost);
@@ -68,7 +62,7 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
                                    String pDate, String pTime, String dDate, String dTime,
                                    Integer age, String currency) {
 
-        String url = UriComponentsBuilder.fromHttpUrl(searchUrl)
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/cars/searchCarRentals")
                 .queryParam("pick_up_latitude", pLat)
                 .queryParam("pick_up_longitude", pLon)
                 .queryParam("drop_off_latitude", dLat)

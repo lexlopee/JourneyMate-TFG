@@ -1,8 +1,7 @@
-package com.example.JourneyMate.service.impl.activities;
+package com.example.JourneyMate.service.external.activities;
 
 import com.example.JourneyMate.external.activities.ActivityDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
-import com.example.JourneyMate.service.external.activities.IActivityService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,18 +22,16 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
     @Value("${booking.api.host}")
     private String apiHost;
 
-    @Value("${booking.activities.url}")
-    private String activitiesUrl;
 
     public ActivityServiceImpl(RestTemplate restTemplate) {
         super(restTemplate);
     }
 
     @Override
-    public List<Map<String, String>> searchLocation(String query, String languageCode) {
+    public List<Map<String, String>> searchLocation(String query) {
         String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/attraction/searchLocation")
                 .queryParam("query", query)
-                .queryParam("languagecode", languageCode != null ? languageCode : "es")
+                .queryParam("languagecode", "es")
                 .toUriString();
 
         JsonNode response = executeGetRequest(url, apiKey, apiHost);
@@ -47,7 +44,7 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
                     Map<String, String> location = new HashMap<>();
                     location.put("id", node.path("id").asText());
                     location.put("nombre", node.path("cityName").asText());
-                    location.put("descripcion", node.path("display_name").asText()); // Nombre completo (Ciudad, País)
+                    location.put("descripcion", node.path("display_name").asText());
                     locations.add(location);
                 }
             }
@@ -61,7 +58,7 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
                                               String languageCode, String typeFilters) {
 
         // Construimos la URL
-        String url = UriComponentsBuilder.fromHttpUrl(activitiesUrl)
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/attraction/searchAttractions")
                 .queryParam("id", id)
                 .queryParam("startDate", startDate)
                 .queryParam("endDate", endDate)

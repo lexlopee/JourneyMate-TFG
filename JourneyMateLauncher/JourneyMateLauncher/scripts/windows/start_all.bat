@@ -4,7 +4,7 @@ cd /d "%~dp0..\..\..\..\JourneyMate"
 docker compose up -d
 
 cd /d "%~dp0..\..\..\..\journeymate-frontend"
-start "" /min cmd /k "npm run dev"
+start "" /min cmd /c "npm run dev"
 
 :wait_port
 powershell -command "(Invoke-WebRequest -Uri http://localhost:5173 -UseBasicParsing -TimeoutSec 1) >$null 2>&1"
@@ -28,6 +28,6 @@ start "" %EMULATOR% -avd %AVD%
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
 
 cd /d "%~dp0..\..\..\..\journeymate_mobile"
-start "" /min cmd /k "flutter run -d emulator-5554"
+start "" /min cmd /c "flutter run -d emulator-5554"
 
 exit

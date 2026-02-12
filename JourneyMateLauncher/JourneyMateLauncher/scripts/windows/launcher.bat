@@ -1,5 +1,8 @@
 @echo off
 
+cd /d "%~dp0..\..\..\..\JourneyMate"
+docker compose down
+
 taskkill /IM node.exe /F >nul 2>&1
 taskkill /IM java.exe /F >nul 2>&1
 taskkill /IM mvn.cmd /F >nul 2>&1

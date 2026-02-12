@@ -18,5 +18,5 @@ start "" %EMULATOR% -avd %AVD%
 
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
 
-start "" /min cmd /k "flutter run -d emulator-5554"
+start "" /min cmd /c "flutter run -d emulator-5554"
 exit

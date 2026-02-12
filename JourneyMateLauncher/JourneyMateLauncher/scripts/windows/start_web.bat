@@ -5,7 +5,7 @@ docker compose up -d
 
 cd /d "%~dp0..\..\..\..\journeymate-frontend"
 
-start "" /min cmd /k "npm run dev"
+start "" /min cmd /c "npm run dev"
 
 echo Esperando a que Vite arranque...
 

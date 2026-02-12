@@ -13,5 +13,5 @@ public interface PreferenciaUsuarioService {
 
     PreferenciaUsuarioEntity save(PreferenciaUsuarioEntity preferenciaUsuario);
 
-    void deleteByHotelId(Integer idPreferencia);
+    void deleteById(Integer idPreferencia);
 }

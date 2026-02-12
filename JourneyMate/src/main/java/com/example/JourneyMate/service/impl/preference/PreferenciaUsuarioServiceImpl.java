@@ -4,9 +4,10 @@ import com.example.JourneyMate.dao.preference.PreferenciaUsuarioRepository;
 import com.example.JourneyMate.entity.preference.PreferenciaUsuarioEntity;
 import com.example.JourneyMate.service.preference.PreferenciaUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class PreferenciaUsuarioServiceImpl implements PreferenciaUsuarioService {
 
     @Autowired
@@ -33,7 +34,7 @@ public class PreferenciaUsuarioServiceImpl implements PreferenciaUsuarioService 
     }
 
     @Override
-    public void deleteByHotelId(Integer idPreferncia) {
+    public void deleteById(Integer idPreferncia) {
         preferenciaUsuarioRepository.deleteById(idPreferncia);
     }
 }

@@ -4,10 +4,11 @@ import com.example.JourneyMate.dao.preference.TipoPreferenciaRepository;
 import com.example.JourneyMate.entity.preference.TipoPreferenciaEntity;
 import com.example.JourneyMate.service.preference.TipoPreferenciaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-public class TipoPreferenceImpl implements TipoPreferenciaService {
+@Service
+public class TipoPreferenceServiceImpl implements TipoPreferenciaService {
 
     @Autowired
     private TipoPreferenciaRepository tipoPreferenciaRepository;

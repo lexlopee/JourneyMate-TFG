@@ -1,5 +1,7 @@
 @echo off
-echo Iniciando WEB JourneyMate...
+
+cd /d "%~dp0..\..\..\..\JourneyMate"
+docker compose up -d
 
 cd /d "%~dp0..\..\..\..\journeymate-frontend"
 

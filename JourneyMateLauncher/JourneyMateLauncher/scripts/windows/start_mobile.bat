@@ -1,6 +1,11 @@
 @echo off
 echo Iniciando entorno MOVIL JourneyMate...
 
+cd /d "%~dp0..\..\..\..\JourneyMate"
+docker compose up -d
+
+cd /d "%~dp0..\..\..\..\journeymate_mobile"
+
 set EMULATOR="%LOCALAPPDATA%\Android\Sdk\emulator\emulator.exe"
 
 for /f "tokens=*" %%a in ('%EMULATOR% -list-avds') do (
@@ -12,8 +17,6 @@ for /f "tokens=*" %%a in ('%EMULATOR% -list-avds') do (
 start "" %EMULATOR% -avd %AVD%
 
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
-
-cd /d "%~dp0..\..\..\..\journeymate_mobile"
 
 start "" /min cmd /k "flutter run -d emulator-5554"
 exit

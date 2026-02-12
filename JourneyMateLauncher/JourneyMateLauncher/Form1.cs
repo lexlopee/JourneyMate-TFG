@@ -13,7 +13,7 @@ namespace JourneyMateLauncher
         }
         private void RunSilent(string scriptName)
         {
-            // Ir SIEMPRE a la carpeta del proyecto, no al bin
+            // Subir 3 niveles desde bin/Release hasta JourneyMateLauncher\JourneyMateLauncher
             string projectRoot = Directory.GetParent(
                 Directory.GetParent(
                     Directory.GetParent(
@@ -22,6 +22,7 @@ namespace JourneyMateLauncher
                 ).FullName
             ).FullName;
 
+            // Ruta correcta de los scripts
             string scriptFolder = Path.Combine(projectRoot, @"scripts\windows");
             string scriptPath = Path.Combine(scriptFolder, scriptName);
 
@@ -32,15 +33,13 @@ namespace JourneyMateLauncher
             }
 
             var psi = new ProcessStartInfo();
-            psi.FileName = scriptPath;
-            psi.CreateNoWindow = true;
+            psi.FileName = "cmd.exe";
+            psi.Arguments = "/c \"" + scriptPath + "\"";
             psi.UseShellExecute = false;
-            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.CreateNoWindow = true;
 
             Process.Start(psi);
         }
-
-
 
         private void btnWeb_Click(object sender, EventArgs e)
         {

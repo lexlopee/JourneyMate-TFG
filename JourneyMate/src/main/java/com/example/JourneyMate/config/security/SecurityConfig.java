@@ -24,7 +24,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register","/api/v1/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 //filtro JWT antes del filtro de autenticación por usuario/contraseña

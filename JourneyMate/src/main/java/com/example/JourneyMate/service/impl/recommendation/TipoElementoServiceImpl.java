@@ -4,9 +4,10 @@ import com.example.JourneyMate.dao.recommendation.TipoElementoRepository;
 import com.example.JourneyMate.entity.recommendation.TipoElementoEntity;
 import com.example.JourneyMate.service.recommendation.TipoElementoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class TipoElementoServiceImpl implements TipoElementoService {
 
     @Autowired

@@ -4,9 +4,10 @@ import com.example.JourneyMate.dao.route.RutaPuntoInteresRepository;
 import com.example.JourneyMate.entity.route.RutaPuntoInteresEntity;
 import com.example.JourneyMate.service.route.RutaPuntoInteresService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class RutaPuntoInteresServiceImpl implements RutaPuntoInteresService {
 
     @Autowired

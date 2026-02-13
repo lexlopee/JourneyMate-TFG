@@ -3,6 +3,8 @@
 cd /d "%~dp0..\..\..\..\JourneyMate"
 docker compose up -d
 
+start "" /min cmd /c "mvn spring-boot:run"
+
 cd /d "%~dp0..\..\..\..\journeymate-frontend"
 start "" /min cmd /c "npm run dev"
 

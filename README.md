@@ -208,6 +208,77 @@ Objetivos específicos 5, 7 y 9.
 Conceptos clave: geolocalización, comparador, IA.
 Módulo: Servicios y Procesos.
 
+# Division del Frontend (Flutter + React)
+
+INTEGRANTE 1 — CRUD + Gestión de datos (React + Flutter)
+Lo que hizo en backend:
+Usuarios (CRUD);
+Reservas;
+Hoteles;
+Actividades;
+Puntos de interés;
+Servicios turísticos
+Lo que hará en frontend:
+- En React:
+Pantalla de listado de hoteles; 
+Pantalla de listado de actividades; 
+Pantalla de listado de puntos de interés; 
+Pantalla de reservas del usuario; 
+Crear/editar/eliminar reservas; 
+Mostrar detalles de cada elemento
+- En Flutter:
+Pantalla de hoteles; 
+Pantalla de actividades; 
+Pantalla de puntos de interés; 
+Pantalla de reservas; 
+Formularios CRUD
+
+INTEGRANTE 2 — Seguridad + Usuarios (React + Flutter)
+Lo que hizo en backend:
+Login; 
+Registro; 
+JWT; 
+Roles; 
+Protección de endpoints 
+Lo que hará en frontend:
+- En React:
+Pantalla de login; 
+Pantalla de registro; 
+Gestión del token JWT; 
+Guardar sesión en localStorage; 
+Rutas protegidas; 
+Pantalla de perfil del usuario 
+- En Flutter:
+Pantalla de login; 
+Pantalla de registro; 
+Guardar token en SecureStorage; 
+Navegación protegida; 
+Pantalla de perfil 
+
+INTEGRANTE 3 — APIs externas + Mapas + IA (React + Flutter)
+Lo que hizo en backend:
+Google Maps; 
+Skyscanner; 
+Comparador de precios; 
+Rutas turísticas; 
+IA recomendadora; 
+Pagos 
+Lo que hará en frontend:
+- En React:
+Mostrar mapa con Google Maps; 
+Mostrar puntos de interés en el mapa; 
+Crear rutas turísticas; 
+Mostrar recomendaciones de IA; 
+Comparador de precios (vuelos, hoteles…); 
+Pantalla de pagos 
+- En Flutter:
+Google Maps en móvil; 
+Marcadores; 
+Rutas turísticas;
+Recomendaciones de IA; 
+Comparador de precios; 
+Pagos.
+
 # BackEnd dvision por carpetas
 INTEGRANTE 1 — Backend base + Base de Datos
 Rol: Lógica principal, CRUD, entidades, repositorios, servicios base

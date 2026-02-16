@@ -29,13 +29,16 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/register",
                                 "/api/v1/**",
+                                "/api/public/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/actuator/health",
+                                "/actuator/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                //filtro JWT antes del filtro de autenticación por usuario/contraseña
+
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

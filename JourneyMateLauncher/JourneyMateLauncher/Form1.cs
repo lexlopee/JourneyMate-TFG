@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace JourneyMateLauncher
 {
     public partial class Form1 : Form
     {
+        private readonly HttpClient http = new HttpClient();
+
         public Form1()
         {
             InitializeComponent();
+            timer1.Interval = 5000; // 5 segundos
+            timer1.Start();
         }
+
         private void RunSilent(string scriptName)
         {
-            // Subir 3 niveles desde bin/Release hasta JourneyMateLauncher\JourneyMateLauncher
             string projectRoot = Directory.GetParent(
                 Directory.GetParent(
                     Directory.GetParent(
@@ -22,48 +29,125 @@ namespace JourneyMateLauncher
                 ).FullName
             ).FullName;
 
-            // Ruta correcta de los scripts
             string scriptFolder = Path.Combine(projectRoot, @"scripts\windows");
             string scriptPath = Path.Combine(scriptFolder, scriptName);
 
-            if (!File.Exists(scriptPath))
-            {
-                MessageBox.Show("No se encontró el script: " + scriptPath);
-                return;
-            }
-
             var psi = new ProcessStartInfo();
             psi.FileName = "cmd.exe";
-            psi.Arguments = "/c \"" + scriptPath + "\"";
+
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.Arguments = "/c \"" + scriptPath + "\"";
+
 
             Process.Start(psi);
         }
 
-        private void btnWeb_Click(object sender, EventArgs e)
+
+
+        // ============================================================
+        // TIMER: ACTUALIZA ESTADOS CADA 5 SEGUNDOS
+        // ============================================================
+        private async void timer1_Tick(object sender, EventArgs e)
         {
-            RunSilent("start_web.bat");
+            var dbTask = CheckPortAsync("localhost", 15433);
+            var backendTask = CheckUrlAsync("http://localhost:8080/actuator/health");
+            var webTask = CheckUrlAsync("http://localhost:5173");
+            var emulatorTask = CheckAnyEmulatorAsync();
+            var flutterTask = CheckFlutterAsync();
+
+            chkDB.Checked = await dbTask;
+            chkBackend.Checked = await backendTask;
+            chkWeb.Checked = await webTask;
+            chkEmulator.Checked = await emulatorTask;
         }
 
-        private void btnMovil_Click(object sender, EventArgs e)
+        // ============================================================
+        // MÉTODOS ASÍNCRONOS
+        // ============================================================
+        private async Task<bool> CheckUrlAsync(string url)
         {
-            RunSilent("start_mobile.bat");
+            try
+            {
+                var response = await http.GetAsync(url);
+                return response.IsSuccessStatusCode
+                       || response.StatusCode == System.Net.HttpStatusCode.Forbidden;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        private void btnTodo_Click(object sender, EventArgs e)
+
+        private async Task<bool> CheckPortAsync(string host, int port)
         {
-            RunSilent("start_all.bat");   // ← CORREGIDO
+            try
+            {
+                using (var client = new TcpClient())
+                {
+                    var task = client.ConnectAsync(host, port);
+                    var result = await Task.WhenAny(task, Task.Delay(1000));
+                    return result == task && client.Connected;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        private void btnStop_Click(object sender, EventArgs e)
+        // ============================================================
+        // DETECCIÓN AUTOMÁTICA DEL EMULADOR (ADB)
+        // ============================================================
+        private async Task<bool> CheckAnyEmulatorAsync()
         {
-            RunSilent("launcher.bat");    // ← CORREGIDO
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var process = new Process();
+                    process.StartInfo.FileName = "adb";
+                    process.StartInfo.Arguments = "devices";
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    return output.Contains("emulator-");
+                }
+                catch
+                {
+                    return false;
+                }
+            });
         }
 
-        private void btnSalir_Click(object sender, EventArgs e)
+        // ============================================================
+        // DETECCIÓN DE FLUTTER
+        // ============================================================
+        private async Task<bool> CheckFlutterAsync()
         {
-            Application.Exit();
+            return await Task.Run(() =>
+            {
+                return Process.GetProcessesByName("flutter").Length > 0;
+            });
+        }
+
+        // ============================================================
+        // BOTONES
+        // ============================================================
+        private void btnWeb_Click(object sender, EventArgs e) => RunSilent("start_web.bat");
+        private void btnMovil_Click(object sender, EventArgs e) => RunSilent("start_mobile.bat");
+        private void btnTodo_Click(object sender, EventArgs e) => RunSilent("start_all.bat");
+        private void btnStop_Click(object sender, EventArgs e) => RunSilent("launcher.bat");
+        private void btnSalir_Click(object sender, EventArgs e) => Application.Exit();
+
+        private void chkEmulator_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

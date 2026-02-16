@@ -54,6 +54,6 @@ public class EstadoServiceImpl implements EstadoService {
 
     @Override
     public EstadoEntity findByNombre(String nombre) {
-        return estadoRepository.findAll().stream().filter(e -> e.getName().equalsIgnoreCase(nombre)).findFirst().orElse(null);
+        return estadoRepository.findAll().stream().filter(e -> e.getNombre().equalsIgnoreCase(nombre)).findFirst().orElse(null);
     }
 }

@@ -15,5 +15,6 @@ public class EstadoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_estado")
     private Integer idEstado;
-    private String name;
+    @Column(name = "nombre")
+    private String nombre;
 }

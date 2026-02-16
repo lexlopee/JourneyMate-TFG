@@ -77,8 +77,10 @@
     </Compile>
     <None Include="scripts\windows\launcher.bat" />
     <None Include="scripts\windows\start_all.bat" />
+    <None Include="scripts\windows\start_docker.bat" />
     <None Include="scripts\windows\start_mobile.bat" />
     <None Include="scripts\windows\start_web.bat" />
+    <None Include="scripts\windows\wait_for_postgres.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

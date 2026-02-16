@@ -33,6 +33,18 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        // ============================================
+        // IGNORAR ACTUATOR PARA QUE NO DEVUELVA 403
+        // ============================================
+        String path = request.getServletPath();
+        if (path.startsWith("/actuator/health")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ============================================
+        // LÓGICA JWT NORMAL
+        // ============================================
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

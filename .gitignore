@@ -33,14 +33,17 @@ yarn-error.log*
 
 ### --- IDEs (INTELLIJ IDEA & ANDROID STUDIO) ---
 .idea/
+target/
 *.iml
 *.iws
 *.ipr
+*.class
 out/
 # Ignorar archivos de búsqueda de IntelliJ
 .idea/libraries/
 .idea/modules.xml
 .idea/workspace.xml
+/src/main/resources/application-secrets.properties
 
 ### --- VS CODE ---
 .vscode/

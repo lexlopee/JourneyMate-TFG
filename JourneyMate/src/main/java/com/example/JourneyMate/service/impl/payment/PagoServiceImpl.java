@@ -5,6 +5,7 @@ import com.example.JourneyMate.entity.payment.PagoEntity;
 import com.example.JourneyMate.service.payment.PagoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,7 +13,11 @@ import java.util.List;
 public class PagoServiceImpl implements PagoService {
 
     @Autowired
-    private PagoRepository pagoRepository;
+    private final PagoRepository pagoRepository;
+
+    public PagoServiceImpl(PagoRepository pagoRepository) {
+        this.pagoRepository = pagoRepository;
+    }
 
     @Override
     public List<PagoEntity> findByReservaIdReserva(Integer idReserva) {
@@ -45,6 +50,7 @@ public class PagoServiceImpl implements PagoService {
     }
 
     @Override
+    @Transactional
     public void deleteByHotelId(Integer idHotel) {
         pagoRepository.deletePagosByHotel(idHotel);
     }

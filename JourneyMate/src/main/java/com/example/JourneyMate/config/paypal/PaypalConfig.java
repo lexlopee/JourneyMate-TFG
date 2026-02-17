@@ -26,7 +26,6 @@ public class PaypalConfig {
         Map<String, String> configMap = new HashMap<>();
         configMap.put("mode", mode);
 
-        // Creamos el contexto con nuestras credenciales
         APIContext context = new APIContext(clientId, clientSecret, mode);
         context.setConfigurationMap(configMap);
         return context;

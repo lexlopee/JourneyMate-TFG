@@ -15,16 +15,23 @@ services:
 
   backend:
     build: .
+    image: journeymate_backend
     container_name: journey_backend
     depends_on:
       - db
     environment:
+      # Conexión a la DB interna de Docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/journeymate_bbdd
       SPRING_DATASOURCE_USERNAME: journeymate_bbdd
       SPRING_DATASOURCE_PASSWORD: journeymate-bbdd
+      # Claves seguras (se leen del archivo .env)
+      RAPIDAPI_KEY: ${RAPIDAPI_KEY}
+      GOOGLE_MAPS_KEY: ${GOOGLE_MAPS_KEY}
+      GOOGLE_AI_KEY: ${GOOGLE_AI_KEY}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+      PAYPAL_SECRET: ${PAYPAL_SECRET}
     ports:
       - "8080:8080"
 
 volumes:
   postgres_data:
-

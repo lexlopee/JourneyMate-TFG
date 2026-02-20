@@ -9,7 +9,7 @@ import java.util.List;
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer> {
     List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario);
 
-    List<ReservaEntity> findByEstadoName(String name);
+    List<ReservaEntity> findByEstadoNombre(String nombre);
 
     List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin);
 

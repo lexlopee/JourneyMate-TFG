@@ -59,7 +59,7 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<ReservaEntity> findByEstadoNombre(String estado) {
-        return reservaRepository.findByEstadoName(estado);
+        return reservaRepository.findByEstadoNombre(estado);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.JourneyMate.config.paypal;
+package com.example.JourneyMate.config.payment;
 
 import com.paypal.base.rest.APIContext;
 import org.springframework.beans.factory.annotation.Value;

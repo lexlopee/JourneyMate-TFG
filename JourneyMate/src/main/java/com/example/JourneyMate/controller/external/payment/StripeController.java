@@ -7,6 +7,7 @@ import com.example.JourneyMate.dto.pago.PagoResponseDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.entity.payment.MetodoEntity;
 import com.example.JourneyMate.entity.payment.PagoEntity;
+import com.example.JourneyMate.service.external.EmailService;
 import com.example.JourneyMate.service.external.payment.StripeService;
 import com.example.JourneyMate.service.payment.PagoService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class StripeController {
     private final PagoService pagoService;
     private final ReservaRepository reservaRepository;
     private final MetodoRepository metodoRepository;
+    private final EmailService emailService; // Inyectado
 
     @PostMapping("/create-checkout")
     public ResponseEntity<String> createCheckout(@RequestBody PagoRequestDTO request) {
@@ -41,10 +43,14 @@ public class StripeController {
 
     @GetMapping("/success")
     public ResponseEntity<PagoResponseDTO> success(@RequestParam("reservaId") Integer reservaId) {
-        // Reutilizamos la misma lógica que en PayPal
-        ReservaEntity reserva = reservaRepository.findById(reservaId).get();
-        MetodoEntity metodo = metodoRepository.findByNombre("STRIPE").get();
 
+        ReservaEntity reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        MetodoEntity metodo = metodoRepository.findByNombre("STRIPE")
+                .orElseThrow(() -> new RuntimeException("Método STRIPE no configurado en BD"));
+
+        // 1. Persistencia del pago en la base de datos
         PagoEntity pago = new PagoEntity();
         pago.setReserva(reserva);
         pago.setMetodo(metodo);
@@ -53,7 +59,22 @@ public class StripeController {
 
         PagoEntity pagoGuardado = pagoService.save(pago);
 
-        // Mapear al mismo DTO para que el Frontend no note la diferencia
+        // ============================================================
+        // 2. ENVÍO DE LA FACTURA POR EMAIL
+        // ============================================================
+        try {
+            emailService.enviarFactura(
+                    reserva.getUsuario().getEmail(),
+                    reserva.getUsuario().getNombre(),
+                    reserva.getIdReserva(),
+                    reserva.getPrecio_total().doubleValue()
+            );
+        } catch (Exception e) {
+            System.err.println("Error al enviar el correo: " + e.getMessage());
+        }
+        // ============================================================
+
+        // 3. Respuesta al Frontend
         PagoResponseDTO response = new PagoResponseDTO();
         response.setIdPago(pagoGuardado.getIdPago());
         response.setIdReserva(reserva.getIdReserva());
@@ -62,5 +83,11 @@ public class StripeController {
         response.setFechaPago(pagoGuardado.getFecha_pago());
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/cancel")
+    public ResponseEntity<String> cancel() {
+        return ResponseEntity.ok("El pago de Stripe ha sido cancelado por el usuario. " +
+                "Puedes volver a intentarlo desde tu reserva.");
     }
 }

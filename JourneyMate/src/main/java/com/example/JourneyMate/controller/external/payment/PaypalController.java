@@ -7,6 +7,7 @@ import com.example.JourneyMate.dto.pago.PagoResponseDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.entity.payment.MetodoEntity;
 import com.example.JourneyMate.entity.payment.PagoEntity;
+import com.example.JourneyMate.service.external.EmailService;
 import com.example.JourneyMate.service.external.payment.PaypalService;
 import com.example.JourneyMate.service.payment.PagoService;
 import com.paypal.api.payments.Links;
@@ -27,6 +28,7 @@ public class PaypalController {
     private final PagoService pagoService;
     private final ReservaRepository reservaRepository;
     private final MetodoRepository metodoRepository;
+    private final EmailService emailService;
 
     @PostMapping("/create")
     public ResponseEntity<String> create(@RequestBody PagoRequestDTO request) {
@@ -56,12 +58,12 @@ public class PaypalController {
             Payment payment = paypalService.executePayment(paymentId, payerId);
 
             if (payment.getState().equals("approved")) {
-                ReservaEntity reserva = reservaRepository.findById(reservaId).get();
+                ReservaEntity reserva = reservaRepository.findById(reservaId)
+                        .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
                 MetodoEntity metodo = metodoRepository.findByNombre("PAYPAL")
-                        .orElseThrow(() -> new RuntimeException("Error: Ejecuta el script SQL para insertar el método PAYPAL"));
+                        .orElseThrow(() -> new RuntimeException("Error: No se encuentra el metodo PAYPAL"));
 
-                // Creamos el Pago conforme a tu tabla journeymate.pago
                 PagoEntity pago = new PagoEntity();
                 pago.setReserva(reserva);
                 pago.setMetodo(metodo);
@@ -70,7 +72,17 @@ public class PaypalController {
 
                 PagoEntity pagoGuardado = pagoService.save(pago);
 
-                // Devolvemos el DTO
+                // ============================================================
+                // ENVÍO DE CORREO TRAS EL PAGO EXITOSO
+                // ============================================================
+                emailService.enviarFactura(
+                        reserva.getUsuario().getEmail(),
+                        reserva.getUsuario().getNombre(),
+                        reserva.getIdReserva(),
+                        reserva.getPrecio_total().doubleValue()
+                );
+                // ============================================================
+
                 PagoResponseDTO response = new PagoResponseDTO();
                 response.setIdPago(pagoGuardado.getIdPago());
                 response.setIdReserva(reserva.getIdReserva());
@@ -84,5 +96,10 @@ public class PaypalController {
             return ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/cancel")
+    public ResponseEntity<String> cancel() {
+        return ResponseEntity.ok("Has cancelado el pago de PayPal. La reserva sigue pendiente.");
     }
 }

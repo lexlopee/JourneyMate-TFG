@@ -1,7 +1,7 @@
 @echo off
 
 call "%~dp0start_docker.bat"
-timeout /t 10 >nul
+timeout /t 3 >nul
 
 cd /d "%~dp0..\..\..\..\JourneyMate"
 docker compose up -d >nul 2>&1

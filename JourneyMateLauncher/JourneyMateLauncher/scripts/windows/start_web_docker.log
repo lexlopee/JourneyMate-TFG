@@ -1,0 +1,17 @@
+time="2026-02-22T15:02:42+01:00" level=warning msg="The \"GOOGLE_AI_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-02-22T15:02:42+01:00" level=warning msg="The \"PAYPAL_CLIENT_ID\" variable is not set. Defaulting to a blank string."
+time="2026-02-22T15:02:42+01:00" level=warning msg="The \"RAPIDAPI_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-02-22T15:02:42+01:00" level=warning msg="The \"GOOGLE_MAPS_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-02-22T15:02:42+01:00" level=warning msg="The \"PAYPAL_SECRET\" variable is not set. Defaulting to a blank string."
+time="2026-02-22T15:02:42+01:00" level=warning msg="The \"STRIPE_SECRET_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-02-22T15:02:42+01:00" level=warning msg="C:\\Projects\\JourneyMate-TFG\\JourneyMate\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network journeymate_default  Creating
+ Network journeymate_default  Created
+ Container journey_db  Creating
+ Container journey_db  Created
+ Container journey_backend  Creating
+ Container journey_backend  Created
+ Container journey_db  Starting
+ Container journey_db  Started
+ Container journey_backend  Starting
+ Container journey_backend  Started

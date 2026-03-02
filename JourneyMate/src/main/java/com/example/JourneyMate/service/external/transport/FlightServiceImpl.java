@@ -1,8 +1,11 @@
 package com.example.JourneyMate.service.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
+import com.example.JourneyMate.external.flights.FlightDetailsDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,8 +23,11 @@ public class FlightServiceImpl extends BaseExternalService implements IFlightSer
     @Value("${booking.api.host}")
     private String apiHost;
 
-    public FlightServiceImpl(RestTemplate restTemplate) {
+    private final ObjectMapper objectMapper;
+
+    public FlightServiceImpl(RestTemplate restTemplate, ObjectMapper objectMapper) {
         super(restTemplate);
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -65,8 +71,27 @@ public class FlightServiceImpl extends BaseExternalService implements IFlightSer
         return flightList;
     }
 
+    @Override
+    public FlightDetailsDTO getFlightDetails(String token, String currencyCode) {
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/flights/getFlightDetails")
+                .queryParam("token", token)
+                .queryParam("currency_code", currencyCode != null ? currencyCode : "EUR")
+                .toUriString();
+
+        JsonNode responseNode = executeGetRequest(url, apiKey, apiHost);
+
+        try {
+            return objectMapper.treeToValue(responseNode, FlightDetailsDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error al mapear el detalle del vuelo",e);
+        }
+    }
+
     private FlightDTO mapToDTO(JsonNode node) {
         FlightDTO dto = new FlightDTO();
+
+        // 0. EXTRAER EL TOKEN (Obligatorio para detalles)
+        dto.setToken(node.path("token").asText());
 
         // 1. Precio y Moneda
         JsonNode priceNode = node.path("priceBreakdown").path("total");

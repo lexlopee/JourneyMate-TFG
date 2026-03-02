@@ -1,7 +1,9 @@
 package com.example.JourneyMate.controller.external.accommodation;
 
 import com.example.JourneyMate.external.accommodations.HotelDTO;
+import com.example.JourneyMate.external.accommodations.HotelDetailsDTO;
 import com.example.JourneyMate.service.external.accommodation.IHotelService;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,4 +48,18 @@ public class ExternalHotelController {
 
         return ResponseEntity.ok(destId);
     }
+
+    @GetMapping("/details")
+    public ResponseEntity<HotelDetailsDTO> getHotelDetails(
+            @RequestParam String hotelId,
+            @RequestParam String arrivalDate,
+            @RequestParam String departureDate,
+            @RequestParam(defaultValue = "1") Integer adults,
+            @RequestParam(required = false) String childrenAge,
+            @RequestParam(defaultValue = "1") Integer roomQty) {
+
+        HotelDetailsDTO details = hotelService.getHotelDetails(hotelId, arrivalDate, departureDate, adults, childrenAge, roomQty);
+        return ResponseEntity.ok(details);
+    }
+
 }

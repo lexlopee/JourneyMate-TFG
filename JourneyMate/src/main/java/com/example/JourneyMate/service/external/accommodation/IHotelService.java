@@ -1,6 +1,7 @@
 package com.example.JourneyMate.service.external.accommodation;
 
 import com.example.JourneyMate.external.accommodations.HotelDTO;
+import com.example.JourneyMate.external.accommodations.HotelDetailsDTO;
 
 import java.util.List;
 
@@ -26,4 +27,7 @@ public interface IHotelService {
             Integer pageNo,
             String currencyCode
     );
+
+    HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate, Integer adults, String childrenAge, Integer roomQty);
+
 }

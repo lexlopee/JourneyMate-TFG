@@ -1,6 +1,7 @@
 package com.example.JourneyMate.service.external.transport;
 
 import com.example.JourneyMate.external.cars.CarDTO;
+import com.example.JourneyMate.external.cars.CarLocationDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,9 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CarServiceImpl extends BaseExternalService implements ICarService {
@@ -19,37 +18,37 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
     @Value("${rapidapi.key}")
     private String apiKey;
 
-    @Value("${booking.api.host}")
-    private String apiHost;
-
+    // Usamos el host definitivo de la v18
+    private final String API_HOST = "booking-com18.p.rapidapi.com";
 
     public CarServiceImpl(RestTemplate restTemplate) {
         super(restTemplate);
     }
 
     @Override
-    public List<Map<String, Object>> searchCarLocation(String query) {
-        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/cars/searchDestination")
+    public List<CarLocationDTO> searchCarLocation(String query, String languageCode, String countryFlag) {
+        // Endpoint v18: /car/auto-complete
+        String url = UriComponentsBuilder.fromHttpUrl("https://" + API_HOST + "/car/auto-complete")
                 .queryParam("query", query)
-                .queryParam("languagecode", "es")
+                .queryParam("languageCode", languageCode != null ? languageCode : "en-us")
+                .queryParam("countryFlag", countryFlag != null ? countryFlag : "us")
                 .toUriString();
 
-        JsonNode response = executeGetRequest(url, apiKey, apiHost);
-        List<Map<String, Object>> locations = new ArrayList<>();
+        JsonNode response = executeGetRequest(url, apiKey, API_HOST);
+        List<CarLocationDTO> locations = new ArrayList<>();
 
         if (response != null && response.path("status").asBoolean()) {
-            JsonNode dataNode = response.path("data");
-            if (dataNode.isArray()) {
-                for (JsonNode node : dataNode) {
-                    Map<String, Object> loc = new HashMap<>();
-                    // Mapeo directo del JSON de Booking
-                    loc.put("label", node.path("name").asText(node.path("city").asText("Ubicación")));
+            JsonNode dataArray = response.path("data");
 
-                    // Acceso correcto al objeto anidado 'coordinates'
-                    JsonNode coords = node.path("coordinates");
-                    loc.put("lat", coords.path("latitude").asDouble());
-                    loc.put("lon", coords.path("longitude").asDouble());
-
+            if (dataArray.isArray()) {
+                for (JsonNode node : dataArray) {
+                    CarLocationDTO loc = new CarLocationDTO();
+                    loc.setId(node.path("id").asText()); // Hash Base64 que usaremos en la búsqueda
+                    loc.setName(node.path("name").asText());
+                    loc.setCity(node.path("city").asText());
+                    loc.setCountry(node.path("country").asText());
+                    loc.setType(node.path("type").asText());
+                    loc.setIataCode(node.path("iata_code").asText(null));
                     locations.add(loc);
                 }
             }
@@ -58,55 +57,59 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
     }
 
     @Override
-    public List<CarDTO> searchCars(Double pLat, Double pLon, Double dLat, Double dLon,
-                                   String pDate, String pTime, String dDate, String dTime,
-                                   Integer age, String currency) {
+    public List<CarDTO> searchCars(String pickUpId, String dropOffId, String pDate, String pTime,
+                                   String dDate, String dTime, Integer age, String currency) {
 
-        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/cars/searchCarRentals")
-                .queryParam("pick_up_latitude", pLat)
-                .queryParam("pick_up_longitude", pLon)
-                .queryParam("drop_off_latitude", dLat)
-                .queryParam("drop_off_longitude", dLon)
-                .queryParam("pick_up_date", pDate)
-                .queryParam("drop_off_date", dDate)
-                .queryParam("pick_up_time", pTime)
-                .queryParam("drop_off_time", dTime)
-                .queryParam("driver_age", age != null ? age : 30)
-                .queryParam("currency_code", currency != null ? currency : "EUR")
+        // Endpoint síncrono v18: /car/search
+        String url = UriComponentsBuilder.fromHttpUrl("https://" + API_HOST + "/car/search")
+                .queryParam("pickUpId", pickUpId)
+                .queryParam("pickUpDate", pDate)
+                .queryParam("pickUpTime", pTime)
+                .queryParam("dropOffDate", dDate)
+                .queryParam("dropOffTime", dTime)
+                .queryParam("dropOffId", dropOffId != null ? dropOffId : pickUpId)
+                .queryParam("driverAge", age != null ? age : 30)
+                .queryParam("currencyCode", currency != null ? currency : "EUR")
                 .toUriString();
 
-        JsonNode response = executeGetRequest(url, apiKey, apiHost);
-        List<CarDTO> carList = new ArrayList<>();
+        JsonNode response = executeGetRequest(url, apiKey, API_HOST);
+        List<CarDTO> finalCars = new ArrayList<>();
 
-        if (response != null && response.path("status").asBoolean()) {
-            JsonNode results = response.path("data").path("search_results");
-            if (results.isArray()) {
-                for (JsonNode node : results) {
-                    carList.add(mapToDTO(node, currency != null ? currency : "EUR"));
+        if (response != null && response.has("data")) {
+            // En este endpoint, la lista de coches viene en data -> search_results
+            JsonNode searchResults = response.path("data").path("search_results");
+
+            if (searchResults.isArray()) {
+                for (JsonNode carNode : searchResults) {
+                    CarDTO dto = new CarDTO();
+
+                    // 1. Datos del Vehículo
+                    JsonNode vehicleInfo = carNode.path("vehicle_info");
+                    dto.setCarName(vehicleInfo.path("v_name").asText());
+                    dto.setImageUrl(vehicleInfo.path("image_url").asText());
+                    dto.setTransmission(vehicleInfo.path("transmission").asText());
+
+                    // Manejo de asientos y cálculo total de maletas
+                    dto.setSeats(vehicleInfo.path("seats").asInt(4));
+                    int bigBags = vehicleInfo.path("suitcases").path("big").asInt(0);
+                    int smallBags = vehicleInfo.path("suitcases").path("small").asInt(0);
+                    dto.setBags(bigBags + smallBags);
+
+                    // 2. Datos de Precio
+                    JsonNode pricingInfo = carNode.path("pricing_info");
+                    dto.setPrice(pricingInfo.path("price").asDouble());
+                    dto.setCurrency(pricingInfo.path("currency").asText());
+
+                    // 3. Información del Proveedor (Sixt, Payless, etc.)
+                    dto.setVendorName(carNode.path("supplier_info").path("name").asText());
+
+                    // 4. Enlace para reservar
+                    dto.setDeeplink(carNode.path("forward_url").asText());
+
+                    finalCars.add(dto);
                 }
             }
         }
-        return carList;
-    }
-
-    private CarDTO mapToDTO(JsonNode node, String currency) {
-        CarDTO dto = new CarDTO();
-        JsonNode vInfo = node.path("vehicle_info");
-
-        dto.setId(node.path("id").asText(null));
-        dto.setNombreVehiculo(vInfo.path("v_name").asText("Modelo no disponible"));
-        dto.setTipo(vInfo.path("v_group").asText("Estándar"));
-        dto.setPlazas(vInfo.path("seats").asInt(5));
-        dto.setTransmision(vInfo.path("transmission").asText("N/A"));
-
-        dto.setProveedor(node.path("supplier_info").path("name").asText("Proveedor"));
-        dto.setUrlFoto(vInfo.path("image_url").asText());
-
-        // Procesamiento del precio
-        double price = node.path("pricing_info").path("price").asDouble(0.0);
-        dto.setPrecioTotal(Math.round(price * 100.0) / 100.0);
-        dto.setMoneda(currency);
-
-        return dto;
+        return finalCars;
     }
 }

@@ -1,8 +1,11 @@
 package com.example.JourneyMate.service.external.accommodation;
 
 import com.example.JourneyMate.external.accommodations.HotelDTO;
+import com.example.JourneyMate.external.accommodations.HotelDetailsDTO;
 import com.example.JourneyMate.service.external.BaseExternalService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class HotelsServiceImpl extends BaseExternalService implements IHotelService {
+public class HotelServiceImpl extends BaseExternalService implements IHotelService {
 
     @Value("${rapidapi.key}")
     private String apiKey;
@@ -20,8 +23,11 @@ public class HotelsServiceImpl extends BaseExternalService implements IHotelServ
     @Value("${booking.api.host}")
     private String apiHost;
 
-    public HotelsServiceImpl(RestTemplate restTemplate) {
+    private final ObjectMapper objectMapper;
+
+    public HotelServiceImpl(RestTemplate restTemplate, ObjectMapper objectMapper) {
         super(restTemplate);
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -60,6 +66,30 @@ public class HotelsServiceImpl extends BaseExternalService implements IHotelServ
     }
 
     @Override
+    public HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate, Integer adults, String childrenAge, Integer roomQty) {
+
+        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/hotels/getHotelDetails")
+                .queryParam("hotel_id", hotelId)
+                .queryParam("arrival_date", arrivalDate)
+                .queryParam("departure_date", departureDate)
+                .queryParam("adults", adults != null ? adults : 1)
+                .queryParam("children_age", childrenAge)
+                .queryParam("room_qty", roomQty != null ? roomQty : 1)
+                .queryParam("units", "metric")
+                .queryParam("temperature_unit", "c")
+                .queryParam("currency_code", "EUR")
+                .toUriString();
+
+        JsonNode response = executeGetRequest(url, apiKey, apiHost);
+
+        try {
+            return objectMapper.treeToValue(response, HotelDetailsDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error al mapear los detalles del hotel", e);
+        }
+    }
+
+    @Override
     public String getDestinationId(String query) {
         // Construimos la URL para buscar el destino
         String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchDestination")
@@ -79,8 +109,14 @@ public class HotelsServiceImpl extends BaseExternalService implements IHotelServ
 
     private HotelDTO mapToDTO(JsonNode node) {
         HotelDTO dto = new HotelDTO();
+
         // La API a veces devuelve los datos dentro de "property" y otras veces directos
         JsonNode prop = node.has("property") ? node.path("property") : node;
+
+        // Importante: Extraer el ID para poder pedir los detalles después
+        dto.setHotelId(prop.path("hotel_id").isMissingNode()
+                ? prop.path("id").asText()
+                : prop.path("hotel_id").asText());
 
         dto.setNombre(prop.path("name").asText("N/A"));
         dto.setLatitud(prop.path("latitude").asDouble(0.0));

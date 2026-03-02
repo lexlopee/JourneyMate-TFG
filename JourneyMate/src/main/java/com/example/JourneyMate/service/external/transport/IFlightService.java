@@ -1,6 +1,7 @@
 package com.example.JourneyMate.service.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
+import com.example.JourneyMate.external.flights.FlightDetailsDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface IFlightService {
             String stops, Integer pageNo, Integer adults, String childrenAge,
             String sort, String cabinClass, String currencyCode
     );
+
+    FlightDetailsDTO getFlightDetails(String token, String currencyCode);
 }

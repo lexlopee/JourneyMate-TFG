@@ -1,49 +1,50 @@
 package com.example.JourneyMate.controller.external.transport;
 
 import com.example.JourneyMate.external.cars.CarDTO;
+import com.example.JourneyMate.external.cars.CarLocationDTO;
 import com.example.JourneyMate.service.external.transport.ICarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/cars")
+@RequestMapping("/api/v1/external/cars")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Importante para que tu React/Angular no bloquee la petición
 public class ExternalCarController {
 
     private final ICarService carService;
 
     /**
-     * PASO 1: Buscar ubicaciones para el alquiler.
+     * Endpoint para el autocompletado de ubicaciones de recogida/devolución.
      */
-    @GetMapping("/locations")
-    public ResponseEntity<List<Map<String, Object>>> getLocations(@RequestParam String query) {
-        return ResponseEntity.ok(carService.searchCarLocation(query));
+    @GetMapping("/autocomplete")
+    public ResponseEntity<List<CarLocationDTO>> autocomplete(
+            @RequestParam String query,
+            @RequestParam(required = false) String languageCode,
+            @RequestParam(required = false) String countryFlag) {
+
+        List<CarLocationDTO> results = carService.searchCarLocation(query, languageCode, countryFlag);
+        return results.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(results);
     }
 
     /**
-     * PASO 2: Buscar coches disponibles basados en coordenadas.
+     * Endpoint para buscar los coches disponibles.
      */
     @GetMapping("/search")
-    public ResponseEntity<List<CarDTO>> searchCars(
-            @RequestParam Double pick_up_latitude,
-            @RequestParam Double pick_up_longitude,
-            @RequestParam Double drop_off_latitude,
-            @RequestParam Double drop_off_longitude,
-            @RequestParam String pick_up_date,
-            @RequestParam String drop_off_date,
-            @RequestParam String pick_up_time,
-            @RequestParam String drop_off_time,
-            @RequestParam(defaultValue = "30") Integer driver_age,
-            @RequestParam(defaultValue = "EUR") String currency_code) {
+    public ResponseEntity<List<CarDTO>> search(
+            @RequestParam String pickUpId, // Usar el ID en Base64 devuelto por autocomplete
+            @RequestParam(required = false) String dropOffId,
+            @RequestParam String pDate,    // Formato: YYYY-MM-DD
+            @RequestParam String pTime,    // Formato: HH:MM
+            @RequestParam String dDate,    // Formato: YYYY-MM-DD
+            @RequestParam String dTime,    // Formato: HH:MM
+            @RequestParam(defaultValue = "30") Integer age,
+            @RequestParam(defaultValue = "EUR") String currency) {
 
-        return ResponseEntity.ok(carService.searchCars(
-                pick_up_latitude, pick_up_longitude, drop_off_latitude, drop_off_longitude,
-                pick_up_date, pick_up_time, drop_off_date, drop_off_time, driver_age, currency_code
-        ));
+        List<CarDTO> cars = carService.searchCars(pickUpId, dropOffId, pDate, pTime, dDate, dTime, age, currency);
+        return cars.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(cars);
     }
 }

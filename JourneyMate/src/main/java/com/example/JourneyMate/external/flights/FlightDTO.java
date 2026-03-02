@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FlightDTO {
+    private String token;
     private String aerolinea;
     private String logoUrl;
     private String origen;

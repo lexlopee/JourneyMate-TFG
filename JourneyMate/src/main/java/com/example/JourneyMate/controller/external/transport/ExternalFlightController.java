@@ -1,6 +1,7 @@
 package com.example.JourneyMate.controller.external.transport;
 
 import com.example.JourneyMate.external.flights.FlightDTO;
+import com.example.JourneyMate.external.flights.FlightDetailsDTO;
 import com.example.JourneyMate.service.external.transport.IFlightService;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,13 @@ public class ExternalFlightController {
                 fromId, toId, departDate, returnDate, stops,
                 pageNo, adults, childrenAge, sort, cabinClass, currencyCode
         ));
+    }
+    @GetMapping("/details")
+    public ResponseEntity<FlightDetailsDTO> getFlightDetails(
+            @RequestParam String token,
+            @RequestParam(defaultValue = "EUR") String currencyCode) {
+
+        FlightDetailsDTO flightDetails = flightService.getFlightDetails(token, currencyCode);
+        return ResponseEntity.ok(flightDetails);
     }
 }

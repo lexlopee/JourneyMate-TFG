@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HotelDTO {
+    private String hotelId;
     private String nombre;
     private Double precio;
     private String moneda;

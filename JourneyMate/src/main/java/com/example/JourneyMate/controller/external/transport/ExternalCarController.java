@@ -12,37 +12,27 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/external/cars")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Importante para que tu React/Angular no bloquee la petición
+@CrossOrigin(origins = "*")
 public class ExternalCarController {
 
     private final ICarService carService;
 
-    /**
-     * Endpoint para el autocompletado de ubicaciones de recogida/devolución.
-     */
     @GetMapping("/autocomplete")
-    public ResponseEntity<List<CarLocationDTO>> autocomplete(
-            @RequestParam String query,
-            @RequestParam(required = false) String languageCode,
-            @RequestParam(required = false) String countryFlag) {
-
-        List<CarLocationDTO> results = carService.searchCarLocation(query, languageCode, countryFlag);
+    public ResponseEntity<List<CarLocationDTO>> autocomplete(@RequestParam String query) {
+        List<CarLocationDTO> results = carService.searchCarLocation(query, "en-us", "us");
         return results.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(results);
     }
 
-    /**
-     * Endpoint para buscar los coches disponibles.
-     */
     @GetMapping("/search")
     public ResponseEntity<List<CarDTO>> search(
-            @RequestParam String pickUpId, // Usar el ID en Base64 devuelto por autocomplete
+            @RequestParam String pickUpId,
             @RequestParam(required = false) String dropOffId,
-            @RequestParam String pDate,    // Formato: YYYY-MM-DD
-            @RequestParam String pTime,    // Formato: HH:MM
-            @RequestParam String dDate,    // Formato: YYYY-MM-DD
-            @RequestParam String dTime,    // Formato: HH:MM
+            @RequestParam String pDate,
+            @RequestParam String pTime,
+            @RequestParam String dDate,
+            @RequestParam String dTime,
             @RequestParam(defaultValue = "30") Integer age,
-            @RequestParam(defaultValue = "EUR") String currency) {
+            @RequestParam(defaultValue = "USD") String currency) {
 
         List<CarDTO> cars = carService.searchCars(pickUpId, dropOffId, pDate, pTime, dDate, dTime, age, currency);
         return cars.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(cars);

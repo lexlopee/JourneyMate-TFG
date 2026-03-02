@@ -18,7 +18,6 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
     @Value("${rapidapi.key}")
     private String apiKey;
 
-    // Usamos el host definitivo de la v18
     private final String API_HOST = "booking-com18.p.rapidapi.com";
 
     public CarServiceImpl(RestTemplate restTemplate) {
@@ -27,7 +26,6 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
 
     @Override
     public List<CarLocationDTO> searchCarLocation(String query, String languageCode, String countryFlag) {
-        // Endpoint v18: /car/auto-complete
         String url = UriComponentsBuilder.fromHttpUrl("https://" + API_HOST + "/car/auto-complete")
                 .queryParam("query", query)
                 .queryParam("languageCode", languageCode != null ? languageCode : "en-us")
@@ -37,20 +35,16 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
         JsonNode response = executeGetRequest(url, apiKey, API_HOST);
         List<CarLocationDTO> locations = new ArrayList<>();
 
-        if (response != null && response.path("status").asBoolean()) {
-            JsonNode dataArray = response.path("data");
-
-            if (dataArray.isArray()) {
-                for (JsonNode node : dataArray) {
-                    CarLocationDTO loc = new CarLocationDTO();
-                    loc.setId(node.path("id").asText()); // Hash Base64 que usaremos en la búsqueda
-                    loc.setName(node.path("name").asText());
-                    loc.setCity(node.path("city").asText());
-                    loc.setCountry(node.path("country").asText());
-                    loc.setType(node.path("type").asText());
-                    loc.setIataCode(node.path("iata_code").asText(null));
-                    locations.add(loc);
-                }
+        if (response != null && response.path("data").isArray()) {
+            for (JsonNode node : response.path("data")) {
+                CarLocationDTO loc = new CarLocationDTO();
+                loc.setId(node.path("id").asText());
+                loc.setName(node.path("name").asText());
+                loc.setCity(node.path("city").asText());
+                loc.setCountry(node.path("country").asText());
+                loc.setType(node.path("type").asText());
+                loc.setIataCode(node.path("iata_code").asText(null));
+                locations.add(loc);
             }
         }
         return locations;
@@ -60,7 +54,6 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
     public List<CarDTO> searchCars(String pickUpId, String dropOffId, String pDate, String pTime,
                                    String dDate, String dTime, Integer age, String currency) {
 
-        // Endpoint síncrono v18: /car/search
         String url = UriComponentsBuilder.fromHttpUrl("https://" + API_HOST + "/car/search")
                 .queryParam("pickUpId", pickUpId)
                 .queryParam("pickUpDate", pDate)
@@ -69,47 +62,46 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
                 .queryParam("dropOffTime", dTime)
                 .queryParam("dropOffId", dropOffId != null ? dropOffId : pickUpId)
                 .queryParam("driverAge", age != null ? age : 30)
-                .queryParam("currencyCode", currency != null ? currency : "EUR")
+                .queryParam("currencyCode", currency != null ? currency : "USD")
                 .toUriString();
 
         JsonNode response = executeGetRequest(url, apiKey, API_HOST);
-        List<CarDTO> finalCars = new ArrayList<>();
+        List<CarDTO> carList = new ArrayList<>();
 
         if (response != null && response.has("data")) {
-            // En este endpoint, la lista de coches viene en data -> search_results
             JsonNode searchResults = response.path("data").path("search_results");
 
             if (searchResults.isArray()) {
                 for (JsonNode carNode : searchResults) {
                     CarDTO dto = new CarDTO();
 
-                    // 1. Datos del Vehículo
-                    JsonNode vehicleInfo = carNode.path("vehicle_info");
-                    dto.setCarName(vehicleInfo.path("v_name").asText());
-                    dto.setImageUrl(vehicleInfo.path("image_url").asText());
-                    dto.setTransmission(vehicleInfo.path("transmission").asText());
+                    // Mapeo desde vehicle_info
+                    JsonNode vInfo = carNode.path("vehicle_info");
+                    dto.setCarName(vInfo.path("v_name").asText());
+                    dto.setImageUrl(vInfo.path("image_url").asText());
+                    dto.setTransmission(vInfo.path("transmission").asText());
+                    dto.setSeats(vInfo.path("seats").asInt());
 
-                    // Manejo de asientos y cálculo total de maletas
-                    dto.setSeats(vehicleInfo.path("seats").asInt(4));
-                    int bigBags = vehicleInfo.path("suitcases").path("big").asInt(0);
-                    int smallBags = vehicleInfo.path("suitcases").path("small").asInt(0);
-                    dto.setBags(bigBags + smallBags);
+                    // Suma de maletas (vienen como strings en tu JSON)
+                    int big = vInfo.path("suitcases").path("big").asInt(0);
+                    int small = vInfo.path("suitcases").path("small").asInt(0);
+                    dto.setBags(big + small);
 
-                    // 2. Datos de Precio
-                    JsonNode pricingInfo = carNode.path("pricing_info");
-                    dto.setPrice(pricingInfo.path("price").asDouble());
-                    dto.setCurrency(pricingInfo.path("currency").asText());
+                    // Mapeo desde pricing_info
+                    JsonNode pInfo = carNode.path("pricing_info");
+                    dto.setPrice(pInfo.path("drive_away_price").asDouble());
+                    dto.setCurrency(pInfo.path("currency").asText());
 
-                    // 3. Información del Proveedor (Sixt, Payless, etc.)
+                    // Mapeo desde supplier_info
                     dto.setVendorName(carNode.path("supplier_info").path("name").asText());
 
-                    // 4. Enlace para reservar
+                    // URL de reserva
                     dto.setDeeplink(carNode.path("forward_url").asText());
 
-                    finalCars.add(dto);
+                    carList.add(dto);
                 }
             }
         }
-        return finalCars;
+        return carList;
     }
 }

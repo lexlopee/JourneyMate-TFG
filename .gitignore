@@ -1,11 +1,11 @@
 # ==============================================================================
-# JOURNEYMATE - CONFIGURACIÓN PROFESIONAL (INTEGRANTE 3)
+# JOURNEYMATE - CONFIGURACIÓN PROFESIONAL
 # ==============================================================================
 
-### --- FRONTEND (REACT) ---
+### --- FRONTEND (REACT / VITE) ---
 node_modules/
-/build
-/dist
+build/
+dist/
 .env
 .env.local
 .env.development.local
@@ -15,21 +15,25 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+### --- ARCHIVOS SENSIBLES ---
+JourneyMate/env
+*.env
+.env
+
 ### --- MÓVIL (FLUTTER / ANDROID STUDIO) ---
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-# Archivos de configuración de Android Studio/Flutter
-/android/local.properties
-/android/key.properties
-/android/*.keystore
-/android/*.jks
-/android/bundle/
-/ios/Flutter/Generated.xcconfig
-/ios/Flutter/flutter_export_environment.sh
+build/
+android/local.properties
+android/key.properties
+android/*.keystore
+android/*.jks
+android/bundle/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
 
 ### --- IDEs (INTELLIJ IDEA & ANDROID STUDIO) ---
 .idea/
@@ -39,17 +43,15 @@ target/
 *.ipr
 *.class
 out/
-# Ignorar archivos de búsqueda de IntelliJ
 .idea/libraries/
 .idea/modules.xml
 .idea/workspace.xml
-/src/main/resources/application-secrets.properties
+src/main/resources/application-secrets.properties
 
 ### --- VS CODE ---
 .vscode/
 *.code-workspace
 .vs/
-
 
 ### --- SISTEMA ---
 .DS_Store

@@ -23,17 +23,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> {}) // <-- ACTIVAR CORS
+                .cors(cors -> {}) // <-- ACTIVAR CORS EN EL PROYECTO
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/register",
-                                "/api/v1/",
-                                "/api/public/",
-                                "/v3/api-docs/",
-                                "/swagger-ui/",
+                                "/api/v1/**",
+                                "/api/public/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/actuator/health",
                                 "/actuator/**"

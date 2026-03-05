@@ -28,16 +28,13 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ============================================
-        // IGNORAR ACTUATOR PARA QUE NO DEVUELVA 403
-        // ============================================
         String path = request.getServletPath();
-        if (path.startsWith("/actuator/health")) {
+
+        // Si la ruta es pública, salimos del filtro inmediatamente y seguimos la cadena
+        if (path.startsWith("/api/v1/") || path.startsWith("/auth/") || path.startsWith("/swagger-ui")) {
             filterChain.doFilter(request, response);
             return;
         }

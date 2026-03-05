@@ -16,6 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // tu frontend
         config.setAllowedOrigins(List.of("http://localhost:3000")); // tu frontend
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

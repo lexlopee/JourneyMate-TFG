@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import anime from "animejs/lib/anime.es.js";
 import { Hotel, Plane, Car, Ticket, Ship, User, Train } from 'lucide-react';
 import logoImg from '../assets/logo.png'; 
 
@@ -11,12 +12,34 @@ interface NavTab {
   soon?: boolean;
 }
 
+//h Metodo Movimiento
 interface NavbarProps {
   activeTab: Section;
   onTabChange: (tab: Section) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
+  const logoRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    anime({
+      targets: logoRef.current,
+      scale: [0, 1],
+      opacity: [0, 1],
+      duration: 900,
+      easing: "easeOutElastic(1, .6)"
+    });
+  }, []);
+
+  useEffect(() => {
+    anime({
+      targets: `.tab-${activeTab}`,
+      scale: [1, 1.15],
+      duration: 300,
+      easing: "easeOutQuad"
+    });
+  }, [activeTab]);
+
   const tabs: NavTab[] = [
     { id: 'alojamiento', label: 'Alojamiento', icon: <Hotel size={18} /> },
     { id: 'vuelos', label: 'Vuelos', icon: <Plane size={18} /> },
@@ -28,9 +51,10 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
 
   return (
     <nav className="fixed top-4 left-0 right-0 z-50 px-6">
-      <div className="max-w-7xl mx-auto backdrop-blur-md bg-white/70 border border-white/40 shadow-2xl rounded-3xl px-6 py-3 flex justify-between items-center transition-all duration-500">
+      <div className="navbar-container max-w-7xl mx-auto backdrop-blur-md bg-white/70 border border-white/40 shadow-2xl rounded-3xl px-6 py-3 flex justify-between items-center transition-all duration-500">
+        
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onTabChange('alojamiento')}>
-          <img src={logoImg} alt="Logo" className="h-10 w-auto group-hover:scale-110 transition-transform" />
+          <img ref={logoRef} src={logoImg} alt="Logo" className="h-10 w-auto group-hover:scale-110 transition-transform" />
           <div className="hidden sm:block leading-none text-left">
             <h1 className="font-black text-xl text-teal-900 tracking-tighter uppercase">JourneyMate</h1>
             <p className="text-[8px] font-bold text-teal-600 tracking-[0.3em]">TRAVEL SMART</p>
@@ -42,7 +66,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative
+              className={`tab-${tab.id} flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative
                 ${activeTab === tab.id ? 'bg-white text-teal-900 shadow-sm' : 'text-teal-800/60 hover:text-teal-900'}`}
             >
               {tab.icon} {tab.label}

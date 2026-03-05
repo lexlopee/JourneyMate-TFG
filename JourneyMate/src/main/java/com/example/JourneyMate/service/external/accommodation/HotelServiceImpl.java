@@ -14,7 +14,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+<<<<<<< HEAD
 @Service("hotelExternalService")
+=======
+@Service
+>>>>>>> 712bb12ee24cf5506754565e7ec59bc673481e36
 public class HotelServiceImpl extends BaseExternalService implements IHotelService {
 
     @Value("${rapidapi.key}")

@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import anime from "animejs/lib/anime.es.js";
 import Navbar, { type Section } from './components/navbar';
+import Footer from "./components/Footer/Footer";
 import api from './services/api';
+
 import {
   Hotel, Plane, Car, Ticket, Ship, Train,
   MapPin, Calendar, Users, Search, Clock, Globe
 } from 'lucide-react';
 
-// INTERFACES
 interface SearchInputProps {
   label: string;
   icon: React.ReactNode;
@@ -21,7 +22,9 @@ function App() {
   const [activeSection, setActiveSection] = useState<Section>('alojamiento');
   const [loading, setLoading] = useState(false);
 
-  // Catálogos para Cruceros
+  const iconRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [cruiseDestinations, setCruiseDestinations] = useState<any[]>([]);
   const [cruisePorts, setCruisePorts] = useState<any[]>([]);
 
@@ -35,45 +38,38 @@ function App() {
     cabinClass: 'ECONOMY'
   });
 
-  // REFS PARA ANIMACIONES
-  const iconRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // ANIMAR ICONO AL CAMBIAR DE SECCIÓN
   useEffect(() => {
-    anime({
-      targets: iconRef.current,
-      rotate: [0, 360],
-      scale: [0.8, 1],
-      duration: 600,
-      easing: 'easeOutBack'
-    });
-  }, [activeSection]);
+    if (iconRef.current) {
+      anime({
+        targets: iconRef.current,
+        rotate: [0, 360],
+        scale: [0.8, 1],
+        duration: 600,
+        easing: "easeOutBack"
+      });
+    }
 
-  // ANIMAR CONTENEDOR PRINCIPAL
-  useEffect(() => {
-    anime({
-      targets: containerRef.current,
-      opacity: [0, 1],
-      translateY: [20, 0],
-      duration: 500,
-      easing: 'easeOutQuad'
-    });
-  }, [activeSection]);
+    if (containerRef.current) {
+      anime({
+        targets: containerRef.current,
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 500,
+        easing: "easeOutQuad"
+      });
+    }
 
-  // ANIMAR INPUTS
-  useEffect(() => {
     anime({
-      targets: '.search-input',
+      targets: ".search-input",
       opacity: [0, 1],
       translateY: [10, 0],
       delay: anime.stagger(80),
       duration: 400,
-      easing: 'easeOutQuad'
+      easing: "easeOutQuad"
     });
+
   }, [activeSection]);
 
-  // CARGAR CATÁLOGOS DE CRUCEROS
   useEffect(() => {
     if (activeSection === 'cruceros') {
       const fetchCruiseData = async () => {
@@ -172,7 +168,6 @@ function App() {
     }
   };
 
-  // RENDERIZAR INPUTS SEGÚN SECCIÓN
   const renderInputs = () => {
     switch (activeSection) {
       case 'alojamiento':
@@ -231,15 +226,14 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen relative font-sans overflow-x-hidden"
+    <div className="min-h-screen flex flex-col font-sans overflow-x-hidden"
       style={{ background: 'linear-gradient(135deg, #1cb5b0 0%, #e9fc9e 50%, #1cb5b0 100%)' }}>
 
       <Navbar activeTab={activeSection} onTabChange={setActiveSection} />
 
-      <main className="relative z-10 pt-32 pb-20 px-6 flex flex-col items-center">
+      <main className="relative z-10 pt-32 pb-20 px-6 flex flex-col items-center flex-grow">
 
-        {/* ICONO DINÁMICO */}
-        <div ref={iconRef} className="mb-6 bg-white/20 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/30 shadow-2xl animate-bounce-slow">
+        <div ref={iconRef} className="mb-6 bg-white/20 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/30 shadow-2xl">
           {activeSection === 'alojamiento' && <Hotel size={60} className="text-teal-900" />}
           {activeSection === 'vuelos' && <Plane size={60} className="text-teal-900" />}
           {activeSection === 'coches' && <Car size={60} className="text-teal-900" />}
@@ -248,7 +242,6 @@ function App() {
           {activeSection === 'trenes' && <Train size={60} className="text-teal-900" />}
         </div>
 
-        {/* CONTENEDOR PRINCIPAL */}
         <div ref={containerRef} className="w-full max-w-5xl backdrop-blur-xl bg-white/40 rounded-[3rem] border border-white/50 shadow-2xl p-10 text-center transition-all duration-700">
 
           <h2 className="text-4xl md:text-6xl font-black text-teal-900 tracking-tighter uppercase mb-2">
@@ -279,11 +272,13 @@ function App() {
           </div>
         </div>
       </main>
+
+      <Footer />
+
     </div>
   );
 }
 
-// COMPONENTE DE INPUT
 const SearchInput: React.FC<SearchInputProps> = ({ label, icon, placeholder, val, type = "text", onChange }) => (
   <div className="search-input bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all group">
     <span className="text-[9px] font-black text-teal-800/40 block mb-1 uppercase tracking-widest">{label}</span>

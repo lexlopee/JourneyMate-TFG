@@ -83,7 +83,7 @@ public class FlightServiceImpl extends BaseExternalService implements IFlightSer
         try {
             return objectMapper.treeToValue(responseNode, FlightDetailsDTO.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error al mapear el detalle del vuelo",e);
+            throw new RuntimeException("Error al mapear el detalle del vuelo", e);
         }
     }
 

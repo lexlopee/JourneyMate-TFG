@@ -11,15 +11,19 @@ namespace JourneyMateLauncher
     public partial class Form1 : Form
     {
         private readonly HttpClient http = new HttpClient();
+        private bool backendStartedByUser = false; // controla si tú lo arrancaste
 
         public Form1()
         {
             InitializeComponent();
-            timer1.Interval = 5000; // 5 segundos
+            timer1.Interval = 5000;
             timer1.Start();
         }
 
-        private void RunSilent(string scriptName)
+        // ============================================================
+        // EJECUTAR SCRIPT EN TERMINAL VISIBLE (CON LOGS)
+        // ============================================================
+         private void RunVisible(string scriptName)
         {
             string projectRoot = Directory.GetParent(
                 Directory.GetParent(
@@ -34,34 +38,48 @@ namespace JourneyMateLauncher
 
             var psi = new ProcessStartInfo();
             psi.FileName = "cmd.exe";
-
-            psi.UseShellExecute = false;
-            psi.CreateNoWindow = true;
-            psi.WindowStyle = ProcessWindowStyle.Hidden;
-            psi.Arguments = "/c \"" + scriptPath + "\"";
-
+            psi.Arguments = "/k \"" + scriptPath + "\"";
+            psi.UseShellExecute = true;
 
             Process.Start(psi);
         }
+        
 
+         /*private void RunHidden(string scriptName)
+         {
+            string projectRoot = Directory.GetParent(
+                Directory.GetParent(
+                    Directory.GetParent(
+                        AppDomain.CurrentDomain.BaseDirectory
+                    ).FullName
+                ).FullName
+            ).FullName;
 
+            string scriptFolder = Path.Combine(projectRoot, @"scripts\windows");
+            string scriptPath = Path.Combine(scriptFolder, scriptName);
+
+            var psi = new ProcessStartInfo();
+            psi.FileName = scriptPath;                 
+            psi.UseShellExecute = false;               
+            psi.CreateNoWindow = true;                 
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+
+            Process.Start(psi);
+        }*/
 
         // ============================================================
-        // TIMER: ACTUALIZA ESTADOS CADA 5 SEGUNDOS
+        // TIMER: SOLO DESACTIVA chkBackend SI EL BACKEND SE APAGA
         // ============================================================
         private async void timer1_Tick(object sender, EventArgs e)
         {
-            var dbTask = CheckPortAsync("localhost", 15433);
-            var backendTask = CheckUrlAsync("http://localhost:8080/actuator/health");
-            var webTask = CheckUrlAsync("http://localhost:5173");
-            var emulatorTask = CheckAnyEmulatorAsync();
-            var flutterTask = CheckFlutterAsync();
+            chkDB.Checked = await CheckPortAsync("localhost", 15433);
+            bool backendAlive = await CheckPortAsync("localhost", 8080);
+            chkBackend.Checked = backendAlive;
 
-            chkDB.Checked = await dbTask;
-            chkBackend.Checked = await backendTask;
-            chkWeb.Checked = await webTask;
-            chkEmulator.Checked = await emulatorTask;
+            chkWeb.Checked = await CheckUrlAsync("http://localhost:5173");
+            chkEmulator.Checked = await CheckAnyEmulatorAsync();
         }
+
 
         // ============================================================
         // MÉTODOS ASÍNCRONOS
@@ -71,12 +89,15 @@ namespace JourneyMateLauncher
             try
             {
                 var response = await http.GetAsync(url);
-                return response.IsSuccessStatusCode
-                       || response.StatusCode == System.Net.HttpStatusCode.Forbidden;
+
+                // Si responde algo, aunque sea 403 o 503, significa que el backend está vivo
+                return response.StatusCode == System.Net.HttpStatusCode.OK
+                    || response.StatusCode == System.Net.HttpStatusCode.Forbidden
+                    || response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable;
             }
             catch
             {
-                return false;
+                return false; // No responde → backend apagado
             }
         }
 
@@ -92,15 +113,9 @@ namespace JourneyMateLauncher
                     return result == task && client.Connected;
                 }
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
-        // ============================================================
-        // DETECCIÓN AUTOMÁTICA DEL EMULADOR (ADB)
-        // ============================================================
         private async Task<bool> CheckAnyEmulatorAsync()
         {
             return await Task.Run(() =>
@@ -118,36 +133,33 @@ namespace JourneyMateLauncher
                     string output = process.StandardOutput.ReadToEnd();
                     return output.Contains("emulator-");
                 }
-                catch
-                {
-                    return false;
-                }
-            });
-        }
-
-        // ============================================================
-        // DETECCIÓN DE FLUTTER
-        // ============================================================
-        private async Task<bool> CheckFlutterAsync()
-        {
-            return await Task.Run(() =>
-            {
-                return Process.GetProcessesByName("flutter").Length > 0;
+                catch { return false; }
             });
         }
 
         // ============================================================
         // BOTONES
         // ============================================================
-        private void btnWeb_Click(object sender, EventArgs e) => RunSilent("start_web.bat");
-        private void btnMovil_Click(object sender, EventArgs e) => RunSilent("start_mobile.bat");
-        private void btnTodo_Click(object sender, EventArgs e) => RunSilent("start_all.bat");
-        private void btnStop_Click(object sender, EventArgs e) => RunSilent("launcher.bat");
+        private void btnBackend_Click(object sender, EventArgs e)
+        {
+            //RunHidden("start_docker.bat");
+            //RunHidden("start_backend.bat");
+            RunVisible("start_docker.bat");   // Arranca Docker + BD
+            RunVisible("start_backend.bat");  // Arranca el backend
+            chkBackend.Checked = true;        // Activa el check
+            backendStartedByUser = true;      // Marca que tú lo arrancaste
+        }
+
+        //Cambiar a RunHidden para no ver las terminales
+        private void btnWeb_Click(object sender, EventArgs e) => RunVisible("start_web.bat");
+        private void btnMovil_Click(object sender, EventArgs e) => RunVisible("start_mobile.bat");
+        private void btnTodo_Click(object sender, EventArgs e) => RunVisible("start_all.bat");
+        private void btnStop_Click(object sender, EventArgs e) => RunVisible("launcher.bat");
         private void btnSalir_Click(object sender, EventArgs e) => Application.Exit();
 
         private void chkEmulator_CheckedChanged(object sender, EventArgs e)
-        {
-
+        { 
         }
+
     }
 }

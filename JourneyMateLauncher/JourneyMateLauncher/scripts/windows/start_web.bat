@@ -3,6 +3,9 @@
 call "%~dp0start_docker.bat"
 timeout /t 3 >nul
 
+REM ARRANCAR BACKEND EN TERMINAL SEPARADA
+start "" cmd /k "%~dp0start_backend.bat"
+
 cd /d "%~dp0..\..\..\..\JourneyMate"
 docker compose up -d >nul 2>&1
 
@@ -10,10 +13,8 @@ call "%~dp0wait_for_postgres.bat"
 
 cd /d "%~dp0..\..\..\..\journeymate-frontend"
 
-REM INICIAR VITE SIN TERMINAL
-start "" /b cmd /c "npm run dev >nul 2>&1"
+start "" cmd /k "npm run dev"
 
-REM ESPERAR A QUE VITE ARRANQUE
 :wait_vite
 powershell -command ^
 "try { ^

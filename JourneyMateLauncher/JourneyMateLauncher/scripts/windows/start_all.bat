@@ -3,6 +3,8 @@
 call "%~dp0start_docker.bat"
 timeout /t 3 >nul
 
+call "%~dp0start_backend.bat"
+
 cd /d "%~dp0..\..\..\..\JourneyMate"
 docker compose up -d >nul 2>&1
 

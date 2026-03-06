@@ -13,26 +13,27 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  backend:
-    build: .
-    image: journeymate_backend
-    container_name: journey_backend
-    depends_on:
-      - db
-    environment:
-      # Conexión a la DB interna de Docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/journeymate_bbdd
-      SPRING_DATASOURCE_USERNAME: journeymate_bbdd
-      SPRING_DATASOURCE_PASSWORD: journeymate-bbdd
-      # Claves seguras (se leen del archivo .env)
-      RAPIDAPI_KEY: ${RAPIDAPI_KEY}
-      GOOGLE_MAPS_KEY: ${GOOGLE_MAPS_KEY}
-      GOOGLE_AI_KEY: ${GOOGLE_AI_KEY}
-      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
-      PAYPAL_SECRET: ${PAYPAL_SECRET}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-    ports:
-      - "8080:8080"
+  # ============================
+  # BACKEND DESACTIVADO
+  # ============================
+  # backend:
+  #   build: .
+  #   image: journeymate_backend
+  #   container_name: journey_backend
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/journeymate_bbdd
+  #     SPRING_DATASOURCE_USERNAME: journeymate_bbdd
+  #     SPRING_DATASOURCE_PASSWORD: journeymate-bbdd
+  #     RAPIDAPI_KEY: ${RAPIDAPI_KEY}
+  #     GOOGLE_MAPS_KEY: ${GOOGLE_MAPS_KEY}
+  #     GOOGLE_AI_KEY: ${GOOGLE_AI_KEY}
+  #     PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+  #     PAYPAL_SECRET: ${PAYPAL_SECRET}
+  #     STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+  #   ports:
+  #     - "8080:8080"
 
 volumes:
   postgres_data:

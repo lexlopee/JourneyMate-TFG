@@ -42,6 +42,7 @@ public class ExternalFlightController {
                 pageNo, adults, childrenAge, sort, cabinClass, currencyCode
         ));
     }
+
     @GetMapping("/details")
     public ResponseEntity<FlightDetailsDTO> getFlightDetails(
             @RequestParam String token,

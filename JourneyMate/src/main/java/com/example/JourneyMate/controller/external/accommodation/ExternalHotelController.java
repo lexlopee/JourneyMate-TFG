@@ -3,7 +3,6 @@ package com.example.JourneyMate.controller.external.accommodation;
 import com.example.JourneyMate.external.accommodations.HotelDTO;
 import com.example.JourneyMate.external.accommodations.HotelDetailsDTO;
 import com.example.JourneyMate.service.external.accommodation.IHotelService;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

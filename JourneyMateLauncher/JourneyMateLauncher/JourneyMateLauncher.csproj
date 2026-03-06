@@ -77,6 +77,7 @@
     </Compile>
     <None Include="scripts\windows\launcher.bat" />
     <None Include="scripts\windows\start_all.bat" />
+    <None Include="scripts\windows\start_backend.bat" />
     <None Include="scripts\windows\start_docker.bat" />
     <None Include="scripts\windows\start_mobile.bat" />
     <None Include="scripts\windows\start_web.bat" />

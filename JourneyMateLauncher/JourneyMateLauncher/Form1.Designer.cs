@@ -39,6 +39,7 @@
             this.chkWeb = new System.Windows.Forms.CheckBox();
             this.chkEmulator = new System.Windows.Forms.CheckBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.btnBackend = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnWeb
@@ -52,7 +53,7 @@
             // 
             // btnMovil
             // 
-            this.btnMovil.Location = new System.Drawing.Point(27, 101);
+            this.btnMovil.Location = new System.Drawing.Point(27, 90);
             this.btnMovil.Name = "btnMovil";
             this.btnMovil.Size = new System.Drawing.Size(213, 38);
             this.btnMovil.TabIndex = 1;
@@ -61,7 +62,7 @@
             // 
             // btnTodo
             // 
-            this.btnTodo.Location = new System.Drawing.Point(27, 163);
+            this.btnTodo.Location = new System.Drawing.Point(27, 141);
             this.btnTodo.Name = "btnTodo";
             this.btnTodo.Size = new System.Drawing.Size(213, 38);
             this.btnTodo.TabIndex = 2;
@@ -70,7 +71,7 @@
             // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(27, 230);
+            this.btnStop.Location = new System.Drawing.Point(27, 247);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(213, 38);
             this.btnStop.TabIndex = 3;
@@ -130,9 +131,19 @@
             this.timer1.Interval = 2000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // btnBackend
+            // 
+            this.btnBackend.Location = new System.Drawing.Point(27, 193);
+            this.btnBackend.Name = "btnBackend";
+            this.btnBackend.Size = new System.Drawing.Size(213, 38);
+            this.btnBackend.TabIndex = 9;
+            this.btnBackend.Text = "Arrancar BackEnd";
+            this.btnBackend.Click += new System.EventHandler(this.btnBackend_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(268, 520);
+            this.Controls.Add(this.btnBackend);
             this.Controls.Add(this.btnWeb);
             this.Controls.Add(this.btnMovil);
             this.Controls.Add(this.btnTodo);
@@ -148,5 +159,7 @@
             this.PerformLayout();
 
         }
+
+        private System.Windows.Forms.Button btnBackend;
     }
 }

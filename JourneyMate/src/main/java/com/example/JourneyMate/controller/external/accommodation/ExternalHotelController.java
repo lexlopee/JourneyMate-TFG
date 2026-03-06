@@ -39,6 +39,7 @@ public class ExternalHotelController {
 
     @GetMapping("/destination")
     public ResponseEntity<String> getDestinationId(@RequestParam String name) {
+        System.out.println("--- ¡HEMOS LLEGADO AL CONTROLADOR! Buscando: " + name);
         String destId = hotelService.getDestinationId(name);
 
         if (destId == null || destId.isEmpty()) {

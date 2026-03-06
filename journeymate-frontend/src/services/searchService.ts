@@ -1,5 +1,7 @@
 import api from './api';
 
+export { api };
+
 export const getCruiseCatalogs = async () => {
   const [destRes, portRes] = await Promise.all([
     api.get('/cruises/destinations'),
@@ -68,4 +70,17 @@ export const performSearch = async (activeSection: string, searchData: any) => {
   }
 
   return response?.data;
+};
+
+export const getHotelDetails = async (hotelId: string, searchData: any) => {
+  const response = await api.get('/hotels/details', {
+    params: {
+      hotelId: hotelId,
+      arrivalDate: searchData.startDate,
+      departureDate: searchData.endDate,
+      adults: searchData.adults,
+      roomQty: 1 // Valor por defecto
+    }
+  });
+  return response.data;
 };

@@ -1,10 +1,13 @@
 import { MapPin, Calendar, Users, Globe, Ship, Plane, Car, Clock } from 'lucide-react';
 
 const SearchInput = ({ label, icon, placeholder, val, type = "text", onChange }: any) => (
-  <div className="search-input bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all group">
+  /* Añadimos 'search-input-field' para que Anime.js lo detecte 
+     y 'animate-fade-in' para un extra de suavidad 
+  */
+  <div className="search-input-field bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all group shadow-sm hover:shadow-md">
     <span className="text-[9px] font-black text-teal-800/40 block mb-1 uppercase tracking-widest">{label}</span>
     <div className="flex items-center gap-2 text-teal-900">
-      <span className="text-teal-500 group-hover:rotate-12 transition-transform">{icon}</span>
+      <span className="text-teal-500 group-hover:rotate-12 transition-transform duration-300">{icon}</span>
       <input
         type={type}
         value={val}
@@ -17,6 +20,7 @@ const SearchInput = ({ label, icon, placeholder, val, type = "text", onChange }:
 );
 
 export const SearchForm = ({ activeSection, searchData, handleChange }: any) => {
+  // Renderizamos los inputs según la sección activa
   switch (activeSection) {
     case 'alojamiento':
       return (
@@ -51,7 +55,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
           <SearchInput label="Ciudad" icon={<MapPin size={18} />} placeholder="¿A dónde vas?" val={searchData.destination} onChange={(v:any) => handleChange('destination', v)} />
           <SearchInput label="Desde" icon={<Calendar size={18} />} type="date" val={searchData.startDate} onChange={(v:any) => handleChange('startDate', v)} />
           <SearchInput label="Hasta" icon={<Calendar size={18} />} type="date" val={searchData.endDate} onChange={(v:any) => handleChange('endDate', v)} />
-          <div className="hidden md:block" />
+          <div className="hidden md:block search-input-field opacity-0" /> {/* Espaciador invisible para mantener el grid */}
         </>
       );
     case 'cruceros':

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class HotelServiceImpl extends BaseExternalService implements IHotelService {
+public class HotelServiceExternalImpl extends BaseExternalService implements IHotelService {
 
     @Value("${rapidapi.key}")
     private String apiKey;
@@ -25,7 +25,7 @@ public class HotelServiceImpl extends BaseExternalService implements IHotelServi
 
     private final ObjectMapper objectMapper;
 
-    public HotelServiceImpl(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public HotelServiceExternalImpl(RestTemplate restTemplate, ObjectMapper objectMapper) {
         super(restTemplate);
         this.objectMapper = objectMapper;
     }

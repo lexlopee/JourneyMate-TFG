@@ -3,16 +3,16 @@ package com.example.JourneyMate.service.impl.service_type;
 import com.example.JourneyMate.dao.service_type.HotelRepository;
 import com.example.JourneyMate.entity.service_type.HotelEntity;
 import com.example.JourneyMate.service.service_type.HotelService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class HotelServiceImpl implements HotelService {
 
-    @Autowired
-    private HotelRepository hotelRepository;
+    private final HotelRepository hotelRepository;
 
     @Override
     public List<HotelEntity> findByEstrellas(Integer estrellas) {
@@ -26,7 +26,8 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public HotelEntity findById(Integer idHotel) {
-        return hotelRepository.findById(idHotel).orElse(null);
+        return hotelRepository.findById(idHotel)
+                .orElseThrow(() -> new RuntimeException("Hotel no encontrado"));
     }
 
     @Override
@@ -39,3 +40,4 @@ public class HotelServiceImpl implements HotelService {
         hotelRepository.deleteById(idHotel);
     }
 }
+

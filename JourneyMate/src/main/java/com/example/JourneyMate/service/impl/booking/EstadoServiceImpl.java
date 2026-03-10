@@ -3,6 +3,7 @@ package com.example.JourneyMate.service.impl.booking;
 import com.example.JourneyMate.dao.booking.EstadoRepository;
 import com.example.JourneyMate.entity.booking.EstadoEntity;
 import com.example.JourneyMate.service.booking.EstadoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +11,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class EstadoServiceImpl implements EstadoService {
 
-    @Autowired
-    private EstadoRepository estadoRepository;
+    private final EstadoRepository estadoRepository;
+
+    @Override
+    public EstadoEntity findByNombre(String nombre) {
+        return estadoRepository
+                .findByNombreIgnoreCase(nombre)
+                .orElse(null);
+    }
 
     @Override
     public List<EstadoEntity> findAll() {
@@ -32,14 +40,12 @@ public class EstadoServiceImpl implements EstadoService {
 
     @Override
     public EstadoEntity actualizar(Integer idEstado, EstadoEntity estado) {
-        Optional<EstadoEntity> existente = estadoRepository.findById(idEstado);
-
-        if (existente.isEmpty()) {
-            return null;
-        }
-        estado.setIdEstado(idEstado);
-        return estadoRepository.save(estado);
-
+        return estadoRepository.findById(idEstado)
+                .map(e -> {
+                    estado.setIdEstado(idEstado);
+                    return estadoRepository.save(estado);
+                })
+                .orElse(null);
     }
 
     @Override
@@ -51,9 +57,5 @@ public class EstadoServiceImpl implements EstadoService {
     public boolean existsById(Integer idEstado) {
         return estadoRepository.existsById(idEstado);
     }
-
-    @Override
-    public EstadoEntity findByNombre(String nombre) {
-        return estadoRepository.findAll().stream().filter(e -> e.getNombre().equalsIgnoreCase(nombre)).findFirst().orElse(null);
-    }
 }
+

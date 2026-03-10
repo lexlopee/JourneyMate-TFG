@@ -26,10 +26,6 @@ public class MapsService extends BaseExternalService {
         super(restTemplate);
     }
 
-    /**
-     * Autocompletado de ciudades
-     * Retorna una lista limpia de DTOs para el Frontend.
-     */
     @Cacheable(value = "predictions", key = "#query")
     public List<MapPredictionDTO> getAutocomplete(String query) {
         String url = UriComponentsBuilder.fromHttpUrl("https://maps.googleapis.com/maps/api/place/autocomplete/json")
@@ -45,18 +41,15 @@ public class MapsService extends BaseExternalService {
             return Collections.emptyList();
         }
 
-        // Conversión segura eliminando "Unchecked cast" warnings
         List<Map<String, Object>> predictions = objectMapper.convertValue(
                 response.get("predictions"),
-                new TypeReference<List<Map<String, Object>>>() {
-                }
+                new TypeReference<List<Map<String, Object>>>() {}
         );
 
         return predictions.stream().map(p -> {
             Map<String, Object> structured = objectMapper.convertValue(
                     p.get("structured_formatting"),
-                    new TypeReference<Map<String, Object>>() {
-                    }
+                    new TypeReference<Map<String, Object>>() {}
             );
 
             return MapPredictionDTO.builder()
@@ -67,9 +60,6 @@ public class MapsService extends BaseExternalService {
         }).toList();
     }
 
-    /**
-     * Obtiene detalles específicos (Latitud/Longitud) para la DB (Tabla PUNTO_INTERES)
-     */
     public JsonNode getPlaceDetails(String placeId) {
         String url = UriComponentsBuilder.fromHttpUrl("https://maps.googleapis.com/maps/api/place/details/json")
                 .queryParam("place_id", placeId)
@@ -80,9 +70,6 @@ public class MapsService extends BaseExternalService {
         return executeGetRequest(url, null, null);
     }
 
-    /**
-     * Busca puntos de interés cercanos (Objetivo 9 del Anteproyecto)
-     */
     public JsonNode getNearbyTouristPoints(double lat, double lon) {
         String url = UriComponentsBuilder.fromHttpUrl("https://maps.googleapis.com/maps/api/place/nearbysearch/json")
                 .queryParam("location", lat + "," + lon)
@@ -94,9 +81,6 @@ public class MapsService extends BaseExternalService {
         return executeGetRequest(url, null, null);
     }
 
-    /**
-     * Metodo original para obtener sugerencias crudas (JsonNode)
-     */
     public JsonNode getPlaceSuggestions(String input) {
         String url = UriComponentsBuilder.fromHttpUrl("https://maps.googleapis.com/maps/api/place/autocomplete/json")
                 .queryParam("input", input)

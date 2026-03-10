@@ -3,6 +3,7 @@ package com.example.JourneyMate.service.impl.payment;
 import com.example.JourneyMate.dao.payment.PagoRepository;
 import com.example.JourneyMate.entity.payment.PagoEntity;
 import com.example.JourneyMate.service.payment.PagoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,14 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PagoServiceImpl implements PagoService {
 
-    @Autowired
     private final PagoRepository pagoRepository;
-
-    public PagoServiceImpl(PagoRepository pagoRepository) {
-        this.pagoRepository = pagoRepository;
-    }
 
     @Override
     public List<PagoEntity> findByReservaIdReserva(Integer idReserva) {

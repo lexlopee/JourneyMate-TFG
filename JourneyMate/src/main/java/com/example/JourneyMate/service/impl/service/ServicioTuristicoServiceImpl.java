@@ -3,16 +3,16 @@ package com.example.JourneyMate.service.impl.service;
 import com.example.JourneyMate.dao.service.ServicioTuristicoRepository;
 import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
 import com.example.JourneyMate.service.service.ServicioTuristicoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
 
-    @Autowired
-    private ServicioTuristicoRepository servicioTuristicoRepository;
+    private final ServicioTuristicoRepository servicioTuristicoRepository;
 
     @Override
     public List<ServicioTuristicoEntity> findAll() {
@@ -21,7 +21,9 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
 
     @Override
     public ServicioTuristicoEntity findById(Integer idTuristico) {
-        return servicioTuristicoRepository.findById(idTuristico).orElse(null);
+        return servicioTuristicoRepository.findById(idTuristico)
+                .orElseThrow(() ->
+                        new RuntimeException("Servicio turístico no encontrado: " + idTuristico));
     }
 
     @Override

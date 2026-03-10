@@ -3,16 +3,16 @@ package com.example.JourneyMate.service.impl.user;
 import com.example.JourneyMate.dao.user.RolRepository;
 import com.example.JourneyMate.entity.user.RolEntity;
 import com.example.JourneyMate.service.user.RolService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RolServiceImpl implements RolService {
 
-    @Autowired
-    private RolRepository rolRepository;
+    private final RolRepository rolRepository;
 
     @Override
     public List<RolEntity> findAll() {
@@ -31,10 +31,9 @@ public class RolServiceImpl implements RolService {
 
     @Override
     public List<RolEntity> findAllByRolName(String rolName) {
-        return rolRepository.findAll()
-                .stream()
-                .filter(r -> r.getNombre().equalsIgnoreCase(rolName))
-                .toList();
+        return rolRepository.findByNombre(rolName)
+                .map(List::of)
+                .orElse(List.of());
     }
 
     @Override
@@ -44,18 +43,15 @@ public class RolServiceImpl implements RolService {
 
     @Override
     public List<RolEntity> findAllByUserId(Integer idUser) {
-        return rolRepository.findAll()
-                .stream()
-                .filter(r -> r.getId_usuarios()
-                        .stream()
-                        .anyMatch(u -> u.getIdUsuario().equals(idUser)))
-                .toList();
+        return rolRepository.findByUsuarios_IdUsuario(idUser);
     }
 
     @Override
     public void deleteAllByUserId(Integer idUser) {
-        rolRepository.findAll().forEach(rol -> {
-            rol.getId_usuarios().removeIf(u -> u.getIdUsuario().equals(idUser));
+        var roles = rolRepository.findByUsuarios_IdUsuario(idUser);
+
+        roles.forEach(rol -> {
+            rol.getUsuarios().removeIf(u -> u.getIdUsuario().equals(idUser));
             rolRepository.save(rol);
         });
     }

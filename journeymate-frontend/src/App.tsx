@@ -23,8 +23,8 @@ function App() {
   const [searchData, setSearchData] = useState({
     origin: '',
     destination: '',
-    startDate: '',
-    endDate: '',
+    startDate: new Date(),   // ← FECHA DE HOY POR DEFECTO
+    endDate: new Date(),     // ← FECHA DE HOY POR DEFECTO
     adults: '2',
     pickupTime: '10:00',
     cabinClass: 'ECONOMY'
@@ -36,10 +36,8 @@ function App() {
 
   // --- EFECTOS (ANIMACIONES) ---
   useEffect(() => {
-    // Al cambiar de sección: limpiar resultados previos
     setResults([]);
 
-    // 1. Animación del Icono Dinámico (Giro y Escala)
     if (iconRef.current) {
       anime({
         targets: iconRef.current,
@@ -51,7 +49,6 @@ function App() {
       });
     }
 
-    // 2. Animación de entrada del Contenedor Principal
     if (containerRef.current) {
       anime({
         targets: containerRef.current,
@@ -62,9 +59,8 @@ function App() {
       });
     }
 
-    // 3. Animación escalonada (Stagger) para los inputs del formulario
     anime({
-      targets: ".search-input-field", // Asegúrate de que esta clase esté en tus inputs de SearchForm
+      targets: ".search-input-field",
       opacity: [0, 1],
       translateY: [15, 0],
       delay: anime.stagger(100),
@@ -75,8 +71,21 @@ function App() {
 
   // --- MANEJADORES ---
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: any) => {
     setSearchData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // 🔥 FORMATEADOR DE FECHAS PARA EL BACKEND
+  const formatDate = (d: any) => {
+    if (!d) return "";
+    const date = new Date(d);
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  };
+
+  // 🔥 NORMALIZADOR DE ESPACIOS → "_"
+  const normalize = (text: string) => {
+    if (!text) return "";
+    return text.trim().replace(/\s+/g, "_");
   };
 
   const handleSearch = async () => {
@@ -86,12 +95,20 @@ function App() {
     }
 
     setLoading(true);
-    setResults([]); // Limpiar vista antes de la nueva carga
-    
+    setResults([]);
+
     try {
-      // Nota: performSearch ya gestiona internamente la obtención del destId en tu service
-      const data = await performSearch(activeSection, searchData);
-      
+      // 🔥 CORREGIDO: ENVIAMOS FECHAS COMO STRINGS Y DESTINO NORMALIZADO
+      const payload = {
+        ...searchData,
+        destination: normalize(searchData.destination),
+        origin: normalize(searchData.origin),
+        startDate: formatDate(searchData.startDate),
+        endDate: formatDate(searchData.endDate)
+      };
+
+      const data = await performSearch(activeSection, payload);
+
       if (data && Array.isArray(data)) {
         setResults(data);
       } else if (data?.result) { 
@@ -113,7 +130,13 @@ function App() {
     setModalLoading(true);
     setSelectedHotelDetails(null);
     try {
-      const details = await getHotelDetails(hotelId, searchData);
+      const details = await getHotelDetails(hotelId, {
+        ...searchData,
+        destination: normalize(searchData.destination),
+        origin: normalize(searchData.origin),
+        startDate: formatDate(searchData.startDate),
+        endDate: formatDate(searchData.endDate)
+      });
       setSelectedHotelDetails(details);
     } catch (error) {
       console.error("Error al obtener detalles:", error);
@@ -141,7 +164,10 @@ function App() {
         </div>
 
         {/* Contenedor del Buscador Animado */}
-        <div ref={containerRef} className="w-full max-w-5xl backdrop-blur-2xl bg-white/40 rounded-[4rem] border border-white/60 shadow-2xl p-12 text-center">
+        <div 
+          ref={containerRef} 
+          className="w-full max-w-5xl backdrop-blur-2xl bg-white/40 rounded-[4rem] border border-white/60 shadow-2xl p-12 text-center overflow-visible"
+        >
           
           <h2 className="text-5xl md:text-7xl font-black text-teal-900 tracking-tighter uppercase mb-2 leading-none">
             JourneyMate <span className="text-teal-600/40">{activeSection}</span>
@@ -151,16 +177,25 @@ function App() {
             Tu compañero de viaje inteligente
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white/30 p-4 rounded-[3rem] border border-white/30">
+          <div className="
+            grid 
+            grid-cols-1 
+            sm:grid-cols-2 
+            md:grid-cols-3 
+            lg:grid-cols-5 
+            gap-4 
+            bg-white/30 
+            p-4 
+            rounded-[3rem] 
+            border border-white/30
+          ">
             
-            {/* Formulario con campos que tienen la clase 'search-input-field' para animarse */}
             <SearchForm 
               activeSection={activeSection} 
               searchData={searchData} 
               handleChange={handleChange} 
             />
 
-            {/* Botón de Acción Principal */}
             <button 
               onClick={handleSearch}
               disabled={loading}
@@ -178,7 +213,6 @@ function App() {
           </div>
         </div>
 
-        {/* Listado de Resultados Dinámico */}
         <ResultsList 
           results={results} 
           activeSection={activeSection} 
@@ -186,7 +220,6 @@ function App() {
           destination={searchData.destination}
         />
 
-        {/* Estado Vacío / Guía de búsqueda */}
         {!loading && results.length === 0 && (
            <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">
              {searchData.destination === '' ? "Escribe un destino y comienza a explorar" : "No hay resultados para mostrar"}
@@ -195,7 +228,6 @@ function App() {
 
       </main>
 
-      {/* Modales de la Aplicación */}
       <HotelDetailsModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

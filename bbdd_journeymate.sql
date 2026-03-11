@@ -24,7 +24,7 @@ CREATE TABLE journeymate.rol(
 -- Creación de la Tabla USUARIO
 CREATE TABLE journeymate.usuario(
 	id_usuario INTEGER GENERATED ALWAYS AS IDENTITY,
-	telefono VARCHAR (20	),
+	telefono VARCHAR (20),
 	password_hash VARCHAR(255) ,
 	nombre VARCHAR (30) NOT NULL,
 	primer_apellido VARCHAR (30) NOT NULL,
@@ -210,7 +210,7 @@ CREATE TABLE journeymate.reserva(
 	telefono VARCHAR(15),
 	fecha_reserva DATE,
 	CONSTRAINT pk_id_res PRIMARY KEY (id_reserva),
-		CONSTRAINT fk_id_ser FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico (id_servicio) ON DELETE RESTRICT,
+	CONSTRAINT fk_id_ser FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico (id_servicio) ON DELETE RESTRICT,
 	CONSTRAINT fk_id_est FOREIGN KEY (id_estado) REFERENCES journeymate.estado (id_estado),
 	CONSTRAINT fk_id_tip_res FOREIGN KEY (id_tipo_reserva) REFERENCES journeymate.tipo_reserva (id_tipo_reserva),
 	CONSTRAINT fk_id_usu FOREIGN KEY (id_usuario) REFERENCES journeymate.usuario (id_usuario) ON DELETE RESTRICT 

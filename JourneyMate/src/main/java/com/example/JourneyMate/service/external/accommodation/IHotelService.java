@@ -28,6 +28,6 @@ public interface IHotelService {
             String currencyCode
     );
 
-    HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate, Integer adults, String childrenAge, Integer roomQty);
+    HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate, Integer adults, String childrenAge, Integer roomQty, String currencyCode);
 
 }

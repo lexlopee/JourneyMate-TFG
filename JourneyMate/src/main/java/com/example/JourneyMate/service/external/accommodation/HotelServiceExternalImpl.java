@@ -66,7 +66,8 @@ public class HotelServiceExternalImpl extends BaseExternalService implements IHo
     }
 
     @Override
-    public HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate, Integer adults, String childrenAge, Integer roomQty) {
+    public HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate,
+                                           Integer adults, String childrenAge, Integer roomQty, String currencyCode) {
 
         String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/hotels/getHotelDetails")
                 .queryParam("hotel_id", hotelId)
@@ -77,7 +78,7 @@ public class HotelServiceExternalImpl extends BaseExternalService implements IHo
                 .queryParam("room_qty", roomQty != null ? roomQty : 1)
                 .queryParam("units", "metric")
                 .queryParam("temperature_unit", "c")
-                .queryParam("currency_code", "EUR")
+                .queryParam("currency_code", currencyCode != null ? currencyCode : "EUR")
                 .toUriString();
 
         JsonNode response = executeGetRequest(url, apiKey, apiHost);

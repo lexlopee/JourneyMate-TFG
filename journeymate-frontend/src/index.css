@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "flatpickr/dist/flatpickr.min.css";¡
 
 /* Eliminar barra de scroll pero mantener funcionalidad */
 .no-scrollbar::-webkit-scrollbar {

@@ -12,13 +12,16 @@
   "dependencies": {
     "animejs": "^3.2.0",
     "axios": "^1.13.6",
+    "flatpickr": "^4.6.13",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-flatpickr": "^4.0.11",
     "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.2.1",
+    "@types/flatpickr": "^3.0.2",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

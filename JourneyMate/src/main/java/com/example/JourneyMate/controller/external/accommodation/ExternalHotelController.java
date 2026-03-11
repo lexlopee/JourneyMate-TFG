@@ -55,9 +55,10 @@ public class ExternalHotelController {
             @RequestParam String departureDate,
             @RequestParam(defaultValue = "1") Integer adults,
             @RequestParam(required = false) String childrenAge,
-            @RequestParam(defaultValue = "1") Integer roomQty) {
+            @RequestParam(defaultValue = "1") Integer roomQty,
+            @RequestParam(defaultValue = "EUR") String currencyCode) {
 
-        HotelDetailsDTO details = hotelService.getHotelDetails(hotelId, arrivalDate, departureDate, adults, childrenAge, roomQty);
+        HotelDetailsDTO details = hotelService.getHotelDetails(hotelId, arrivalDate, departureDate, adults, childrenAge, roomQty, currencyCode);
         return ResponseEntity.ok(details);
     }
 

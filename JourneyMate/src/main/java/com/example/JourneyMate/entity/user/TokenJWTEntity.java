@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "token_jwt", schema = "journeymate")
@@ -16,15 +16,18 @@ public class TokenJWTEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_token")
     private Integer idToken;
+
     @Column(name = "fecha_expiacion", nullable = false)
-    private LocalDate fecha_expiacion;
+    private LocalDateTime fechaExpiacion;
+
     @Column(name = "fecha_creacion", nullable = false)
-    private LocalDate fecha_creacion;
-    @Column(name = "token", length = 100)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "token", length = 500)
     private String token;
+
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private UsuarioEntity usuario;
-
 }

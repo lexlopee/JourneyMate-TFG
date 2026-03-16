@@ -19,8 +19,8 @@ public class UsuarioEntity {
     private Integer idUsuario;
     @Column(name = "telefono", length = 13)
     private String telefono;
-    @Column(name = "contraseña", length = 30)
-    private String contrasenia;
+    @Column(name = "password_hash", length = 255)
+    private String passwordHash;
     @Column(name = "nombre", length = 30)
     private String nombre;
     @Column(name = "primer_apellido", length = 30)

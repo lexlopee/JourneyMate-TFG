@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import anime from "animejs/lib/anime.es.js";
 import { Hotel, Plane, Car, Ticket, Ship, User, Train } from 'lucide-react';
 import logoImg from '../assets/logo.png'; 
+import { Link } from "react-router-dom";
+
 
 export type Section = 'alojamiento' | 'vuelos' | 'coches' | 'actividades' | 'cruceros' | 'trenes';
 
@@ -91,10 +93,13 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
         </div>
 
         {/* BOTÓN ACCEDER */}
-        <button className="group relative overflow-hidden bg-teal-900 text-white px-6 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2">
+        <Link
+          to="/login"
+          className="group relative overflow-hidden bg-teal-900 text-white px-6 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2"
+        >
           <User size={16} /> Acceder
           <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-shine" />
-        </button>
+        </Link>
       </div>
     </nav>
   );

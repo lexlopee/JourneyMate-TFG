@@ -13,6 +13,9 @@ import com.example.JourneyMate.entity.user.UsuarioEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Service
 public class AuthService {
 
@@ -34,7 +37,7 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    // REGISTRO
+    // REGISTER
     public AuthResponse register(RegisterRequest request) {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
@@ -46,8 +49,13 @@ public class AuthService {
 
         UsuarioEntity usuario = new UsuarioEntity();
         usuario.setNombre(request.getNombre());
+        usuario.setPrimerApellido(request.getPrimerApellido());
+        usuario.setSegundoApellido(request.getSegundoApellido());
+        usuario.setTelefono(request.getTelefono());
+        usuario.setFechaNacimiento(request.getFechaNacimiento());
         usuario.setEmail(request.getEmail());
-        usuario.setContrasenia(passwordEncoder.encode(request.getPassword()));
+        usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        usuario.setFechaRegistro(LocalDate.now());
         usuario.setRol(rol);
 
         usuarioRepository.save(usuario);
@@ -57,10 +65,14 @@ public class AuthService {
         TokenJWTEntity tokenEntity = new TokenJWTEntity();
         tokenEntity.setToken(token);
         tokenEntity.setUsuario(usuario);
+        tokenEntity.setFechaCreacion(LocalDateTime.now());
+        tokenEntity.setFechaExpiacion(LocalDateTime.now().plusDays(7));
+
         tokenJWTRepository.save(tokenEntity);
 
         return new AuthResponse(token);
     }
+
 
     // LOGIN
     public AuthResponse login(LoginRequest request) {
@@ -68,7 +80,7 @@ public class AuthService {
         UsuarioEntity usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getContrasenia())) {
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
             throw new RuntimeException("Credenciales inválidas");
         }
 
@@ -77,6 +89,9 @@ public class AuthService {
         TokenJWTEntity tokenEntity = new TokenJWTEntity();
         tokenEntity.setToken(token);
         tokenEntity.setUsuario(usuario);
+        tokenEntity.setFechaCreacion(LocalDateTime.now());
+        tokenEntity.setFechaExpiacion(LocalDateTime.now().plusDays(7));
+
         tokenJWTRepository.save(tokenEntity);
 
         return new AuthResponse(token);

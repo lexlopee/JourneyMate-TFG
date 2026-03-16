@@ -11,7 +11,7 @@ public class UsuarioMapper {
         UsuarioEntity entity = new UsuarioEntity();
 
         entity.setTelefono(dto.getTelefono());
-        entity.setContrasenia(dto.getContrasenia());
+        entity.setPasswordHash(dto.getContrasenia());
         entity.setNombre(dto.getNombre());
         entity.setPrimerApellido(dto.getPrimerApellido());
         entity.setSegundoApellido(dto.getSegundoApellido());

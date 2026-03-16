@@ -23,7 +23,6 @@ public class JWTUtil {
     public String generateToken(UsuarioEntity usuario) {
         return Jwts.builder()
                 .setSubject(usuario.getEmail())
-                .claim("id", usuario.getIdUsuario())
                 .claim("rol", usuario.getRol().getNombre())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))

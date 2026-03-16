@@ -1,10 +1,10 @@
 import { HotelCard } from '../HotelCard';
-import { Building2, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface ResultsListProps {
   results: any[];
   activeSection: string;
-  onViewDetails: (id: string) => void;
+  onViewDetails: (hotel: any) => void;
   destination: string; 
 }
 
@@ -13,7 +13,6 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-20 animate-fade-in pb-20">
-      {/* Cabecera de resultados más elegante */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12 px-6">
         <div>
           <div className="flex items-center gap-2 text-teal-600 font-black uppercase text-[10px] tracking-[0.3em] mb-2">
@@ -24,7 +23,7 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
           </h2>
         </div>
         <div className="bg-teal-50 px-6 py-3 rounded-2xl border border-teal-100">
-           <span className="text-teal-900 font-black text-sm">{results.length} propiedades encontradas</span>
+           <span className="text-teal-900 font-black text-sm">{results.length} alojamientos encontrados</span>
         </div>
       </div>
 
@@ -34,7 +33,7 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
             <HotelCard 
               key={item.hotelId || index} 
               hotel={item} 
-              onViewDetails={onViewDetails}
+              onViewDetails={() => onViewDetails(item)}
               destination={destination} 
             />
           ))

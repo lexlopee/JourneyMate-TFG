@@ -1,11 +1,14 @@
 package com.example.JourneyMate.external.accommodations;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
 @Data
 public class HotelDetailsDTO {
+    private boolean status;
+    private String message;
     private DataPayload data;
 
     @Data
@@ -15,26 +18,37 @@ public class HotelDetailsDTO {
         private String city;
         private String currency_code;
         private String accommodation_type_name;
+        private Double review_score;
+        private String review_score_word;
         private int review_nr;
-        private int available_rooms;
 
-        // Fotos mapeadas desde el objeto 'rooms'
+        // Estructura de precios robusta
+        private PriceBreakdown product_price_breakdown;
+
         private Map<String, RoomDetails> rooms;
-
-        // Estructura de precios (Map<String, Object> o puedes crear clase si prefieres)
-        private Map<String, Object> product_price_breakdown;
-
-        // NUEVOS CAMPOS PARA EL FRONTEND DETALLADO:
-
-        // Instalaciones (Most popular facilities)
         private FacilitiesBlock facilities_block;
-
-        // Sostenibilidad
-        private Sustainability sustainability;
-
-        // Puntuación del desayuno
         private BreakfastScore breakfast_review_score;
     }
+
+    // --- NUEVAS CLASES PARA EL PRECIO (Crucial para que no salga "menos precio") ---
+
+    @Data
+    public static class PriceBreakdown {
+        private PriceValue all_inclusive_amount; // El precio final
+        private PriceValue gross_amount;          // El precio base (neto)
+        private PriceValue excluded_amount;       // Impuestos y cargos aparte
+        private PriceValue discounted_amount;     // Lo que se ha ahorrado
+        private int nr_stays;                     // Número de noches real
+    }
+
+    @Data
+    public static class PriceValue {
+        private double value;
+        private String currency;
+        private String amount_rounded;
+    }
+
+    // --- CLASES DE SOPORTE YA EXISTENTES ---
 
     @Data
     public static class RoomDetails {
@@ -46,27 +60,15 @@ public class HotelDetailsDTO {
         private String url_max750;
     }
 
-    // Clases internas para los nuevos detalles:
-
     @Data
     public static class FacilitiesBlock {
         private List<Facility> facilities;
-        @Data
-        public static class Facility {
-            private String name;
-            private String icon;
-        }
     }
 
     @Data
-    public static class Sustainability {
-        private HotelPage hotel_page;
-        @Data
-        public static class HotelPage {
-            private int has_badge;
-            private String title;
-            private String description;
-        }
+    public static class Facility {
+        private String name;
+        private String icon;
     }
 
     @Data

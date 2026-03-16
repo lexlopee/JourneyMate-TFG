@@ -23,16 +23,17 @@ function App() {
   const [searchData, setSearchData] = useState({
     origin: '',
     destination: '',
-    startDate: new Date(),   // ← FECHA DE HOY POR DEFECTO
-    endDate: new Date(),     // ← FECHA DE HOY POR DEFECTO
+    startDate: new Date(),
+    endDate: new Date(),
     adults: '2',
     pickupTime: '10:00',
     cabinClass: 'ECONOMY'
   });
 
-  // --- REFERENCIAS PARA ANIME.JS ---
+  // --- REFERENCIAS ---
   const iconRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null); // ← NUEVO
 
   // --- EFECTOS (ANIMACIONES) ---
   useEffect(() => {
@@ -70,19 +71,16 @@ function App() {
   }, [activeSection]);
 
   // --- MANEJADORES ---
-
   const handleChange = (field: string, value: any) => {
     setSearchData(prev => ({ ...prev, [field]: value }));
   };
 
-  // 🔥 FORMATEADOR DE FECHAS PARA EL BACKEND
   const formatDate = (d: any) => {
     if (!d) return "";
     const date = new Date(d);
-    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+    return date.toISOString().split("T")[0];
   };
 
-  // 🔥 NORMALIZADOR DE ESPACIOS → "_"
   const normalize = (text: string) => {
     if (!text) return "";
     return text.trim().replace(/\s+/g, "_");
@@ -98,7 +96,6 @@ function App() {
     setResults([]);
 
     try {
-      // 🔥 CORREGIDO: ENVIAMOS FECHAS COMO STRINGS Y DESTINO NORMALIZADO
       const payload = {
         ...searchData,
         destination: normalize(searchData.destination),
@@ -116,7 +113,14 @@ function App() {
       } else if (data?.hotels) {
         setResults(data.hotels);
       }
-      
+
+      // 🔥 SCROLL A LOS RESULTADOS
+      if (resultsRef.current) {
+        setTimeout(() => {
+          resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 300);
+      }
+
     } catch (error) {
       console.error("Error en la búsqueda:", error);
       alert("Hubo un problema al conectar con el servidor. Verifica tu conexión.");
@@ -213,12 +217,15 @@ function App() {
           </div>
         </div>
 
-        <ResultsList 
-          results={results} 
-          activeSection={activeSection} 
-          onViewDetails={handleViewDetails}
-          destination={searchData.destination}
-        />
+        {/* 🔥 RESULTADOS CON REF PARA SCROLL */}
+        <div ref={resultsRef}>
+          <ResultsList 
+            results={results} 
+            activeSection={activeSection} 
+            onViewDetails={handleViewDetails}
+            destination={searchData.destination}
+          />
+        </div>
 
         {!loading && results.length === 0 && (
            <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">

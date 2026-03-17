@@ -111,40 +111,50 @@ public class HotelServiceExternalImpl extends BaseExternalService implements IHo
     private HotelDTO mapToDTO(JsonNode node) {
         HotelDTO dto = new HotelDTO();
 
-        // La API a veces devuelve los datos dentro de "property" y otras veces directos
-        JsonNode prop = node.has("property") ? node.path("property") : node;
+        // En este JSON, toda la info real está dentro del nodo "property"
+        JsonNode prop = node.path("property");
 
-        // Importante: Extraer el ID para poder pedir los detalles después
-        dto.setHotelId(prop.path("hotel_id").isMissingNode()
-                ? prop.path("id").asText()
-                : prop.path("hotel_id").asText());
-
+        // 1. IDs y Nombres
+        dto.setHotelId(prop.path("id").asText());
         dto.setNombre(prop.path("name").asText("N/A"));
+
+        // 2. Ubicación
         dto.setLatitud(prop.path("latitude").asDouble(0.0));
         dto.setLongitud(prop.path("longitude").asDouble(0.0));
 
-        // Mapeo de precios (Ajustado para ser más flexible)
-        JsonNode priceBreakdown = prop.path("priceBreakdown");
-        JsonNode grossPrice = priceBreakdown.path("grossPrice");
+        // 3. Estrellas
+        // El JSON usa 'accuratePropertyClass' o 'propertyClass'
+        int stars = prop.path("accuratePropertyClass").asInt(0);
+        if (stars == 0) stars = prop.path("propertyClass").asInt(0);
+        dto.setPropertyClass(stars);
 
-        if (grossPrice.isMissingNode()) {
-            // Intento alternativo si la estructura es diferente
-            dto.setPrecio(prop.path("price").asDouble(0.0));
-            dto.setMoneda(prop.path("currency").asText("EUR"));
-        } else {
-            double rawPrice = grossPrice.path("value").asDouble(0.0);
-            dto.setPrecio(Math.round(rawPrice * 100.0) / 100.0);
+        // 4. PRECIOS (La clave de tu problema)
+        JsonNode priceBreakdown = prop.path("priceBreakdown");
+
+        // Precio Actual (El que el usuario debe pagar)
+        JsonNode grossPrice = priceBreakdown.path("grossPrice");
+        if (!grossPrice.isMissingNode()) {
+            // Usamos .asDouble() para capturar el valor numérico
+            dto.setPrecio(grossPrice.path("value").asDouble(0.0));
             dto.setMoneda(grossPrice.path("currency").asText("EUR"));
         }
 
-        dto.setCalificacion(prop.path("reviewScore").asDouble(0.0));
-        dto.setReviewWord(prop.path("reviewScoreWord").asText("Sin calificar"));
-
-        // Foto: Algunas APIs usan 'photoUrls', otras 'image_url'
-        if (prop.path("photoUrls").isArray() && !prop.path("photoUrls").isEmpty()) {
-            dto.setUrlFoto(prop.path("photoUrls").get(0).asText());
+        // Precio Original (Si hay oferta, aparece en 'strikethroughPrice')
+        JsonNode originalPriceNode = priceBreakdown.path("strikethroughPrice");
+        if (!originalPriceNode.isMissingNode()) {
+            dto.setPrecioOriginal(originalPriceNode.path("value").asDouble(0.0));
         } else {
-            dto.setUrlFoto(prop.path("wishlist_canvas_image_url").asText(null));
+            dto.setPrecioOriginal(null);
+        }
+
+        // 5. Calificación
+        dto.setCalificacion(prop.path("reviewScore").asDouble(0.0));
+        dto.setReviewWord(prop.path("reviewScoreWord").asText(""));
+
+        // 6. Foto (Viene en el array 'photoUrls')
+        JsonNode photos = prop.path("photoUrls");
+        if (photos.isArray() && !photos.isEmpty()) {
+            dto.setUrlFoto(photos.get(0).asText());
         }
 
         return dto;

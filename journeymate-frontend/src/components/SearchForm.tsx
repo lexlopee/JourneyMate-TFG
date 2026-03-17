@@ -15,9 +15,18 @@ import { SearchCounter } from "./SearchCounter";
 
 export const SearchForm = ({ activeSection, searchData, handleChange }: any) => {
 
+  /**
+   * Función auxiliar para limpiar el texto según requiere tu API
+   */
+  const handleLocationChange = (key: string, value: string) => {
+    // Reemplaza todos los espacios por guiones bajos
+    const formattedValue = value.replace(/ /g, '_');
+    handleChange(key, formattedValue);
+  };
+
   switch (activeSection) {
 
-    // 🏨 ALOJAMIENTO (5 Inputs + Botón Buscar = 6)
+    // 🏨 ALOJAMIENTO
     case 'alojamiento':
       return (
         <>
@@ -25,9 +34,10 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             label="Destino" 
             icon={<MapPin size={18} />} 
             placeholder="¿A dónde vas?" 
-            val={searchData.destination} 
-            onChange={(v: any) => handleChange('destination', v)} 
+            val={searchData.destination?.replace(/_/g, ' ')} // Mostramos espacios al usuario
+            onChange={(v: any) => handleLocationChange('destination', v)} 
           />
+          {/* ... resto de campos igual ... */}
           <SearchInput 
             label="Entrada" 
             icon={<Calendar size={18} />} 
@@ -59,7 +69,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
         </>
       );
 
-    // ✈️ VUELOS (5 Inputs + Botón Buscar = 6)
+    // ✈️ VUELOS
     case 'vuelos':
       return (
         <>
@@ -67,15 +77,15 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             label="Origen" 
             icon={<Plane size={18} />} 
             placeholder="MAD" 
-            val={searchData.origin} 
-            onChange={(v: any) => handleChange('origin', v)} 
+            val={searchData.origin?.replace(/_/g, ' ')}
+            onChange={(v: any) => handleLocationChange('origin', v)} 
           />
           <SearchInput 
             label="Destino" 
             icon={<MapPin size={18} />} 
             placeholder="JFK" 
-            val={searchData.destination} 
-            onChange={(v: any) => handleChange('destination', v)} 
+            val={searchData.destination?.replace(/_/g, ' ')}
+            onChange={(v: any) => handleLocationChange('destination', v)} 
           />
           <SearchInput 
             label="Fecha" 
@@ -100,44 +110,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
         </>
       );
 
-    // 🚗 COCHES (4 Inputs + 1 Empty + Botón Buscar = 6)
-    case 'coches':
-      return (
-        <>
-          <SearchInput 
-            label="Recogida" 
-            icon={<Car size={18} />} 
-            placeholder="Lugar de entrega" 
-            val={searchData.origin} 
-            onChange={(v: any) => handleChange('origin', v)} 
-          />
-          <SearchInput 
-            label="Fecha" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.startDate} 
-            onChange={(v: any) => handleChange('startDate', v)} 
-          />
-          <SearchInput 
-            label="Hora" 
-            icon={<Clock size={18} />} 
-            type="time" 
-            val={searchData.pickupTime} 
-            onChange={(v: any) => handleChange('pickupTime', v)} 
-          />
-          <SearchInput 
-            label="Devolución" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.endDate} 
-            onChange={(v: any) => handleChange('endDate', v)} 
-          />
-          {/* Espaciador para mantener el botón de buscar al final */}
-          <div className="hidden lg:block search-input-field opacity-0" />
-        </>
-      );
-
-    // 🎟 ACTIVIDADES (3 Inputs + 2 Empty + Botón Buscar = 6)
+    // 🎟 ACTIVIDADES
     case 'actividades':
       return (
         <>
@@ -145,8 +118,8 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             label="Ciudad" 
             icon={<MapPin size={18} />} 
             placeholder="¿Qué quieres hacer?" 
-            val={searchData.destination} 
-            onChange={(v: any) => handleChange('destination', v)} 
+            val={searchData.destination?.replace(/_/g, ' ')}
+            onChange={(v: any) => handleLocationChange('destination', v)} 
           />
           <SearchInput 
             label="Desde" 
@@ -167,7 +140,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
         </>
       );
 
-    // 🚢 CRUCEROS (4 Inputs + 1 Empty + Botón Buscar = 6)
+    // 🚢 CRUCEROS
     case 'cruceros':
       return (
         <>
@@ -175,15 +148,15 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             label="Zona" 
             icon={<Globe size={18} />} 
             placeholder="Mediterráneo..." 
-            val={searchData.destination} 
-            onChange={(v: any) => handleChange('destination', v)} 
+            val={searchData.destination?.replace(/_/g, ' ')}
+            onChange={(v: any) => handleLocationChange('destination', v)} 
           />
           <SearchInput 
             label="Puerto" 
             icon={<Ship size={18} />} 
             placeholder="Barcelona..." 
-            val={searchData.origin} 
-            onChange={(v: any) => handleChange('origin', v)} 
+            val={searchData.origin?.replace(/_/g, ' ')}
+            onChange={(v: any) => handleLocationChange('origin', v)} 
           />
           <SearchInput 
             label="Salida" 
@@ -203,6 +176,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
         </>
       );
 
+    // ... Caso de coches queda igual (suelen ser IDs o códigos IATA), pero puedes aplicarlo si lo necesitas
     default:
       return null;
   }

@@ -9,21 +9,23 @@ interface HotelCardProps {
 export const HotelCard = ({ hotel, onViewDetails, destination }: HotelCardProps) => {
   // Mapeo seguro de datos del DTO de Java
   const name = hotel.nombre || "Alojamiento JourneyMate";
-  const hotelId = hotel.hotelId;
   const rating = hotel.calificacion > 0 ? hotel.calificacion : "Nuevo";
   const image = hotel.urlFoto || "https://images.unsplash.com/photo-1566073771259-6a8506099945";
   const reviewText = hotel.reviewWord || "Sin calificar";
-  const tipoAlojamiento = hotel.tipoAlojamiento || "Alojamiento";
+  const stars = hotel.propertyClass || 0;
 
   // Formateo de precio (SINCRONIZADO CON MODAL: 2 DECIMALES)
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
-      currency: 'EUR',
+      currency: hotel.moneda || 'EUR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2, 
     }).format(value);
   };
+
+  // Verificamos si hay un descuento real
+  const hasDiscount = hotel.precioOriginal && hotel.precioOriginal > hotel.precio;
 
   return (
     <div className="bg-white/90 backdrop-blur-md rounded-[2.5rem] overflow-hidden border border-white/20 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
@@ -35,11 +37,6 @@ export const HotelCard = ({ hotel, onViewDetails, destination }: HotelCardProps)
           alt={name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
         />
-        
-        {/* Badge: Tipo de Alojamiento */}
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-teal-900 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm border border-teal-100">
-          {tipoAlojamiento}
-        </div>
 
         {/* Badge: Rating */}
         <div className="absolute top-4 right-4 bg-teal-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1">
@@ -52,8 +49,16 @@ export const HotelCard = ({ hotel, onViewDetails, destination }: HotelCardProps)
       </div>
 
       {/* Contenido */}
-      <div className="p-6 flex flex-col h-[200px] justify-between">
+      <div className="p-6 flex flex-col h-50 justify-between">
         <div>
+          {/* ESTRELLAS DEL HOTEL */}
+          {stars > 0 && (
+            <div className="flex gap-0.5 mb-2">
+              {[...Array(stars)].map((_, i) => (
+                <Star key={i} size={12} className="fill-yellow-500 text-yellow-500" />
+              ))}
+            </div>
+          )}
           <h3 className="text-xl font-black text-teal-900 leading-tight mb-2 line-clamp-2 uppercase tracking-tighter">
             {name}
           </h3>
@@ -73,10 +78,19 @@ export const HotelCard = ({ hotel, onViewDetails, destination }: HotelCardProps)
               </span>
               <Info size={8} className="text-teal-800/30" />
             </div>
+
+            <div className="flex flex-col">
+              {/* PRECIO ORIGINAL (TACHADO) */}
+              {hasDiscount && (
+                <span className="text-xs font-bold text-red-400/70 line-through decoration-red-400/50 -mb-1">
+                  {formatPrice(hotel.precioOriginal)}
+                </span>
+              )}
             
-            <span className="text-2xl font-black text-teal-600 tracking-tighter leading-none">
-              {formatPrice(hotel.precio || 0)}
-            </span>
+              <span className="text-2xl font-black text-teal-600 tracking-tighter leading-none">
+                {formatPrice(hotel.precio || 0)}
+              </span>
+            </div>
             
             <span className="text-[9px] font-medium text-teal-800/30 mt-1 italic">
               *Sujeto a cambios según disponibilidad

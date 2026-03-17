@@ -16,7 +16,9 @@ public class HotelDTO {
     private String moneda;
     private Double calificacion;
     private String reviewWord;
+    private Integer propertyClass;
     private String urlFoto;
     private Double latitud;
     private Double longitud;
+    private Double precioOriginal;
 }

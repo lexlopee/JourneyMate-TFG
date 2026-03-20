@@ -7,6 +7,7 @@ import Footer from "./components/Footer/Footer";
 import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/results/ResultsList';
 import { HotelDetailsModal } from './components/results/HotelDetailsModal';
+import { AITravelAssistant } from './components/AITravelAssistant';
 
 // Servicios
 import { performSearch, getHotelDetails } from './services/searchService';
@@ -183,6 +184,7 @@ function App() {
       />
 
       <Footer />
+      <AITravelAssistant />
     </div>
   );
 }

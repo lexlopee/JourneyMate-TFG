@@ -26,7 +26,7 @@ public class PaypalService {
         Amount amount = new Amount();
         amount.setCurrency("EUR");
         // Usamos precio_total de tu tabla reserva
-        amount.setTotal(String.format(Locale.US, "%.2f", reserva.getPrecio_total()));
+        amount.setTotal(String.format(Locale.US, "%.2f", reserva.getPrecioTotal()));
 
         Transaction transaction = new Transaction();
         transaction.setDescription("Reserva JourneyMate ID: " + reserva.getIdReserva());

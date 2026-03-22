@@ -1,16 +1,18 @@
 package com.example.JourneyMate.controller.booking;
 
+import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reservas")
+@RequestMapping("/api/v1/reservas")
 public class ReservaController {
 
     @Autowired
@@ -45,10 +47,12 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.findByFechaReservaBetween(inicio, fin));
     }
 
+    // ⭐ AQUÍ ES DONDE ENTRA TU FRONTEND
     @PostMapping
-    public ResponseEntity<ReservaEntity> create(@RequestBody ReservaEntity reserva) {
-        return ResponseEntity.ok(reservaService.crear(reserva));
+    public ResponseEntity<ReservaEntity> create(@RequestBody ReservaRequestDTO reservaDTO) {
+        return ResponseEntity.ok(reservaService.crear(reservaDTO)); // ⭐ SIN Authentication
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ReservaEntity> update(@PathVariable Integer id, @RequestBody ReservaEntity reserva) {

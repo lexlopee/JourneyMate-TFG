@@ -1,6 +1,8 @@
 package com.example.JourneyMate.service.booking;
 
+import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +13,7 @@ public interface ReservaService {
 
     Optional<ReservaEntity> findById(Integer idReserva);
 
-    ReservaEntity crear(ReservaEntity reserva);
+    ReservaEntity crear(ReservaRequestDTO reservaDTO); // ⭐ SIN Authentication
 
     ReservaEntity actualizar(Integer idReserva, ReservaEntity reserva);
 
@@ -25,3 +27,4 @@ public interface ReservaService {
 
     List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin);
 }
+

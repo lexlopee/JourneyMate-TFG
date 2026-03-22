@@ -23,18 +23,16 @@ public class SecurityConfig {
     public SecurityConfig(JWTAuthorizationFilter jwtAuthorizationFilter) {
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. CAMBIO: En lugar de disable, usamos nuestra configuración
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/register",
-                                "/api/v1/**",
+                                "/api/v1/**",      // ⭐ NECESARIO POR TU FILTRO
                                 "/api/public/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -46,6 +44,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     // 2. NUEVO: Este metodo da permiso explícito a tu Frontend de React
     @Bean

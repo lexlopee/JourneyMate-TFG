@@ -7,31 +7,35 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+      const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError("");
 
-    e.preventDefault();
-    setError("");
+      try {
+        const res = await fetch("http://localhost:8080/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-    try {
-      const res = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
+        if (!res.ok) {
+          setError("Credenciales incorrectas");
+          return;
+        }
 
-      if (!res.ok) {
-        setError("Credenciales incorrectas");
-        return;
+        const data = await res.json();
+
+        // ⭐ GUARDAR TOKEN E IDUSUARIO
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("idUsuario", data.idUsuario);
+
+        window.location.href = "/";
+
+      } catch {
+        setError("Error de conexión con el servidor");
       }
+    };
 
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
-
-      navigate("/"); // Redirige a la home
-    } catch {
-      setError("Error de conexión con el servidor");
-    }
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-teal-50">

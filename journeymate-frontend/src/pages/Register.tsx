@@ -13,40 +13,44 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+       const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setError("");
 
-    e.preventDefault();
-    setError("");
+      try {
+        const res = await fetch("http://localhost:8080/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre,
+            primerApellido,
+            segundoApellido,
+            telefono,
+            fechaNacimiento,
+            email,
+            password
+          })
+        });
 
-    try {
-      const res = await fetch("http://localhost:8080/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre,
-          primerApellido,
-          segundoApellido,
-          telefono,
-          fechaNacimiento,
-          email,
-          password
-        })
-      });
+        if (!res.ok) {
+          setError("No se pudo crear la cuenta");
+          return;
+        }
 
-      if (!res.ok) {
-        setError("No se pudo crear la cuenta");
-        return;
+        const data = await res.json();
+
+        // ⭐ GUARDAR TOKEN E IDUSUARIO
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("idUsuario", data.idUsuario);
+
+        window.location.href = "/";
+
+      } catch {
+        setError("Error de conexión con el servidor");
       }
+    };
 
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
-
-      navigate("/");
-    } catch {
-      setError("Error de conexión con el servidor");
-    }
-  };
-
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-teal-50">
       <h1 className="text-3xl font-bold text-teal-900 mb-6">Crear cuenta</h1>

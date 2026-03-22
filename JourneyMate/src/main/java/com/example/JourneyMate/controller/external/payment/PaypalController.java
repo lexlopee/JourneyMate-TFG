@@ -79,7 +79,7 @@ public class PaypalController {
                         reserva.getUsuario().getEmail(),
                         reserva.getUsuario().getNombre(),
                         reserva.getIdReserva(),
-                        reserva.getPrecio_total().doubleValue()
+                        reserva.getPrecioTotal().doubleValue()
                 );
                 // ============================================================
 

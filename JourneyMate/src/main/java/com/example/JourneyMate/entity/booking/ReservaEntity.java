@@ -19,23 +19,25 @@ public class ReservaEntity {
     private Integer idReserva;
 
     @ManyToOne
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     private UsuarioEntity usuario;
 
     @ManyToOne
-    @JoinColumn(name = "id_servicio")
+    @JoinColumn(name = "id_servicio", nullable = false)
     private ServicioTuristicoEntity servicio;
 
     @ManyToOne
-    @JoinColumn(name = "id_estado")
+    @JoinColumn(name = "id_estado", nullable = false)
     private EstadoEntity estado;
 
     @ManyToOne
-    @JoinColumn(name = "id_tipo_reserva")
+    @JoinColumn(name = "id_tipo_reserva", nullable = false)
     private TipoReservaEntity tipoReserva;
 
     @Column(name = "precio_total")
-    private BigDecimal precio_total;
+    private BigDecimal precioTotal;
+
     @Column(name = "fecha_reserva")
     private LocalDate fechaReserva;
 }
+

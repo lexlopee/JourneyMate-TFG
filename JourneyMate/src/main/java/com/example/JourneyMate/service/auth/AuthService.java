@@ -58,7 +58,7 @@ public class AuthService {
         usuario.setFechaRegistro(LocalDate.now());
         usuario.setRol(rol);
 
-        usuarioRepository.save(usuario);
+        usuario = usuarioRepository.save(usuario);
 
         String token = jwtUtil.generateToken(usuario);
 
@@ -70,9 +70,9 @@ public class AuthService {
 
         tokenJWTRepository.save(tokenEntity);
 
-        return new AuthResponse(token);
+        // ⭐ DEVOLVEMOS token + idUsuario
+        return new AuthResponse(token, usuario.getIdUsuario());
     }
-
 
     // LOGIN
     public AuthResponse login(LoginRequest request) {
@@ -94,6 +94,7 @@ public class AuthService {
 
         tokenJWTRepository.save(tokenEntity);
 
-        return new AuthResponse(token);
+        // ⭐ DEVOLVEMOS token + idUsuario
+        return new AuthResponse(token, usuario.getIdUsuario());
     }
 }

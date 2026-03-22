@@ -1,10 +1,21 @@
 package com.example.JourneyMate.service.impl.booking;
 
 import com.example.JourneyMate.dao.booking.ReservaRepository;
+import com.example.JourneyMate.dao.service.ServicioTuristicoRepository;
+import com.example.JourneyMate.dao.user.UsuarioRepository;
+import com.example.JourneyMate.dto.mapper.booking.ReservaMapper;
+import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
+import com.example.JourneyMate.entity.booking.EstadoEntity;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
+import com.example.JourneyMate.entity.booking.TipoReservaEntity;
+import com.example.JourneyMate.entity.user.UsuarioEntity;
 import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
+import com.example.JourneyMate.dao.service.ServicioTuristicoRepository;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,7 +25,13 @@ import java.util.Optional;
 public class ReservaServiceImpl implements ReservaService {
 
     @Autowired
+    private ServicioTuristicoRepository servicioTuristicoRepository;
+
+    @Autowired
     private ReservaRepository reservaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository; // ⭐ AÑADIR ESTO
 
     @Override
     public List<ReservaEntity> findAll() {
@@ -26,8 +43,38 @@ public class ReservaServiceImpl implements ReservaService {
         return reservaRepository.findById(idReserva);
     }
 
+    // ⭐ MÉTODO CORRECTO PARA CREAR RESERVAS DESDE EL FRONTEND
+    // ⭐ MÉTODO CORRECTO PARA CREAR RESERVAS DESDE EL FRONTEND
     @Override
-    public ReservaEntity crear(ReservaEntity reserva) {
+    public ReservaEntity crear(ReservaRequestDTO reservaDTO) {
+
+        // 1️⃣ Buscar usuario por idUsuario del DTO
+        UsuarioEntity usuario = usuarioRepository.findById(reservaDTO.getIdUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // 2️⃣ Crear servicio_turistico con los datos del hotel
+        ServicioTuristicoEntity servicio = new ServicioTuristicoEntity();
+        servicio.setNombre(reservaDTO.getNombreServicio());
+        servicio.setPrecioBase(reservaDTO.getPrecioTotal());
+        servicio = servicioTuristicoRepository.save(servicio);
+
+        // 3️⃣ Crear la reserva
+        ReservaEntity reserva = new ReservaEntity();
+        reserva.setUsuario(usuario);
+        reserva.setServicio(servicio);
+
+        TipoReservaEntity tipo = new TipoReservaEntity();
+        tipo.setIdTipoReserva(reservaDTO.getIdTipoReserva());
+        reserva.setTipoReserva(tipo);
+
+        reserva.setPrecioTotal(reservaDTO.getPrecioTotal());
+        reserva.setFechaReserva(LocalDate.now());
+
+        // Estado por defecto
+        EstadoEntity estado = new EstadoEntity();
+        estado.setIdEstado(1); // PENDIENTE
+        reserva.setEstado(estado);
+
         return reservaRepository.save(reserva);
     }
 

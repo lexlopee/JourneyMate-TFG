@@ -16,7 +16,7 @@ public class StripeService {
 
     public String createCheckoutSession(ReservaEntity reserva) throws Exception {
         // Stripe usa céntimos (BigDecimal * 100)
-        long amountInCents = reserva.getPrecio_total().multiply(new BigDecimal(100)).longValue();
+        long amountInCents = reserva.getPrecioTotal().multiply(new BigDecimal(100)).longValue();
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)

@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class PuntoInteresRequestDTO {
-
     private String ciudad;
     private String nombre;
     private String descripcion;

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RolRepository extends JpaRepository<RolEntity, Integer> {
-
     Optional<RolEntity> findByNombre(String nombre);
 
     List<RolEntity> findByUsuarios_IdUsuario(Integer idUsuario);

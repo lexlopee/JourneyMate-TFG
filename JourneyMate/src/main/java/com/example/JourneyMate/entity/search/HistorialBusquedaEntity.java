@@ -23,4 +23,3 @@ public class HistorialBusquedaEntity {
     @JoinColumn(name = "id_usuario")
     private UsuarioEntity usuario;
 }
-

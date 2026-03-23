@@ -20,5 +20,3 @@ public class VueloEntity extends ServicioTuristicoEntity {
     private String origen;
     private String destino;
 }
-
-

@@ -23,4 +23,3 @@ public class DireccionEntity {
     private Double latitud;
     private Double longitud;
 }
-

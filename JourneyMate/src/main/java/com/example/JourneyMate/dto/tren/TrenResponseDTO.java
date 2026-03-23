@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class TrenResponseDTO {
-
     private Integer idServicio;
     private LocalDate fechaSalida;
     private LocalDate fechaLlegada;

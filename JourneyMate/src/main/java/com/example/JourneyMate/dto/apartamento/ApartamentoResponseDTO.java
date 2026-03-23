@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class ApartamentoResponseDTO {
-
     private Integer idServicio;
     private String descripcion;
 }

@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 @Data
 public class ReservaResponseDTO {
-
     private Integer idReserva;
     private Integer idUsuario;
     private Integer idServicio;

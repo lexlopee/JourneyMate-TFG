@@ -14,6 +14,10 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
 
     private final ServicioTuristicoRepository servicioTuristicoRepository;
 
+    // ELIMINADOS: hotelRepository, apartamentoRepository, actividadRepository
+    // Este servicio ya NO crea entidades hijas. Eso lo hace ReservaServiceImpl
+    // directamente con cada repositorio específico, usando @Inheritance(JOINED).
+
     @Override
     public List<ServicioTuristicoEntity> findAll() {
         return servicioTuristicoRepository.findAll();
@@ -22,12 +26,12 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
     @Override
     public ServicioTuristicoEntity findById(Integer idTuristico) {
         return servicioTuristicoRepository.findById(idTuristico)
-                .orElseThrow(() ->
-                        new RuntimeException("Servicio turístico no encontrado: " + idTuristico));
+                .orElseThrow(() -> new RuntimeException("Servicio turístico no encontrado: " + idTuristico));
     }
 
     @Override
     public ServicioTuristicoEntity save(ServicioTuristicoEntity servicioTuristico) {
+        // Guarda solo en servicio_turistico (útil para consultas genéricas)
         return servicioTuristicoRepository.save(servicioTuristico);
     }
 

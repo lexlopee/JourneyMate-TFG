@@ -24,4 +24,3 @@ public class RolEntity {
     @OneToMany(mappedBy = "rol")
     private List<UsuarioEntity> usuarios;
 }
-

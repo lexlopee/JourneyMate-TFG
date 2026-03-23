@@ -26,4 +26,3 @@ public class HabitacionEntity {
 
     private Integer capacidad;
 }
-

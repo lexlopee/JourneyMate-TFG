@@ -17,5 +17,4 @@ public interface TokenJWTService {
     TokenJWTEntity save(TokenJWTEntity tokenJWT);
 
     void deleteById(Integer idToken);
-
 }

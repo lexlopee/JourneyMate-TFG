@@ -12,6 +12,4 @@ public interface ActividadService {
     ActividadEntity saveActividad(ActividadEntity actividad);
 
     void deleteByIdActividad(Integer idActividad);
-
-
 }

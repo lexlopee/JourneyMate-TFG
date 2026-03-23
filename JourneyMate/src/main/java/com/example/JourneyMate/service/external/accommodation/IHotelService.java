@@ -29,5 +29,4 @@ public interface IHotelService {
     );
 
     HotelDetailsDTO getHotelDetails(String hotelId, String arrivalDate, String departureDate, Integer adults, String childrenAge, Integer roomQty, String currencyCode);
-
 }

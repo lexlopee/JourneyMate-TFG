@@ -26,4 +26,3 @@ public class PuntoInteresEntity {
     @OneToMany(mappedBy = "puntoInteres")
     private List<RutaPuntoInteresEntity> rutas;
 }
-

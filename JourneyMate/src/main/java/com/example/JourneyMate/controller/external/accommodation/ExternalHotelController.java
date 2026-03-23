@@ -61,5 +61,4 @@ public class ExternalHotelController {
         HotelDetailsDTO details = hotelService.getHotelDetails(hotelId, arrivalDate, departureDate, adults, childrenAge, roomQty, currencyCode);
         return ResponseEntity.ok(details);
     }
-
 }

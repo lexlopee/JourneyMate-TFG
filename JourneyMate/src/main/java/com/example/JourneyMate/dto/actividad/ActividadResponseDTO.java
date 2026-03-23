@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class ActividadResponseDTO {
-
     private Integer idServicio;
     private String descripcion;
 }

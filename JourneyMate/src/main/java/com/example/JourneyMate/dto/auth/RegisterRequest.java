@@ -15,5 +15,4 @@ public class RegisterRequest {
     private String telefono;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaNacimiento;
-
 }

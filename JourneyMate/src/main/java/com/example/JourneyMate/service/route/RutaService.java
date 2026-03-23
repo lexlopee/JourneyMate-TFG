@@ -14,6 +14,4 @@ public interface RutaService {
     RutaEntity saveRuta(RutaEntity ruta);
 
     void deleteBy(Integer idRuta);
-
-
 }

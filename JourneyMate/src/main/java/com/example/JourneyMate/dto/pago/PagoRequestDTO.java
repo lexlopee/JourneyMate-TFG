@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class PagoRequestDTO {
-
     private Integer idReserva;
     private Integer idMetodo;
     private String estadoPago;

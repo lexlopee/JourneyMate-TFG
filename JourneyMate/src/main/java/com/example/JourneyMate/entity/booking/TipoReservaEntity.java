@@ -10,11 +10,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Table(name = "tipo_reserva", schema = "journeymate")
-
 public class TipoReservaEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipo_reserva")
     private Integer idTipoReserva;
-    private String name;
+
+    // CORREGIDO: era "name" sin @Column, la columna en BBDD se llama "nombre"
+    @Column(name = "nombre")
+    private String nombre;
 }

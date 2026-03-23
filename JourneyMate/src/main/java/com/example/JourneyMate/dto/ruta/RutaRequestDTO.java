@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class RutaRequestDTO {
-
     private String nombre;
     private LocalDate fechaCreacion;
     private Integer idUsuario;

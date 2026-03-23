@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class CruceroResponseDTO {
-
     private Integer idServicio;
     private String puertoLlegada;
     private String puertoSalida;

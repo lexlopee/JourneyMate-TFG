@@ -13,5 +13,4 @@ public interface ServicioTuristicoService {
     ServicioTuristicoEntity save(ServicioTuristicoEntity servicioTuristico);
 
     void deleteById(Integer idTuristico);
-
 }

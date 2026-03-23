@@ -20,5 +20,4 @@ public interface RolService {
     void deleteAllByUserId(Integer idUser);
 
     void deleteAllByRolId(Integer idRol);
-
 }

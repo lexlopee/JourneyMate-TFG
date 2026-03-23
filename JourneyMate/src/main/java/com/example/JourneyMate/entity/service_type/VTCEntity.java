@@ -23,4 +23,3 @@ public class VTCEntity extends ServicioTuristicoEntity {
     private String marca;
     private String modelo;
 }
-

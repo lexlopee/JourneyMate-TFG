@@ -14,5 +14,4 @@ public interface RutaPuntoInteresService {
     RutaPuntoInteresEntity save(RutaPuntoInteresEntity rutaInteres);
 
     void deleteById(Integer idRutaInteres);
-
 }

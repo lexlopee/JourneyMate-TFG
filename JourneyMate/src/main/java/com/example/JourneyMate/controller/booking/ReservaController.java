@@ -5,7 +5,6 @@ import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -47,12 +46,21 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.findByFechaReservaBetween(inicio, fin));
     }
 
-    // ⭐ AQUÍ ES DONDE ENTRA TU FRONTEND
-    @PostMapping
-    public ResponseEntity<ReservaEntity> create(@RequestBody ReservaRequestDTO reservaDTO) {
-        return ResponseEntity.ok(reservaService.crear(reservaDTO)); // ⭐ SIN Authentication
-    }
+    // ⭐ ESTE ES EL MÉTODO QUE NECESITAS PARA VER EL ERROR REAL
+    @PostMapping("/completa")
+    public ResponseEntity<?> createCompleta(@RequestBody ReservaRequestDTO dto) {
+        try {
+            System.out.println(">>> LLEGA RESERVA DTO:");
+            System.out.println(dto);
 
+            ReservaEntity reserva = reservaService.crearCompleta(dto);
+            return ResponseEntity.ok(reserva);
+
+        } catch (Exception e) {
+            e.printStackTrace(); // ⭐ AQUÍ VERÁS EL ERROR REAL EN LA CONSOLA
+            return ResponseEntity.status(500).body("ERROR: " + e.getMessage());
+        }
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ReservaEntity> update(@PathVariable Integer id, @RequestBody ReservaEntity reserva) {

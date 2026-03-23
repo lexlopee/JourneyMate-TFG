@@ -7,7 +7,6 @@ import java.time.LocalTime;
 
 @Data
 public class VTCResponseDTO {
-
     private Integer idServicio;
     private LocalTime horaSalida;
     private LocalTime horaLlegada;

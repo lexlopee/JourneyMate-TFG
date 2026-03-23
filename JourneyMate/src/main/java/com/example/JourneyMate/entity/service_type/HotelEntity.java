@@ -1,10 +1,7 @@
 package com.example.JourneyMate.entity.service_type;
 
 import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
@@ -15,10 +12,13 @@ import java.util.List;
 @Data
 public class HotelEntity extends ServicioTuristicoEntity {
 
+    // Estas columnas SÍ existen en la tabla hotel del SQL
+    @Column(name = "estrellas")
     private Integer estrellas;
+
+    @Column(name = "descripcion")
     private String descripcion;
 
     @OneToMany(mappedBy = "hotel")
     private List<HabitacionEntity> habitaciones;
 }
-

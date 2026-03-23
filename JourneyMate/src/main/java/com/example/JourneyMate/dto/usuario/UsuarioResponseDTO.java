@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class UsuarioResponseDTO {
-
     private Integer idUsuario;
     private String telefono;
     private String nombre;

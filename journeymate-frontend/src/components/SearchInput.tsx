@@ -44,11 +44,18 @@ export const SearchInput = ({
           <Flatpickr
             value={val}
             options={{
-              dateFormat: "d/m/Y",
+              dateFormat: "Y-m-d", 
+              altInput: true,      
+              altFormat: "d/m/Y",  
               minDate: "today",
               locale: Spanish
             }}
-            onChange={([date]) => onChange(date)}
+            onChange={([date]) => {
+              if (date) {
+                const localDate = date.toLocaleDateString('en-CA'); // Retorna YYYY-MM-DD
+                onChange(localDate);
+              }
+            }}
             className="bg-transparent border-none outline-none w-full text-[11px] font-bold"
           />
         ) : (

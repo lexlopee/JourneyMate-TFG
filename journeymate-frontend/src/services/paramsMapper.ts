@@ -34,11 +34,16 @@ export const paramsMapper = {
   }),
 
   vuelos: (data: any) => ({
-    fromId: normalize(data.origin),
-    toId: normalize(data.destination),
-    departDate: formatDateForBackend(data.startDate),
-    adults: Number(data.adults),
-    currencyCode: 'EUR'
+    fromId: data.fromId,
+    toId: data.toId,
+    departDate: data.startDate, // Ya viene formateado del service
+    returnDate: data.endDate,   // Opcional
+    adults: data.adults,
+    childrenAge: data.childrenAge,
+    cabinClass: data.cabinClass,
+    currencyCode: data.currencyCode,
+    sort: data.sort || 'BEST',
+    pageNo: 1
   }),
 
   coches: (data: any) => ({

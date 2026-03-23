@@ -1,51 +1,62 @@
 import { useState, useEffect, useRef } from 'react';
 import anime from "animejs/lib/anime.es.js";
 
-// Componentes
+// Componentes y Servicios
 import Navbar, { type Section } from './components/navbar';
 import Footer from "./components/Footer/Footer";
 import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/results/ResultsList';
 import { HotelDetailsModal } from './components/results/HotelDetailsModal';
+import { FlightDetailsModal } from './components/results/FlightDetailsModal'; 
 import { AITravelAssistant } from './components/AITravelAssistant';
-
-// Servicios
-import { performSearch, getHotelDetails } from './services/searchService';
+import { performSearch, getHotelDetails, getFlightDetails } from './services/searchService'; 
+import { formatDateForBackend } from './utils/dateUtils'; 
 
 // Iconos
 import { Hotel, Plane, Car, Ticket, Ship, Train, Search } from 'lucide-react';
 
 function App() {
-  // --- 1. ESTADOS ---
+  // --- 1. LÓGICA DE FECHAS DINÁMICAS ---
+  // Generamos "Hoy" en formato YYYY-MM-DD para el atributo 'min' de los inputs
+  const todayStr = new Date().toISOString().split('T')[0];
+  // Mañana para salida por defecto
+  const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  // Pasado mañana para regreso por defecto
+  const dayAfterTomorrowStr = new Date(Date.now() + 172800000).toISOString().split('T')[0];
+
+  // --- 2. ESTADOS ---
   const [activeSection, setActiveSection] = useState<Section>('alojamiento');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedHotelDetails, setSelectedHotelDetails] = useState<any>(null);
-  const [modalLoading, setModalLoading] = useState(false);
   const [selectedHotelBasic, setSelectedHotelBasic] = useState<any>(null);
+  const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
+  const [selectedFlightDetails, setSelectedFlightDetails] = useState<any>(null);
+  const [selectedFlightBasic, setSelectedFlightBasic] = useState<any>(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
-
-  // El estado mantiene los objetos Date originales y strings puros
+  // --- 3. ESTADO DE BÚSQUEDA ---
   const [searchData, setSearchData] = useState({
-    origin: '',
-    destination: '',
-    startDate: new Date(),
-    endDate: new Date(),
-    adults: '2',
-    roomQty: '1',
-    pickupTime: '10:00',
-    cabinClass: 'ECONOMY'
+    fromId: '', 
+    toId: '',
+    originText: '',      
+    destinationText: '', 
+    destination: '',     
+    startDate: tomorrowStr, // Empieza mañana
+    endDate: dayAfterTomorrowStr, // Regresa pasado mañana
+    adults: 1,           
+    childrenAge: '',     
+    cabinClass: 'ECONOMY',
+    sort: 'BEST',
+    currencyCode: 'EUR'  
   });
 
-  // --- 2. REFERENCIAS ---
   const iconRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // --- 3. EFECTOS (ANIMACIONES) ---
   useEffect(() => {
-    setResults([]); 
     if (iconRef.current) {
       anime({
         targets: iconRef.current,
@@ -55,54 +66,91 @@ function App() {
     }
   }, [activeSection]);
 
-  // --- 4. MANEJADORES DE EVENTOS ---
+  // --- 4. MANEJADORES ---
 
   const handleChange = (field: string, value: any) => {
-    setSearchData(prev => ({ ...prev, [field]: value }));
+    setSearchData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      // Validación de coherencia de fechas:
+      // Si la fecha de salida es posterior a la de regreso, igualamos el regreso
+      if (field === 'startDate' && newData.startDate > newData.endDate) {
+        newData.endDate = newData.startDate;
+      }
+      return newData;
+    });
   };
 
   const handleSearch = async () => {
-    if (!searchData.destination && activeSection !== 'coches') {
+    // Validaciones específicas
+    if (activeSection === 'vuelos') {
+      if (!searchData.fromId || !searchData.toId) {
+        alert("Por favor, selecciona origen y destino.");
+        return;
+      }
+    } else if (activeSection !== 'coches' && !searchData.destinationText && !searchData.destination) {
       alert("Por favor, introduce un destino.");
       return;
     }
 
     setLoading(true);
-    setResults([]);
+    setResults([]); 
 
     try {
-      // Pasamos 'searchData' tal cual. El Service/Mapper se encarga del formato.
-      const data = await performSearch(activeSection, searchData);
+      const payload = {
+        ...searchData,
+        departDate: formatDateForBackend(searchData.startDate),
+        returnDate: (activeSection === 'vuelos' || activeSection === 'alojamiento') 
+                    ? formatDateForBackend(searchData.endDate) 
+                    : '',
+        adults: searchData.adults || 1
+      };
+
+      const data = await performSearch(activeSection, payload);
       
-      const finalResults = Array.isArray(data) ? data : (data?.result || data?.hotels || []);
+      let finalResults = [];
+      if (Array.isArray(data)) {
+        finalResults = data;
+      } else {
+        finalResults = data?.data?.flightOffers || data?.result || data?.data || [];
+      }
+      
       setResults(finalResults);
 
-      if (resultsRef.current) {
+      if (finalResults.length > 0) {
         setTimeout(() => {
           resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 300);
+        }, 500);
       }
     } catch (error) {
       console.error("Error en búsqueda:", error);
-      alert("Error en el servidor.");
+      alert("Error de conexión. Reintenta en unos segundos.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewDetails = async (hotel: any) => {
-    setSelectedHotelBasic(hotel);
-    setIsModalOpen(true);
+  const handleViewDetails = async (item: any) => {
     setModalLoading(true);
-    setSelectedHotelDetails(null);
-
-    try {
-      const details = await getHotelDetails(hotel.hotelId, searchData);
-      setSelectedHotelDetails(details);
-    } catch (error) {
-      console.error("Error al obtener detalles:", error);
-    } finally {
-      setModalLoading(false);
+    if (activeSection === 'alojamiento') {
+      setSelectedHotelBasic(item);
+      setIsModalOpen(true);
+      setSelectedHotelDetails(null);
+      try {
+        const details = await getHotelDetails(item.hotelId, searchData);
+        setSelectedHotelDetails(details);
+      } catch (error) { console.error(error); } 
+      finally { setModalLoading(false); }
+    } 
+    else if (activeSection === 'vuelos') {
+      setSelectedFlightBasic(item);
+      setIsFlightModalOpen(true);
+      setSelectedFlightDetails(null);
+      try {
+        const details = await getFlightDetails(item.token, searchData.currencyCode);
+        setSelectedFlightDetails(details);
+      } catch (error) { console.error(error); } 
+      finally { setModalLoading(false); }
     }
   };
 
@@ -114,7 +162,6 @@ function App() {
 
       <main className="relative z-10 pt-32 pb-20 px-6 flex flex-col items-center flex-grow">
         
-        {/* Icono de Sección */}
         <div ref={iconRef} className="mb-8 bg-white/20 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/40 shadow-2xl">
           {activeSection === 'alojamiento' && <Hotel size={70} className="text-teal-900" />}
           {activeSection === 'vuelos' && <Plane size={70} className="text-teal-900" />}
@@ -124,8 +171,7 @@ function App() {
           {activeSection === 'trenes' && <Train size={70} className="text-teal-900" />}
         </div>
 
-        {/* Buscador */}
-        <div className="w-full max-w-6xl backdrop-blur-2xl bg-white/40 rounded-[4rem] border border-white/60 shadow-2xl p-8 lg:p-12 text-center">
+        <div className="w-full max-w-7xl backdrop-blur-2xl bg-white/40 rounded-[4rem] border border-white/60 shadow-2xl p-8 lg:p-12 text-center">
           <h2 className="text-5xl md:text-7xl font-black text-teal-900 tracking-tighter uppercase mb-2 leading-none">
             JourneyMate <span className="text-teal-600/40">{activeSection}</span>
           </h2>
@@ -133,23 +179,25 @@ function App() {
             Tu compañero de viaje inteligente
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white/30 p-4 rounded-[3rem] border border-white/30">
+          {/* Formulario de búsqueda principal */}
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-3 bg-white/30 p-4 rounded-[3rem] border border-white/30 items-end">
             <SearchForm 
               activeSection={activeSection} 
               searchData={searchData} 
-              handleChange={handleChange} 
+              handleChange={handleChange}
+              minDate={todayStr} // Pasamos la fecha mínima permitida
             />
             
             <button 
               onClick={handleSearch}
               disabled={loading}
-              className="bg-teal-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-teal-800 transition-all flex flex-col items-center justify-center gap-2 shadow-2xl disabled:opacity-50 group min-h-[80px]"
+              className="md:col-span-1 bg-teal-900 text-white rounded-[2rem] h-[60px] font-black uppercase text-[11px] tracking-widest hover:bg-teal-800 transition-all flex items-center justify-center gap-2 shadow-2xl disabled:opacity-50"
             >
               {loading ? (
-                <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <Search size={24} className="group-hover:scale-125 transition-transform duration-300" />
+                  <Search size={18} />
                   <span>BUSCAR</span>
                 </>
               )}
@@ -157,20 +205,19 @@ function App() {
           </div>
         </div>
 
-        {/* Resultados */}
-        <div ref={resultsRef} className="w-full mt-12">
+        <div ref={resultsRef} className="w-full mt-12 max-w-7xl">
           <ResultsList 
             results={results} 
             activeSection={activeSection} 
             onViewDetails={handleViewDetails}
-            destination={searchData.destination}
+            destination={searchData.destinationText || searchData.destination}
           />
         </div>
 
         {!loading && results.length === 0 && (
-           <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">
-             {searchData.destination === '' ? "Escribe un destino y comienza a explorar" : "No hay resultados para mostrar"}
-           </p>
+            <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">
+              Explora nuevos destinos y encuentra las mejores ofertas
+            </p>
         )}
       </main>
 
@@ -181,6 +228,14 @@ function App() {
         loading={modalLoading}
         searchData={searchData}
         hotelBasicData={selectedHotelBasic}
+      />
+
+      <FlightDetailsModal 
+        isOpen={isFlightModalOpen} 
+        onClose={() => setIsFlightModalOpen(false)} 
+        details={selectedFlightDetails}
+        loading={modalLoading}
+        flightBasicData={selectedFlightBasic}
       />
 
       <Footer />

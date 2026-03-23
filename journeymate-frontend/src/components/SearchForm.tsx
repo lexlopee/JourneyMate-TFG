@@ -3,96 +3,72 @@ import {
   Calendar, 
   Users, 
   Bed, 
-  Plane, 
-  Globe, 
-  Ship, 
-  Car, 
-  Clock, 
-  Briefcase 
+  PlaneLanding,
+  PlaneTakeoff,
+  Briefcase,
+  Globe,
+  Ship
 } from 'lucide-react';
 import { SearchInput } from "./SearchInput";
 import { SearchCounter } from "./SearchCounter";
+import { AutocompleteInput } from "./AutoCompleteInput";
+import { SearchSelect } from "./SearchSelect";
 
 export const SearchForm = ({ activeSection, searchData, handleChange }: any) => {
 
-  /**
-   * Función auxiliar para limpiar el texto según requiere tu API
-   */
-  const handleLocationChange = (key: string, value: string) => {
-    // Reemplaza todos los espacios por guiones bajos
+  const handleLegacyLocationChange = (key: string, value: string) => {
     const formattedValue = value.replace(/ /g, '_');
     handleChange(key, formattedValue);
+    handleChange(key + 'Text', value); 
   };
+
+  // Fecha de hoy para deshabilitar días pasados en el calendario
+  const today = new Date().toISOString().split('T')[0];
 
   switch (activeSection) {
 
-    // 🏨 ALOJAMIENTO
-    case 'alojamiento':
+    case 'vuelos':
       return (
         <>
-          <SearchInput 
-            label="Destino" 
-            icon={<MapPin size={18} />} 
-            placeholder="¿A dónde vas?" 
-            val={searchData.destination?.replace(/_/g, ' ')} // Mostramos espacios al usuario
-            onChange={(v: any) => handleLocationChange('destination', v)} 
-          />
-          {/* ... resto de campos igual ... */}
-          <SearchInput 
-            label="Entrada" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.startDate} 
-            onChange={(v: any) => handleChange('startDate', v)} 
-          />
+          <div className="md:col-span-1">
+            <AutocompleteInput 
+              label="Origen" 
+              icon={<PlaneTakeoff size={18} />} 
+              placeholder="Ej: Madrid" 
+              value={searchData.originText} 
+              onSelect={(dest: any) => {
+                handleChange('fromId', dest.id);
+                handleChange('originText', dest.name);
+              }} 
+            />
+          </div>
+          <div className="md:col-span-1">
+            <AutocompleteInput 
+              label="Destino" 
+              icon={<PlaneLanding size={18} />} 
+              placeholder="Ej: Barcelona" 
+              value={searchData.destinationText} 
+              onSelect={(dest: any) => {
+                handleChange('toId', dest.id);
+                handleChange('destinationText', dest.name);
+              }} 
+            />
+          </div>
           <SearchInput 
             label="Salida" 
             icon={<Calendar size={18} />} 
             type="date" 
-            val={searchData.endDate} 
-            onChange={(v: any) => handleChange('endDate', v)} 
-          />
-          <SearchCounter 
-            label="Adultos" 
-            icon={<Users size={18} />} 
-            val={searchData.adults} 
-            min={1} 
-            onChange={(v: string) => handleChange('adults', v)} 
-          />
-          <SearchCounter 
-            label="Habitaciones" 
-            icon={<Bed size={18} />} 
-            val={searchData.roomQty} 
-            min={1} 
-            onChange={(v: string) => handleChange('roomQty', v)} 
-          />
-        </>
-      );
-
-    // ✈️ VUELOS
-    case 'vuelos':
-      return (
-        <>
-          <SearchInput 
-            label="Origen" 
-            icon={<Plane size={18} />} 
-            placeholder="MAD" 
-            val={searchData.origin?.replace(/_/g, ' ')}
-            onChange={(v: any) => handleLocationChange('origin', v)} 
-          />
-          <SearchInput 
-            label="Destino" 
-            icon={<MapPin size={18} />} 
-            placeholder="JFK" 
-            val={searchData.destination?.replace(/_/g, ' ')}
-            onChange={(v: any) => handleLocationChange('destination', v)} 
-          />
-          <SearchInput 
-            label="Fecha" 
-            icon={<Calendar size={18} />} 
-            type="date" 
+            min={today}
             val={searchData.startDate} 
             onChange={(v: any) => handleChange('startDate', v)} 
+          />
+          <SearchInput 
+            label="Regreso" 
+            icon={<Calendar size={18} />} 
+            type="date" 
+            min={searchData.startDate || today}
+            val={searchData.endDate} 
+            onChange={(v: any) => handleChange('endDate', v)} 
           />
           <SearchCounter 
             label="Pasajeros" 
@@ -101,16 +77,51 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             min={1} 
             onChange={(v: string) => handleChange('adults', v)} 
           />
-          <SearchInput 
+          <SearchSelect 
             label="Clase" 
             icon={<Briefcase size={18} />} 
-            val={searchData.cabinClass} 
-            onChange={(v: any) => handleChange('cabinClass', v)} 
+            value={searchData.cabinClass} 
+            options={[
+              { label: 'Económica', value: 'ECONOMY' },
+              { label: 'Business', value: 'BUSINESS' },
+              { label: 'Primera Clase', value: 'FIRST' }
+            ]}
+            onChange={(v: string) => handleChange('cabinClass', v)} 
           />
         </>
       );
 
-    // 🎟 ACTIVIDADES
+    case 'alojamiento':
+      return (
+        <>
+          <SearchInput 
+            label="Destino" 
+            icon={<MapPin size={18} />} 
+            placeholder="¿A dónde vas?" 
+            val={searchData.destination?.replace(/_/g, ' ')} 
+            onChange={(v: any) => handleLegacyLocationChange('destination', v)} 
+          />
+          <SearchInput 
+            label="Entrada" icon={<Calendar size={18} />} type="date" 
+            min={today}
+            val={searchData.startDate} onChange={(v: any) => handleChange('startDate', v)} 
+          />
+          <SearchInput 
+            label="Salida" icon={<Calendar size={18} />} type="date" 
+            min={searchData.startDate || today}
+            val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
+          />
+          <SearchCounter 
+            label="Adultos" icon={<Users size={18} />} val={searchData.adults} 
+            min={1} onChange={(v: string) => handleChange('adults', v)} 
+          />
+          <SearchCounter 
+            label="Habitaciones" icon={<Bed size={18} />} val={searchData.roomQty} 
+            min={1} onChange={(v: string) => handleChange('roomQty', v)} 
+          />
+        </>
+      );
+
     case 'actividades':
       return (
         <>
@@ -119,28 +130,23 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             icon={<MapPin size={18} />} 
             placeholder="¿Qué quieres hacer?" 
             val={searchData.destination?.replace(/_/g, ' ')}
-            onChange={(v: any) => handleLocationChange('destination', v)} 
+            onChange={(v: any) => handleLegacyLocationChange('destination', v)} 
           />
           <SearchInput 
-            label="Desde" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.startDate} 
-            onChange={(v: any) => handleChange('startDate', v)} 
+            label="Desde" icon={<Calendar size={18} />} type="date" 
+            min={today}
+            val={searchData.startDate} onChange={(v: any) => handleChange('startDate', v)} 
           />
           <SearchInput 
-            label="Hasta" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.endDate} 
-            onChange={(v: any) => handleChange('endDate', v)} 
+            label="Hasta" icon={<Calendar size={18} />} type="date" 
+            min={searchData.startDate || today}
+            val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
           />
-          <div className="hidden lg:block search-input-field opacity-0" />
-          <div className="hidden lg:block search-input-field opacity-0" />
+          <div className="hidden lg:block opacity-0" />
+          <div className="hidden lg:block opacity-0" />
         </>
       );
 
-    // 🚢 CRUCEROS
     case 'cruceros':
       return (
         <>
@@ -149,34 +155,29 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             icon={<Globe size={18} />} 
             placeholder="Mediterráneo..." 
             val={searchData.destination?.replace(/_/g, ' ')}
-            onChange={(v: any) => handleLocationChange('destination', v)} 
+            onChange={(v: any) => handleLegacyLocationChange('destination', v)} 
           />
           <SearchInput 
             label="Puerto" 
             icon={<Ship size={18} />} 
             placeholder="Barcelona..." 
             val={searchData.origin?.replace(/_/g, ' ')}
-            onChange={(v: any) => handleLocationChange('origin', v)} 
+            onChange={(v: any) => handleLegacyLocationChange('origin', v)} 
           />
           <SearchInput 
-            label="Salida" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.startDate} 
-            onChange={(v: any) => handleChange('startDate', v)} 
+            label="Salida" icon={<Calendar size={18} />} type="date" 
+            min={today}
+            val={searchData.startDate} onChange={(v: any) => handleChange('startDate', v)} 
           />
           <SearchInput 
-            label="Regreso" 
-            icon={<Calendar size={18} />} 
-            type="date" 
-            val={searchData.endDate} 
-            onChange={(v: any) => handleChange('endDate', v)} 
+            label="Regreso" icon={<Calendar size={18} />} type="date" 
+            min={searchData.startDate || today}
+            val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
           />
-          <div className="hidden lg:block search-input-field opacity-0" />
+          <div className="hidden lg:block opacity-0" />
         </>
       );
 
-    // ... Caso de coches queda igual (suelen ser IDs o códigos IATA), pero puedes aplicarlo si lo necesitas
     default:
       return null;
   }

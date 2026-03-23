@@ -1,17 +1,19 @@
 import { useState, useMemo } from 'react';
 import { HotelCard } from '../HotelCard';
-import { Sparkles, ArrowDownWideNarrow, ArrowUpNarrowWide, Star, SlidersHorizontal } from 'lucide-react';
+import { FlightCard } from '../FlightCard';
+import { Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal, Plane, Hotel as HotelIcon } from 'lucide-react';
 
 interface ResultsListProps {
   results: any[];
   activeSection: string;
-  onViewDetails: (hotel: any) => void;
+  onViewDetails: (item: any) => void;
   destination: string; 
 }
 
 export const ResultsList = ({ results, activeSection, onViewDetails, destination }: ResultsListProps) => {
   const [sortBy, setSortBy] = useState('default');
 
+  // El ordenamiento ahora es genérico (usa 'precio' que está en ambos DTOs)
   const sortedResults = useMemo(() => {
     if (!results) return [];
     const resultsCopy = [...results];
@@ -23,7 +25,6 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
     }
   }, [results, sortBy]);
 
-  // Configuración de los botones de filtro
   const sortOptions = [
     { id: 'default', label: 'Recomendados', icon: <SlidersHorizontal size={14} /> },
     { id: 'price_asc', label: 'Más Barato', icon: <ArrowUpNarrowWide size={14} /> },
@@ -31,6 +32,14 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
   ];
 
   if (!results || results.length === 0) return null;
+
+  // Títulos dinámicos según la sección
+  const getSectionTitle = () => {
+    const place = destination?.replace(/_/g, ' ');
+    if (activeSection === 'alojamiento') return `Hoteles en ${place || 'tu destino'}`;
+    if (activeSection === 'vuelos') return `Vuelos a ${place || 'tu destino'}`;
+    return `Resultados para ${activeSection}`;
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-20 animate-fade-in pb-20">
@@ -43,20 +52,22 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
               <Sparkles size={14} /> JourneyMate Selecciones
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-teal-900 uppercase tracking-tighter">
-              Alojamientos en <span className="text-teal-500">{destination?.replace(/_/g, ' ') || activeSection}</span>
+              {getSectionTitle()}
             </h2>
           </div>
           
-          <div className="bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-lg shadow-teal-900/20">
-             <span className="font-black text-xs uppercase tracking-widest">{results.length} resultados</span>
+          <div className="flex items-center gap-3 bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-lg shadow-teal-900/20">
+             {activeSection === 'vuelos' ? <Plane size={16} /> : <HotelIcon size={16} />}
+             <span className="font-black text-xs uppercase tracking-widest">{results.length} disponibles</span>
           </div>
         </div>
 
-        {/* SELECTOR BONITO (Botones tipo Chip) */}
-        {activeSection === 'alojamiento' && (
-          <div className="flex flex-wrap items-center gap-3 bg-white/50 p-2 rounded-[2rem] border border-teal-100 w-fit backdrop-blur-sm">
-            <span className="text-[9px] font-black uppercase tracking-widest text-teal-900/40 ml-4 mr-2">Ordenar por:</span>
-            {sortOptions.map((option) => (
+        {/* SELECTOR DE FILTROS (Visible para ambos) */}
+        <div className="flex flex-wrap items-center gap-3 bg-white/50 p-2 rounded-[2rem] border border-teal-100 w-fit backdrop-blur-sm">
+          <span className="text-[9px] font-black uppercase tracking-widest text-teal-900/40 ml-4 mr-2">Ordenar por:</span>
+          {sortOptions.map((option) => (
+            // Ocultamos "Mejor Valorados" en vuelos si tu API no devuelve rating de aerolíneas
+            (option.id === 'rating_desc' && activeSection === 'vuelos') ? null : (
               <button
                 key={option.id}
                 onClick={() => setSortBy(option.id)}
@@ -70,13 +81,15 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
                 {option.icon}
                 {option.label}
               </button>
-            ))}
-          </div>
-        )}
+            )
+          ))}
+        </div>
       </div>
 
-      {/* GRID DE RESULTADOS */}
+      {/* GRID DE RESULTADOS MIXTO */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-6">
+        
+        {/* Renderizado de HOTELES */}
         {activeSection === 'alojamiento' && 
           sortedResults.map((item, index) => (
             <HotelCard 
@@ -87,6 +100,18 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
             />
           ))
         }
+
+        {/* Renderizado de VUELOS */}
+        {activeSection === 'vuelos' && 
+          sortedResults.map((item, index) => (
+            <FlightCard 
+              key={item.token || index} 
+              flight={item} 
+              onViewDetails={() => onViewDetails(item)}
+            />
+          ))
+        }
+
       </div>
     </div>
   );

@@ -5,14 +5,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 @Configuration
 public class RestTemplateConfig {
 
     @Bean
     public RestTemplate restTemplate() {
         var factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5000); // 5 segundos
-        factory.setReadTimeout(5000);    // 5 segundos
+        factory.setConnectTimeout(Duration.ofSeconds(10));
+        factory.setReadTimeout(Duration.ofSeconds(30));
 
         return new RestTemplate(factory);
     }

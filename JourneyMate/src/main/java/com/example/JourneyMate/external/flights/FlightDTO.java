@@ -19,4 +19,7 @@ public class FlightDTO {
     private String horaLlegada;
     private Double precio;
     private String moneda;
+    private Integer stops;
+    private String duracion;
+    private String cabinClass;
 }

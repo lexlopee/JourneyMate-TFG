@@ -67,7 +67,7 @@ public class MapsService extends BaseExternalService {
                 .queryParam("key", googleKey)
                 .toUriString();
 
-        return executeGetRequest(url, null, null);
+        return restTemplate.getForObject(url, JsonNode.class);
     }
 
     public JsonNode getNearbyTouristPoints(double lat, double lon) {
@@ -78,7 +78,7 @@ public class MapsService extends BaseExternalService {
                 .queryParam("key", googleKey)
                 .toUriString();
 
-        return executeGetRequest(url, null, null);
+        return restTemplate.getForObject(url, JsonNode.class);
     }
 
     public JsonNode getPlaceSuggestions(String input) {
@@ -89,6 +89,6 @@ public class MapsService extends BaseExternalService {
                 .queryParam("key", googleKey)
                 .toUriString();
 
-        return executeGetRequest(url, null, null);
+        return restTemplate.getForObject(url, JsonNode.class);
     }
 }

@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class VueloResponseDTO {
-
     private Integer idServicio;
     private String compañia;
     private LocalDate fechaSalida;

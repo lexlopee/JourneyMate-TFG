@@ -4,7 +4,6 @@ import com.example.JourneyMate.dao.booking.EstadoRepository;
 import com.example.JourneyMate.entity.booking.EstadoEntity;
 import com.example.JourneyMate.service.booking.EstadoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,4 +57,3 @@ public class EstadoServiceImpl implements EstadoService {
         return estadoRepository.existsById(idEstado);
     }
 }
-

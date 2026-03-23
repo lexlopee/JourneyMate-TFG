@@ -18,6 +18,8 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
   if (!isOpen) return null;
 
   // 1. DATA
+  console.log("MODAL RECIBE hotelBasicData:", hotelBasicData);
+
   const hotelData = details?.data; 
   const lat = hotelBasicData?.latitud;
   const lng = hotelBasicData?.longitud;
@@ -67,41 +69,80 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
   const prevPhoto = () => setActivePhotoIndex((prev) => (prev - 1 + allPhotos.length) % allPhotos.length);
 
   // ⭐ FUNCIÓN RESERVAR
+    // ⭐ FUNCIÓN RESERVAR - CORREGIDA
+  // ⭐ FUNCIÓN RESERVAR - CORREGIDA
   const handleReserve = async () => {
+    setLoginError("");
+    setSuccessMessage("");
+
+    // 1. Comprobar que el usuario está logueado
     const token = localStorage.getItem("token");
     const idUsuario = localStorage.getItem("idUsuario");
 
-    if (!idUsuario) {
-      setLoginError("Debes iniciar sesión para reservar");
+    if (!token || !idUsuario) {
+      setLoginError("Debes iniciar sesión para reservar.");
       return;
     }
 
+    // 2. Comprobar que tenemos precio
+    if (!hotelBasicData?.precio) {
+      setLoginError("No se pudo obtener el precio del hotel.");
+      return;
+    }
+
+    // ✅ CORRECCIÓN: estrellas debe ser entre 1 y 5 (constraint SQL ck_estr_hote)
+    // Si propertyClass es 0, null o undefined → mandamos null
+    const estrellas = hotelBasicData.propertyClass && hotelBasicData.propertyClass >= 1
+      ? hotelBasicData.propertyClass
+      : null;
+
+    const servicio = {
+      tipo: "HOTEL",
+      nombre: hotelBasicData.nombre ?? "Hotel sin nombre",
+      precioBase: hotelBasicData.precio,
+      descripcion: hotelBasicData.reviewWord ?? null,
+      estrellas: estrellas,   // ✅ nunca mandamos 0
+      calle: null,
+      numero: null,
+      ciudad: null,
+      latitud: hotelBasicData.latitud ?? null,
+      longitud: hotelBasicData.longitud ?? null,
+    };
+
+    const body = {
+      idUsuario: Number(idUsuario),
+      idTipoReserva: 1,
+      idEstado: 1,
+      precioTotal: hotelBasicData.precio,
+      servicio,
+    };
+
     try {
-      const res = await fetch("http://localhost:8080/api/v1/reservas", {
+      const response = await fetch("http://localhost:8080/api/v1/reservas/completa", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` })
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          idUsuario: Number(idUsuario),
-          precioTotal: hotelBasicData.precio,
-          idTipoReserva: 1,
-          nombreServicio: hotelBasicData.nombre || hotelData?.hotel_name
-        })
+        body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        setLoginError("No se pudo crear la reserva");
+      if (!response.ok) {
+        // El backend devuelve el mensaje de error como texto plano en el 500
+        const errorText = await response.text();
+        console.error("Error del servidor:", errorText);
+        setLoginError("Error al realizar la reserva: " + errorText);
         return;
       }
 
-      setSuccessMessage("Reserva realizada con éxito");
+      // ✅ Todo fue bien
+      setSuccessMessage("¡Reserva realizada con éxito!");
+      // Ocultar el toast después de 3 segundos
       setTimeout(() => setSuccessMessage(""), 3000);
 
     } catch (error) {
-      console.error(error);
-      setLoginError("Error de conexión con el servidor");
+      console.error("Error de red:", error);
+      setLoginError("No se pudo conectar con el servidor. Inténtalo de nuevo.");
     }
   };
 

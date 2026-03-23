@@ -12,5 +12,4 @@ public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer>
     List<ReservaEntity> findByEstadoNombre(String nombre);
 
     List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin);
-
 }

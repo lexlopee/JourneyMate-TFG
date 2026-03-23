@@ -40,4 +40,3 @@ public class ReservaEntity {
     @Column(name = "fecha_reserva")
     private LocalDate fechaReserva;
 }
-

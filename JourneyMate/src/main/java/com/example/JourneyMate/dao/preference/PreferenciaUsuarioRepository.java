@@ -8,4 +8,3 @@ import java.util.List;
 public interface PreferenciaUsuarioRepository extends JpaRepository<PreferenciaUsuarioEntity, Integer> {
     List<PreferenciaUsuarioEntity> findByUsuarioIdUsuario(Integer idUsuario);
 }
-

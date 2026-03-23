@@ -40,4 +40,3 @@ public class HotelServiceImpl implements HotelService {
         hotelRepository.deleteById(idHotel);
     }
 }
-

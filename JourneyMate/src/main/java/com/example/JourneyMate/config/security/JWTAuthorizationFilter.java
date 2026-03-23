@@ -33,15 +33,13 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // Si la ruta es pública, salimos del filtro inmediatamente y seguimos la cadena
-        if (path.startsWith("/api/v1/") || path.startsWith("/auth/") || path.startsWith("/swagger-ui")) {
+        // Permitir solo login y register sin JWT
+        if (path.startsWith("/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ============================================
-        // LÓGICA JWT NORMAL
-        // ============================================
+        // Lógica JWT normal
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

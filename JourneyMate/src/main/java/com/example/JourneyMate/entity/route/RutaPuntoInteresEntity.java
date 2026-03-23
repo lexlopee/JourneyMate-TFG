@@ -23,4 +23,3 @@ public class RutaPuntoInteresEntity {
 
     private Integer orden;
 }
-

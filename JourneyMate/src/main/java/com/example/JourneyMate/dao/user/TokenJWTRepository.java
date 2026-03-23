@@ -10,5 +10,4 @@ public interface TokenJWTRepository extends JpaRepository<TokenJWTEntity, Intege
     Optional<TokenJWTEntity> findByToken(String token);
 
     List<TokenJWTEntity> findByUsuario_IdUsuario(Integer idUsuario);
-
 }

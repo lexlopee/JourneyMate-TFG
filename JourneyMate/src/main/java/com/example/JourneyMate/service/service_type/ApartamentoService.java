@@ -12,5 +12,4 @@ public interface ApartamentoService {
     ApartamentoEntity save(ApartamentoEntity apartamento);
 
     void deleteById(Integer idApartamento);
-
 }

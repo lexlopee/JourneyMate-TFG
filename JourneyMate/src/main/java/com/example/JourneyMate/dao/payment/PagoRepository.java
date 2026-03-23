@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface PagoRepository extends JpaRepository<PagoEntity, Integer> {
-
     List<PagoEntity> findByReserva_IdReserva(Integer idReserva);
 
     List<PagoEntity> findByIdPago(Integer idPago);
@@ -22,5 +21,4 @@ public interface PagoRepository extends JpaRepository<PagoEntity, Integer> {
 
     @Query("DELETE FROM PagoEntity p WHERE TYPE(p.reserva.servicio) = HotelEntity AND p.reserva.servicio.idServicio = :idHotel")
     void deletePagosByHotel(Integer idHotel);
-
 }

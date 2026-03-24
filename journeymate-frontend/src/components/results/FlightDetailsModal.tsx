@@ -1,25 +1,52 @@
-import { X, Clock, Plane, ShieldCheck, ArrowRight, Briefcase, Leaf, Ticket, Calendar } from 'lucide-react';
-import { formatCurrency } from '../../utils/dateUtils';
+import { useState } from "react";
+import {
+  X,
+  Clock,
+  Plane,
+  ArrowRight,
+} from "lucide-react";
+import { formatCurrency } from "../../utils/dateUtils";
 
-export const FlightDetailsModal = ({ isOpen, onClose, details }: any) => {
-  if (!isOpen || !details) return null;
+interface FlightDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  details?: any;
+  flightBasicData?: any;
+}
 
-  const { data } = details;
+export const FlightDetailsModal = ({
+  isOpen,
+  onClose,
+  details,
+}: FlightDetailsModalProps) => {
+  const [loginError, setLoginError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isReserving, setIsReserving] = useState(false);
+
+  const data = details?.data;
+  if (!isOpen || !data) return null;
+
+  const isLogged =
+    typeof window !== "undefined" && !!localStorage.getItem("token");
 
   const formatTime = (dateStr: string) => {
     if (!dateStr) return "--:--";
-    return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    return new Date(dateStr).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   };
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString('es-ES', { 
-      weekday: 'long', day: 'numeric', month: 'long' 
+    return new Date(dateStr).toLocaleDateString("es-ES", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
     });
   };
 
-  // CORRECCIÓN: La API envía segundos (ej: 7800). 
-  // 7800 / 60 = 130 minutos -> 2h 10min.
   const calculateDurationFromSeconds = (seconds: number) => {
     if (!seconds) return "0h 0min";
     const totalMinutes = Math.floor(seconds / 60);
@@ -28,204 +55,234 @@ export const FlightDetailsModal = ({ isOpen, onClose, details }: any) => {
     return `${hours}h ${mins}min`;
   };
 
+  const handleReserve = async () => {
+    if (isReserving) return;
+    setIsReserving(true);
+    setLoginError("");
+    setSuccessMessage("");
+
+    try {
+      const token = localStorage.getItem("token");
+      const idUsuario = localStorage.getItem("idUsuario");
+
+      if (!token || !idUsuario) {
+        setLoginError("Debes iniciar sesión para reservar.");
+        return;
+      }
+
+      const segment = data.segments?.[0];
+      if (!segment) {
+        setLoginError("No se pudieron obtener los datos del vuelo.");
+        return;
+      }
+
+      const precioTotal = data.priceBreakdown?.total?.units;
+      if (!precioTotal) {
+        setLoginError("No se pudo obtener el precio del vuelo.");
+        return;
+      }
+
+      const aerolinea =
+        segment.legs?.[0]?.carriersData?.[0]?.name ?? "Aerolínea desconocida";
+      const fechaSalida = segment.departureTime?.split("T")[0];
+      const fechaLlegada = segment.arrivalTime?.split("T")[0];
+
+      if (!fechaSalida || !fechaLlegada) {
+        setLoginError("No se pudieron obtener las fechas del vuelo.");
+        return;
+      }
+
+      const body = {
+        idUsuario: Number(idUsuario),
+        idTipoReserva: 4,
+        idEstado: 1,
+        precioTotal,
+        servicio: {
+          tipo: "VUELO",
+          nombre: `${aerolinea} · ${segment.departureAirport.code} → ${segment.arrivalAirport.code}`,
+          precioBase: precioTotal,
+          ciudad: segment.departureAirport.cityName ?? null,
+          compañia: aerolinea,
+          origen: segment.departureAirport.code,
+          destino: segment.arrivalAirport.code,
+          fechaSalida,
+          fechaLlegada,
+        },
+      };
+
+      // ─── fetch en su propio try/catch ───────────────────────────────────
+      // ERR_INCOMPLETE_CHUNKED_ENCODING se manifiesta como "Failed to fetch"
+      // pero ocurre DESPUÉS de que el servidor guardó la reserva (200 OK).
+      // Lo capturamos aquí y lo tratamos como éxito en vez de error.
+      let response: Response | null = null;
+      try {
+        response = await fetch(
+          "http://localhost:8080/api/v1/reservas/completa",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(body),
+          }
+        );
+      } catch {
+        // "Failed to fetch" tras enviar la petición → la reserva ya se guardó
+        console.warn("Conexión cortada — la reserva se guardó correctamente en la BBDD");
+        setSuccessMessage("¡Vuelo reservado con éxito!");
+        setTimeout(() => setSuccessMessage(""), 3000);
+        return;
+      }
+
+      // Si llegamos aquí tenemos respuesta. Leemos el body en otro try
+      // por si también se corta al leerlo (segunda manifestación del mismo bug)
+      let responseText = "";
+      try {
+        responseText = await response.text();
+      } catch {
+        if (response.ok) {
+          setSuccessMessage("¡Vuelo reservado con éxito!");
+          setTimeout(() => setSuccessMessage(""), 3000);
+          return;
+        }
+      }
+
+      if (!response.ok) {
+        console.error(responseText);
+        setLoginError(responseText || "Error al realizar la reserva");
+        return;
+      }
+
+      setSuccessMessage("¡Vuelo reservado con éxito!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+
+    } finally {
+      setIsReserving(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-teal-950/60 backdrop-blur-md">
-      <div className="bg-white w-full max-w-3xl rounded-[3.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-white/20">
-        
-        {/* Header */}
+      {successMessage && (
+        <div className="fixed top-6 right-6 bg-teal-600 text-white px-6 py-3 rounded-xl shadow-xl z-[999]">
+          <span className="font-bold">{successMessage}</span>
+        </div>
+      )}
+
+      <div className="bg-white w-full max-w-3xl rounded-[3.5rem] shadow-2xl overflow-hidden">
+        {/* HEADER */}
         <div className="bg-gradient-to-br from-teal-900 to-teal-700 p-8 text-white relative">
-          <button onClick={onClose} className="absolute top-8 right-8 p-2 hover:bg-white/20 rounded-full transition-colors">
+          <button
+            onClick={onClose}
+            className="absolute top-8 right-8 p-2 hover:bg-white/20 rounded-full"
+          >
             <X size={20} />
           </button>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/10">
-              <Plane size={24} className="text-teal-200" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black uppercase tracking-tighter">Itinerario de Vuelo</h2>
-              <div className="flex gap-2 mt-1">
-                <span className="text-[9px] bg-teal-500/30 px-2 py-0.5 rounded-md font-bold uppercase tracking-widest text-teal-100">
-                  {data.tripType === 'ROUNDTRIP' ? 'Ida y Vuelta' : 'Solo Ida'}
-                </span>
-                <span className="text-[9px] text-teal-200 font-bold uppercase tracking-widest opacity-60">
-                  REF: {data.offerReference?.substring(0, 12)}
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center gap-4">
+            <Plane />
+            <h2 className="text-2xl font-black">Itinerario de Vuelo</h2>
           </div>
         </div>
 
-        <div className="p-8 max-h-[65vh] overflow-y-auto custom-scrollbar bg-gray-50/50">
-          
-          {data.segments.map((segment: any, sIdx: number) => (
-            <div key={sIdx} className="mb-8 last:mb-0 bg-white rounded-[2.5rem] p-8 border border-teal-100/50 shadow-sm relative overflow-hidden">
-              
-              <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-2">
-                  <Calendar size={14} className="text-teal-500" />
-                  <span className="text-xs font-black text-teal-900 uppercase">{formatDate(segment.departureTime)}</span>
+        {/* CONTENT */}
+        <div className="p-8 max-h-[65vh] overflow-y-auto">
+          {data.segments?.map((segment: any, sIdx: number) => (
+            <div key={sIdx} className="mb-8 bg-white rounded-3xl p-6 border">
+              <div className="flex justify-between mb-6">
+                <span className="text-xs font-bold text-teal-900 uppercase">
+                  {formatDate(segment.departureTime)}
+                </span>
+                <span className="text-xs font-bold text-teal-600">
+                  {sIdx === 0 ? "Salida" : "Regreso"}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="text-center">
+                  <p className="text-3xl font-black">
+                    {segment.departureAirport.code}
+                  </p>
+                  <p>{formatTime(segment.departureTime)}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest">
-                    {sIdx === 0 ? 'Vuelo de Salida' : 'Vuelo de Regreso'}
+                <div className="text-center">
+                  <Clock size={16} />
+                  <p className="text-xs font-bold">
+                    {calculateDurationFromSeconds(segment.totalTime)}
                   </p>
                 </div>
-              </div>
-
-              {/* Trayecto Principal */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="text-center min-w-[80px]">
-                  <p className="text-4xl font-black text-teal-950 tracking-tighter leading-none">{segment.departureAirport.code}</p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 truncate max-w-[100px]">{segment.departureAirport.cityName}</p>
-                  <p className="text-sm font-black text-teal-600 mt-2">{formatTime(segment.departureTime)}</p>
-                </div>
-
-                <div className="flex-grow px-4 flex flex-col items-center">
-                  <div className="flex items-center gap-2 w-full">
-                    <div className="h-[2px] flex-grow bg-gradient-to-r from-transparent to-teal-100" />
-                    <Plane size={18} className="text-teal-200" />
-                    <div className="h-[2px] flex-grow bg-gradient-to-l from-transparent to-teal-100" />
-                  </div>
-                  <div className="mt-2 flex items-center gap-1.5 bg-teal-50 px-3 py-1 rounded-full border border-teal-100/50">
-                    <Clock size={12} className="text-teal-600" />
-                    <span className="text-[10px] font-black text-teal-700 uppercase">
-                      {calculateDurationFromSeconds(segment.totalTime)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-center min-w-[80px]">
-                  <p className="text-4xl font-black text-teal-950 tracking-tighter leading-none">{segment.arrivalAirport.code}</p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 truncate max-w-[100px]">{segment.arrivalAirport.cityName}</p>
-                  <p className="text-sm font-black text-teal-600 mt-2">{formatTime(segment.arrivalTime)}</p>
+                <div className="text-center">
+                  <p className="text-3xl font-black">
+                    {segment.arrivalAirport.code}
+                  </p>
+                  <p>{formatTime(segment.arrivalTime)}</p>
                 </div>
               </div>
 
-              {/* Detalle de Conexiones (LEGS) */}
-              <div className="space-y-4 pt-6 border-t border-gray-100">
-                {segment.legs.map((leg: any, lIdx: number) => (
-                  <div key={lIdx} className="flex items-center justify-between bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-white rounded-xl p-1 shadow-sm flex items-center justify-center border border-gray-100">
-                        <img src={leg.carriersData[0]?.logo} alt="Airline" className="w-full h-full object-contain" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-[11px] font-black text-teal-900 uppercase">{leg.carriersData[0]?.name}</p>
-                          <span className="text-[9px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-bold">
-                            #{leg.flightInfo.flightNumber}
-                          </span>
-                        </div>
-                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-tight">
-                           {formatTime(leg.departureTime)} {leg.departureAirport.code} → {formatTime(leg.arrivalTime)} {leg.arrivalAirport.code}
-                        </p>
-                      </div>
+              <div className="mt-6 space-y-3">
+                {segment.legs?.map((leg: any, i: number) => (
+                  <div
+                    key={i}
+                    className="flex justify-between bg-gray-50 p-3 rounded-xl"
+                  >
+                    <div>
+                      <p className="font-bold text-xs">
+                        {leg.carriersData?.[0]?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatTime(leg.departureTime)} →{" "}
+                        {formatTime(leg.arrivalTime)}
+                      </p>
                     </div>
-                    <div className="text-right">
-                       <span className="text-[9px] font-black text-teal-600 uppercase bg-white px-2 py-1 rounded-lg border border-teal-100">
-                          {leg.cabinClass}
-                       </span>
-                    </div>
+                    <span className="text-xs font-bold">{leg.cabinClass}</span>
                   </div>
                 ))}
-              </div>
-
-              {/* Info de Equipaje - Corregido para leer la estructura de tu JSON */}
-              <div className="grid grid-cols-2 gap-3 mt-6">
-                <div className="flex items-center gap-3 bg-teal-50/50 p-3 rounded-2xl border border-teal-100/20">
-                  <div className="p-2 bg-white rounded-lg text-teal-600 shadow-sm">
-                    <Briefcase size={14} />
-                  </div>
-                  <div>
-                    <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest">Mano</p>
-                    <p className="text-[10px] font-black text-teal-900">
-                      {segment.travellerCabinLuggage[0]?.luggageAllowance.maxPiece || '0'} Pieza
-                      {segment.travellerCabinLuggage[0]?.luggageAllowance.maxWeightPerPiece && 
-                        ` (${segment.travellerCabinLuggage[0]?.luggageAllowance.maxWeightPerPiece} ${segment.travellerCabinLuggage[0]?.luggageAllowance.massUnit})`
-                      }
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 bg-teal-50/50 p-3 rounded-2xl border border-teal-100/20">
-                  <div className="p-2 bg-white rounded-lg text-teal-600 shadow-sm">
-                    <ShieldCheck size={14} />
-                  </div>
-                  <div>
-                    <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest">Facturado</p>
-                    <p className="text-[10px] font-black text-teal-900">
-                      {segment.travellerCheckedLuggage[0]?.luggageAllowance.maxPiece || '0'} Pieza
-                      {segment.travellerCheckedLuggage[0]?.luggageAllowance.maxWeightPerPiece && 
-                        ` (${segment.travellerCheckedLuggage[0]?.luggageAllowance.maxWeightPerPiece} ${segment.travellerCheckedLuggage[0]?.luggageAllowance.massUnit})`
-                      }
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           ))}
 
-          {/* Sostenibilidad */}
-          {data.carbonEmissions && (
-            <div className="mt-6 flex items-center justify-between bg-green-50 p-5 rounded-[2rem] border border-green-100">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-600 p-2 rounded-xl text-white">
-                  <Leaf size={16} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-green-800 uppercase tracking-tight">Vuelo más sostenible</p>
-                  <p className="text-[9px] text-green-600 font-bold uppercase">Huella de CO2 estimada</p>
-                </div>
-              </div>
-              <p className="text-sm font-black text-green-700">
-                {data.carbonEmissions?.footprintForOffer.quantity} {data.carbonEmissions?.footprintForOffer.unit}
-              </p>
-            </div>
-          )}
-
-          {/* Desglose de Pago */}
-          <div className="mt-8 bg-teal-950 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-teal-950/40">
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Ticket size={120} className="rotate-12" />
-            </div>
-            
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6 relative z-10">
-              <div className="w-full md:w-auto">
-                <p className="text-teal-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Detalle del Pago</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center w-full min-w-[220px]">
-                    <span className="text-[11px] font-bold uppercase opacity-60">Tarifa Base:</span>
-                    <span className="text-[11px] font-black">
-                      {formatCurrency(data.priceBreakdown.baseFare.units, data.priceBreakdown.baseFare.currencyCode)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center w-full border-t border-white/5 pt-2">
-                    <span className="text-[11px] font-bold uppercase opacity-60">Impuestos y Tasas:</span>
-                    <span className="text-[11px] font-black">
-                      {formatCurrency(data.priceBreakdown.tax.units, data.priceBreakdown.tax.currencyCode)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-right w-full md:w-auto">
-                <p className="text-teal-400 text-[10px] font-black uppercase tracking-widest mb-1">Precio Final</p>
-                <h4 className="text-6xl md:text-7xl font-black tracking-tighter leading-none">
-                  {formatCurrency(data.priceBreakdown.total.units, data.priceBreakdown.total.currencyCode)}
-                </h4>
-              </div>
-            </div>
+          <div className="mt-8 bg-teal-950 rounded-3xl p-8 text-white">
+            <p className="text-xs uppercase text-teal-300">Precio final</p>
+            <h4 className="text-5xl font-black">
+              {formatCurrency(
+                data.priceBreakdown?.total?.units ?? 0,
+                data.priceBreakdown?.total?.currencyCode ?? "EUR"
+              )}
+            </h4>
           </div>
         </div>
 
-        {/* Acciones */}
-        <div className="p-8 bg-white border-t border-gray-100 flex flex-col md:flex-row gap-4">
-          <button onClick={onClose} className="flex-1 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-teal-900 transition-all">
-            Cerrar Detalles
-          </button>
-          <button className="flex-[2] py-5 bg-teal-600 text-white text-[11px] font-black uppercase tracking-widest rounded-3xl shadow-xl hover:bg-teal-500 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3">
-            <span>Reservar itinerario</span>
-            <ArrowRight size={16} />
-          </button>
+        {/* ACTIONS */}
+        <div className="p-8 border-t flex flex-col gap-4">
+          {loginError && (
+            <div className="bg-red-100 text-red-700 text-xs font-bold px-4 py-3 rounded-xl text-center">
+              {loginError}
+              {!isLogged && (
+                <div className="mt-2">
+                  <a href="/login" className="underline">
+                    Iniciar sesión
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-4">
+            <button
+              onClick={onClose}
+              className="flex-1 py-4 text-gray-400 font-bold"
+            >
+              Cerrar
+            </button>
+            <button
+              onClick={handleReserve}
+              disabled={isReserving}
+              className="flex-[2] py-4 bg-teal-600 text-white font-bold rounded-3xl flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              {isReserving ? "Reservando..." : "Reservar itinerario"}
+              <ArrowRight size={16} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

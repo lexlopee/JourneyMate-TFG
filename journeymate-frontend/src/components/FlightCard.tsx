@@ -1,4 +1,4 @@
-import { PlaneTakeoff, PlaneLanding, MoveRight, Ticket, Clock } from 'lucide-react';
+import { PlaneTakeoff, PlaneLanding, MoveRight, Ticket, Clock, ArrowLeftRight } from 'lucide-react';
 import { formatCurrency } from '../utils/dateUtils';
 
 interface FlightCardProps {
@@ -10,24 +10,26 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
   
   const formatTime = (timeString: string) => {
     if (!timeString) return '--:--';
-    // Soporta tanto ISO como formatos de hora simple que a veces envían las APIs
     const date = new Date(timeString);
     return isNaN(date.getTime()) ? timeString : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Lógica para determinar si es directo o tiene escalas
   const stops = flight.stops || 0;
   const isDirect = stops === 0;
+
+  // Lógica para detectar si es ida y vuelta
+  // Comprobamos si existe hora de regreso, token de regreso o bandera explícita
+  const isRoundTrip = !!(flight.horaLlegadaRegreso || flight.fechaRegreso || flight.isRoundTrip);
 
   return (
     <div className="bg-white rounded-[2.5rem] p-7 shadow-xl shadow-teal-900/5 border border-teal-50 hover:border-teal-300 hover:shadow-teal-900/10 transition-all group flex flex-col h-full relative overflow-hidden">
       
-      {/* Badge dinámico según el precio o clase */}
+      {/* Badge de Clase */}
       <div className="absolute top-0 right-0 bg-teal-600 text-white px-6 py-2 rounded-bl-[1.5rem] font-black text-[9px] uppercase tracking-widest shadow-sm z-10">
         {flight.cabinClass || 'Economy'}
       </div>
 
-      {/* CABECERA: Aerolínea */}
+      {/* CABECERA */}
       <div className="flex justify-between items-center mb-6 mt-2">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 p-2 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner">
@@ -50,7 +52,6 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
           </div>
         </div>
         
-        {/* Duración total del vuelo */}
         {flight.duracion && (
           <div className="flex items-center gap-1.5 text-teal-600/60 bg-teal-50 px-3 py-1 rounded-full">
             <Clock size={12} />
@@ -77,15 +78,21 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
             </span>
           </div>
 
-          {/* Línea de conexión dinámica */}
+          {/* Lógica de Flechas Dinámica */}
           <div className="flex-[1.5] flex flex-col items-center justify-center px-2">
             <div className="w-full h-[2px] relative flex items-center justify-center">
                <div className="w-full border-t-2 border-teal-200 border-dashed absolute top-1/2"></div>
-               <div className="bg-white p-1 rounded-full border border-teal-100 z-10 group-hover:rotate-[360deg] transition-transform duration-1000">
-                  <MoveRight className="text-teal-500" size={14} />
+               <div className="bg-white p-1.5 rounded-full border border-teal-100 z-10 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                  {isRoundTrip ? (
+                    // DOBLE FLECHA para Ida y Vuelta
+                    <ArrowLeftRight className="text-amber-500" size={16} strokeWidth={3} />
+                  ) : (
+                    // FLECHA SIMPLE para Solo Ida
+                    <MoveRight className="text-teal-500" size={16} strokeWidth={3} />
+                  )}
                </div>
             </div>
-            <span className={`text-[8px] font-black uppercase tracking-widest mt-3 ${isDirect ? 'text-teal-400' : 'text-amber-500'}`}>
+            <span className={`text-[8px] font-black uppercase tracking-widest mt-4 ${isDirect ? 'text-teal-400' : 'text-amber-500'}`}>
               {isDirect ? 'Vuelo Directo' : `${stops} Escala${stops > 1 ? 's' : ''}`}
             </span>
           </div>
@@ -109,7 +116,9 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
       {/* FOOTER */}
       <div className="flex items-center justify-between pt-4">
         <div>
-          <span className="block text-[9px] font-black text-teal-800/30 uppercase tracking-[0.2em]">Precio Final</span>
+          <span className="block text-[9px] font-black text-teal-800/30 uppercase tracking-[0.2em]">
+            {isRoundTrip ? 'Total Ida y Vuelta' : 'Total Estimado'}
+          </span>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-black text-teal-900 tracking-tighter">
               {formatCurrency(flight.precio, flight.moneda || 'EUR')}

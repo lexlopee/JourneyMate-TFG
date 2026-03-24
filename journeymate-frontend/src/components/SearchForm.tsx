@@ -22,11 +22,10 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
     handleChange(key + 'Text', value); 
   };
 
-  // Fecha de hoy para deshabilitar días pasados en el calendario
+  // Fecha de hoy para deshabilitar días pasados
   const today = new Date().toISOString().split('T')[0];
 
   switch (activeSection) {
-
     case 'vuelos':
       return (
         <>
@@ -62,8 +61,9 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             val={searchData.startDate} 
             onChange={(v: any) => handleChange('startDate', v)} 
           />
-          <SearchInput 
-            label="Regreso" 
+          <SearchInput
+            label="Regreso"
+            placeholder="Opcional (Solo ida)" // Feedback visual para el usuario
             icon={<Calendar size={18} />} 
             type="date" 
             min={searchData.startDate || today}
@@ -142,8 +142,9 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             min={searchData.startDate || today}
             val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
           />
-          <div className="hidden lg:block opacity-0" />
-          <div className="hidden lg:block opacity-0" />
+          {/* Espaciadores para mantener el grid simétrico */}
+          <div className="hidden lg:block opacity-0" aria-hidden="true" />
+          <div className="hidden lg:block opacity-0" aria-hidden="true" />
         </>
       );
 
@@ -153,14 +154,14 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
           <SearchInput 
             label="Zona" 
             icon={<Globe size={18} />} 
-            placeholder="Mediterráneo..." 
+            placeholder="Ej: Mediterráneo" 
             val={searchData.destination?.replace(/_/g, ' ')}
             onChange={(v: any) => handleLegacyLocationChange('destination', v)} 
           />
           <SearchInput 
             label="Puerto" 
             icon={<Ship size={18} />} 
-            placeholder="Barcelona..." 
+            placeholder="Ej: Barcelona" 
             val={searchData.origin?.replace(/_/g, ' ')}
             onChange={(v: any) => handleLegacyLocationChange('origin', v)} 
           />
@@ -174,7 +175,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             min={searchData.startDate || today}
             val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
           />
-          <div className="hidden lg:block opacity-0" />
+          <div className="hidden lg:block opacity-0" aria-hidden="true" />
         </>
       );
 

@@ -116,8 +116,8 @@ public class ReservaServiceImpl implements ReservaService {
                 c.setPuertoSalida(s.getOrigen());
                 c.setPuertoLlegada(s.getDestino());
                 c.setNaviera(s.getNaviera());
-                c.setFechaSalida(LocalDate.parse(s.getFechaSalida()));
-                c.setFechaLlegada(LocalDate.parse(s.getFechaLlegada()));
+                c.setFechaSalida(s.getFechaSalida());
+                c.setFechaLlegada(s.getFechaLlegada());
                 yield cruceroRepository.save(c);
             }
 
@@ -139,8 +139,8 @@ public class ReservaServiceImpl implements ReservaService {
                 v.setCompañia(s.getCompañia());
                 v.setOrigen(s.getOrigen());
                 v.setDestino(s.getDestino());
-                v.setFechaSalida(LocalDate.parse(s.getFechaSalida()));
-                v.setFechaLlegada(LocalDate.parse(s.getFechaLlegada()));
+                v.setFechaSalida(s.getFechaSalida());
+                v.setFechaLlegada(s.getFechaLlegada());
                 yield vueloRepository.save(v);
             }
 
@@ -151,8 +151,8 @@ public class ReservaServiceImpl implements ReservaService {
                 t.setCompañia(s.getCompañia());
                 t.setOrigen(s.getOrigen());
                 t.setDestino(s.getDestino());
-                t.setFechaSalida(LocalDate.parse(s.getFechaSalida()));
-                t.setFechaLlegada(LocalDate.parse(s.getFechaLlegada()));
+                t.setFechaSalida(s.getFechaSalida());
+                t.setFechaLlegada(s.getFechaLlegada());
                 yield trenRepository.save(t);
             }
 

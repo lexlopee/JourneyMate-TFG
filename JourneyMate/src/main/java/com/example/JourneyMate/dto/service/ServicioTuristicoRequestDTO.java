@@ -1,7 +1,9 @@
 package com.example.JourneyMate.dto.service;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 public class ServicioTuristicoRequestDTO {
@@ -26,8 +28,10 @@ public class ServicioTuristicoRequestDTO {
     private String compañia;
     private String naviera;
 
-    private String fechaSalida;
-    private String fechaLlegada;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaSalida;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaLlegada;
 
     private String marca;
     private String modelo;

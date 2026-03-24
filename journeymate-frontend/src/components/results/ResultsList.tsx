@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { HotelCard } from '../HotelCard';
 import { FlightCard } from '../FlightCard';
-import { Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal, Plane, Hotel as HotelIcon } from 'lucide-react';
+import { Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal, Plane, Clock, Hotel as HotelIcon } from 'lucide-react';
 
 interface ResultsListProps {
   results: any[];
@@ -13,27 +13,56 @@ interface ResultsListProps {
 export const ResultsList = ({ results, activeSection, onViewDetails, destination }: ResultsListProps) => {
   const [sortBy, setSortBy] = useState('default');
 
-  // El ordenamiento ahora es genérico (usa 'precio' que está en ambos DTOs)
+  // Función auxiliar para convertir "12h 30min" a minutos totales (para poder comparar números)
+  const parseDurationToMinutes = (durationStr: string) => {
+    if (!durationStr) return 0;
+    const hours = durationStr.match(/(\d+)h/);
+    const minutes = durationStr.match(/(\d+)min/);
+    const totalMinutes = (hours ? parseInt(hours[1]) * 60 : 0) + (minutes ? parseInt(minutes[1]) : 0);
+    return totalMinutes;
+  };
+
   const sortedResults = useMemo(() => {
     if (!results) return [];
     const resultsCopy = [...results];
+
     switch (sortBy) {
-      case 'price_asc': return resultsCopy.sort((a, b) => (a.precio || 0) - (b.precio || 0));
-      case 'price_desc': return resultsCopy.sort((a, b) => (b.precio || 0) - (a.precio || 0));
-      case 'rating_desc': return resultsCopy.sort((a, b) => (b.calificacion || 0) - (a.calificacion || 0));
-      default: return resultsCopy;
+      case 'price_asc': 
+        return resultsCopy.sort((a, b) => (a.precio || 0) - (b.precio || 0));
+      
+      case 'rating_desc': 
+        return resultsCopy.sort((a, b) => (b.calificacion || 0) - (a.calificacion || 0));
+      
+      case 'duration_asc':
+        // Ordenamos usando la propiedad 'duracion' que ya tiene tu objeto flight
+        return resultsCopy.sort((a, b) => {
+          return parseDurationToMinutes(a.duracion) - parseDurationToMinutes(b.duracion);
+        });
+
+      default: 
+        return resultsCopy;
     }
   }, [results, sortBy]);
 
   const sortOptions = [
     { id: 'default', label: 'Recomendados', icon: <SlidersHorizontal size={14} /> },
     { id: 'price_asc', label: 'Más Barato', icon: <ArrowUpNarrowWide size={14} /> },
-    { id: 'rating_desc', label: 'Mejor Valorados', icon: <Star size={14} /> },
+    { 
+      id: 'duration_asc', 
+      label: 'Más Rápido', 
+      icon: <Clock size={14} />, 
+      showOnly: 'vuelos' 
+    },
+    { 
+      id: 'rating_desc', 
+      label: 'Mejor Valorados', 
+      icon: <Star size={14} />, 
+      showOnly: 'alojamiento' 
+    },
   ];
 
   if (!results || results.length === 0) return null;
 
-  // Títulos dinámicos según la sección
   const getSectionTitle = () => {
     const place = destination?.replace(/_/g, ' ');
     if (activeSection === 'alojamiento') return `Hoteles en ${place || 'tu destino'}`;
@@ -62,12 +91,13 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
           </div>
         </div>
 
-        {/* SELECTOR DE FILTROS (Visible para ambos) */}
+        {/* SELECTOR DE FILTROS */}
         <div className="flex flex-wrap items-center gap-3 bg-white/50 p-2 rounded-[2rem] border border-teal-100 w-fit backdrop-blur-sm">
           <span className="text-[9px] font-black uppercase tracking-widest text-teal-900/40 ml-4 mr-2">Ordenar por:</span>
-          {sortOptions.map((option) => (
-            // Ocultamos "Mejor Valorados" en vuelos si tu API no devuelve rating de aerolíneas
-            (option.id === 'rating_desc' && activeSection === 'vuelos') ? null : (
+          {sortOptions.map((option) => {
+            if (option.showOnly && option.showOnly !== activeSection) return null;
+
+            return (
               <button
                 key={option.id}
                 onClick={() => setSortBy(option.id)}
@@ -81,15 +111,14 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
                 {option.icon}
                 {option.label}
               </button>
-            )
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* GRID DE RESULTADOS MIXTO */}
+      {/* GRID DE RESULTADOS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-6">
         
-        {/* Renderizado de HOTELES */}
         {activeSection === 'alojamiento' && 
           sortedResults.map((item, index) => (
             <HotelCard 
@@ -101,7 +130,6 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
           ))
         }
 
-        {/* Renderizado de VUELOS */}
         {activeSection === 'vuelos' && 
           sortedResults.map((item, index) => (
             <FlightCard 
@@ -111,7 +139,6 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
             />
           ))
         }
-
       </div>
     </div>
   );

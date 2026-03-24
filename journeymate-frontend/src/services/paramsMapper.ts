@@ -33,18 +33,25 @@ export const paramsMapper = {
     currencyCode: 'EUR'
   }),
 
-  vuelos: (data: any) => ({
-    fromId: data.fromId,
-    toId: data.toId,
-    departDate: data.startDate, // Ya viene formateado del service
-    returnDate: data.endDate,   // Opcional
-    adults: data.adults,
-    childrenAge: data.childrenAge,
-    cabinClass: data.cabinClass,
-    currencyCode: data.currencyCode,
-    sort: data.sort || 'BEST',
-    pageNo: 1
-  }),
+  vuelos: (data: any) => {
+    const params: any = {
+      fromId: data.fromId,
+      toId: data.toId,
+      departDate: data.startDate,
+      adults: data.adults,
+      childrenAge: data.childrenAge,
+      cabinClass: data.cabinClass,
+      currencyCode: data.currencyCode || 'EUR',
+      sort: data.sort || 'BEST',
+      pageNo: 1
+    };
+
+    if (data.endDate && data.endDate.trim() !== "") {
+      params.returnDate = data.endDate;
+    }
+
+    return params;
+  },
 
   coches: (data: any) => ({
     pickUpId: normalize(data.origin),

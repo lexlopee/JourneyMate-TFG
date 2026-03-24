@@ -1,6 +1,7 @@
 package com.example.JourneyMate.controller.booking;
 
 import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
+import com.example.JourneyMate.dto.reserva.ReservaResponseDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/reservas")
@@ -46,18 +48,28 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.findByFechaReservaBetween(inicio, fin));
     }
 
-    // ⭐ ESTE ES EL MÉTODO QUE NECESITAS PARA VER EL ERROR REAL
     @PostMapping("/completa")
     public ResponseEntity<?> createCompleta(@RequestBody ReservaRequestDTO dto) {
         try {
-            System.out.println(">>> LLEGA RESERVA DTO:");
-            System.out.println(dto);
-
             ReservaEntity reserva = reservaService.crearCompleta(dto);
-            return ResponseEntity.ok(reserva);
+
+            // ✅ SOLUCIÓN: devolver solo un DTO simple con el ID y los datos básicos.
+            // Devolver la ReservaEntity completa causa bucles infinitos en la
+            // serialización JSON (ServicioTuristicoEntity → subclase → padre → ...)
+            // lo que rompe la respuesta HTTP con ERR_INCOMPLETE_CHUNKED_ENCODING.
+            ReservaResponseDTO response = new ReservaResponseDTO();
+            response.setIdReserva(reserva.getIdReserva());
+            response.setIdUsuario(reserva.getUsuario().getIdUsuario());
+            response.setIdServicio(reserva.getServicio().getIdServicio());
+            response.setIdEstado(reserva.getEstado().getIdEstado());
+            response.setIdTipoReserva(reserva.getTipoReserva().getIdTipoReserva());
+            response.setPrecioTotal(reserva.getPrecioTotal());
+            response.setFechaReserva(reserva.getFechaReserva());
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace(); // ⭐ AQUÍ VERÁS EL ERROR REAL EN LA CONSOLA
+            e.printStackTrace();
             return ResponseEntity.status(500).body("ERROR: " + e.getMessage());
         }
     }

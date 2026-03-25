@@ -25,13 +25,21 @@ export default function Login() {
 
         const data = await res.json();
 
-        // ⭐ GUARDAR TOKEN E IDUSUARIO
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("idUsuario", data.idUsuario);
+        // ⭐ ASEGURAMOS QUE EL ID SEA UN STRING LIMPIO
+        // Si data.idUsuario es 1, esto guardará "1". 
+        // Si por error el backend envía algo raro, el .toString() ayuda a evitar objetos.
+        const cleanId = data.idUsuario.toString().trim();
 
+        localStorage.setItem("token", data.token);
+        // Antes: localStorage.setItem("idUsuario", data.idUsuario);
+        // Ahora (fuerza a que sea un string limpio):
+        localStorage.setItem("idUsuario", String(data.idUsuario).split(':')[0].trim());
+
+        // Usar navigate en lugar de window.location para una SPA es mejor,
+        // pero si usas window.location asegúrate de que sea después de guardar.
         window.location.href = "/";
 
-      } catch {
+      } catch (err) {
         setError("Error de conexión con el servidor");
       }
     };

@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -21,9 +23,22 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioEntity> findById(@PathVariable Integer id) {
-        UsuarioEntity usuario = usuarioService.findById(id);
-        return usuario != null ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> findById(@PathVariable Integer id) {
+        try {
+            UsuarioEntity usuario = usuarioService.findById(id);
+            if (usuario != null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("idUsuario", usuario.getIdUsuario());
+                response.put("nombre", usuario.getNombre());
+                response.put("email", usuario.getEmail());
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // Esto te dirá en la consola de Java qué está pasando realmente
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PostMapping

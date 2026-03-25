@@ -7,43 +7,40 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-      const handleLogin = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError("");
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
 
-      try {
-        const res = await fetch("http://localhost:8080/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
+    try {
+      const res = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-        if (!res.ok) {
-          setError("Credenciales incorrectas");
-          return;
-        }
-
-        const data = await res.json();
-
-        // ⭐ ASEGURAMOS QUE EL ID SEA UN STRING LIMPIO
-        // Si data.idUsuario es 1, esto guardará "1". 
-        // Si por error el backend envía algo raro, el .toString() ayuda a evitar objetos.
-        const cleanId = data.idUsuario.toString().trim();
-
-        localStorage.setItem("token", data.token);
-        // Antes: localStorage.setItem("idUsuario", data.idUsuario);
-        // Ahora (fuerza a que sea un string limpio):
-        localStorage.setItem("idUsuario", String(data.idUsuario).split(':')[0].trim());
-
-        // Usar navigate en lugar de window.location para una SPA es mejor,
-        // pero si usas window.location asegúrate de que sea después de guardar.
-        window.location.href = "/";
-
-      } catch (err) {
-        setError("Error de conexión con el servidor");
+      if (!res.ok) {
+        setError("Credenciales incorrectas");
+        return;
       }
-    };
 
+      const data = await res.json();
+
+      localStorage.setItem("token", data.token);
+      // ✅ CORREGIDO: guardamos el número directamente como string limpio
+      // Number() convierte cualquier valor a número real, eliminando basura como "1:1"
+      localStorage.setItem("idUsuario", String(Number(data.idUsuario)));
+      // ✅ Guardamos también el nombre directamente desde la respuesta del login
+      // así el navbar no necesita hacer un fetch extra para obtenerlo
+      if (data.nombre) {
+        localStorage.setItem("userName", data.nombre);
+      }
+
+      window.location.href = "/";
+
+    } catch (err) {
+      setError("Error de conexión con el servidor");
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-teal-50">
@@ -57,7 +54,6 @@ export default function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-
         <input
           type="password"
           placeholder="Contraseña"
@@ -65,18 +61,13 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-
         {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
-
         <button className="w-full bg-teal-900 text-white py-2 rounded-lg font-bold">
           Acceder
         </button>
-
         <p className="text-center text-sm mt-4">
           ¿No tienes cuenta?{" "}
-          <Link to="/register" className="text-teal-700 font-bold">
-            Crear cuenta
-          </Link>
+          <Link to="/register" className="text-teal-700 font-bold">Crear cuenta</Link>
         </p>
       </form>
     </div>

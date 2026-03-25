@@ -27,39 +27,51 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
   const [userName, setUserName] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // ⭐ Al montar: comprueba sesión y obtiene nombre del usuario
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  let idUsuario = localStorage.getItem("idUsuario");
+    const token = localStorage.getItem("token");
+    const idUsuario = localStorage.getItem("idUsuario");
 
-  if (token && idUsuario) {
-    // Si por lo que sea el ID viene con basura (ej: "1:1"), nos quedamos solo con el "1"
-    const cleanId = idUsuario.split(':')[0]; 
+    if (!token || !idUsuario) return;
+
     setIsLoggedIn(true);
 
+    // ✅ SOLUCIÓN PRINCIPAL: leer el nombre directamente del localStorage
+    // Login y Register ya lo guardan en "userName" al hacer login/register.
+    // Así evitamos completamente el fetch que causaba ERR_INCOMPLETE_CHUNKED_ENCODING.
+    const savedName = localStorage.getItem("userName");
+    if (savedName) {
+      setUserName(savedName);
+      return; // Ya tenemos el nombre, no hace falta fetch
+    }
+
+    // Fallback: si por algún motivo no está en localStorage (sesión antigua),
+    // hacemos el fetch pero capturando el ERR_INCOMPLETE_CHUNKED_ENCODING igual que
+    // hacemos en las reservas: si falla el fetch pero el token existe, lo ignoramos.
+    const cleanId = String(Number(idUsuario)); // limpia cualquier "1:1" → "1"
     fetch(`http://localhost:8080/usuarios/${cleanId}`, {
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
       }
     })
-        .then(res => {
-          if (!res.ok) throw new Error("Error en la respuesta del servidor");
-          return res.json();
-        })
-        .then(data => {
-          // Asegúrate de que tu backend realmente devuelve el campo 'nombre'
-          if (data?.nombre) {
-            setUserName(data.nombre);
-          }
-        })
-        .catch((error) => {
-          console.error("Error obteniendo el usuario:", error);
-        });
-    }
+      .then(res => {
+        if (!res.ok) throw new Error("Error en respuesta");
+        return res.json();
+      })
+      .then(data => {
+        if (data?.nombre) {
+          setUserName(data.nombre);
+          localStorage.setItem("userName", data.nombre); // guardamos para la próxima
+        }
+      })
+      .catch(() => {
+        // Si falla (ERR_INCOMPLETE_CHUNKED_ENCODING u otro), no mostramos error
+        // El usuario verá su inicial del email como fallback
+        const email = localStorage.getItem("userEmail") ?? "";
+        if (email) setUserName(email.split("@")[0]);
+      });
   }, []);
 
-  // ⭐ Cierra el dropdown al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -70,22 +82,21 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ⭐ Cerrar sesión: limpia localStorage, estado y redirige al inicio
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("idUsuario");
+    localStorage.removeItem("userName");   // ✅ limpiar también
+    localStorage.removeItem("userEmail");
     setIsLoggedIn(false);
     setUserName("");
     setDropdownOpen(false);
-    navigate("/"); // <-- Cambiado: ahora redirige a la home ("/") en vez de "/login"
+    navigate("/");
   };
 
-  // Animación del logo
   useEffect(() => {
     anime({ targets: logoRef.current, opacity: [0, 1], scale: [0.8, 1], duration: 900, easing: "easeOutQuad" });
   }, []);
 
-  // Animación del tab activo
   useEffect(() => {
     anime({ targets: `.tab-${activeTab}`, scale: [1, 1.15], duration: 300, easing: "easeOutQuad" });
   }, [activeTab]);
@@ -142,20 +153,17 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
 
         {/* BOTONES DERECHA */}
         <div className="flex items-center gap-3 justify-end col-span-1">
-
           {isLoggedIn ? (
-            // ⭐ SESIÓN ACTIVA — botón con nombre y dropdown
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(prev => !prev)}
                 className="flex items-center gap-2 bg-teal-900 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all shadow-md"
               >
-                {/* Avatar con inicial */}
                 <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-[11px] font-black uppercase shrink-0">
                   {userName ? userName.charAt(0).toUpperCase() : <User size={12} />}
                 </div>
                 <span className="hidden sm:block max-w-[110px] truncate">
-                  {userName || "Cargando..."}
+                  {userName || "Usuario"}
                 </span>
                 <ChevronDown
                   size={14}
@@ -163,17 +171,12 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                 />
               </button>
 
-              {/* DROPDOWN MENU */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
-
-                  {/* Cabecera */}
                   <div className="px-4 py-3 bg-teal-50 border-b border-teal-100">
                     <p className="text-[10px] text-teal-500 font-bold uppercase tracking-widest">Conectado como</p>
-                    <p className="text-teal-900 font-black text-sm truncate">{userName || "Cargando..."}</p>
+                    <p className="text-teal-900 font-black text-sm truncate">{userName || "Usuario"}</p>
                   </div>
-
-                  {/* Mis reservas */}
                   <Link
                     to="/mis-reservas"
                     onClick={() => setDropdownOpen(false)}
@@ -182,10 +185,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                     <BookOpen size={16} className="text-teal-600" />
                     Mis reservas
                   </Link>
-
                   <div className="border-t border-gray-100" />
-
-                  {/* Cerrar sesión */}
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
@@ -193,24 +193,18 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                     <LogOut size={16} />
                     Cerrar sesión
                   </button>
-
                 </div>
               )}
             </div>
-
           ) : (
-            // ⭐ SIN SESIÓN — Solo botón de acceder (Eliminado "Mis reservas")
-            <>
-              <Link
-                to="/login"
-                className="flex items-center gap-2 bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all shadow-md"
-              >
-                <User size={18} />
-                Acceder
-              </Link>
-            </>
+            <Link
+              to="/login"
+              className="flex items-center gap-2 bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all shadow-md"
+            >
+              <User size={18} />
+              Acceder
+            </Link>
           )}
-
         </div>
       </div>
     </nav>

@@ -149,7 +149,7 @@ function App() {
       
       <Navbar activeTab={activeSection} onTabChange={setActiveSection} />
 
-      <main className="relative z-10 pt-32 pb-20 px-6 flex flex-col items-center flex-grow">
+      <main className="relative z-10 pt-24 sm:pt-28 pb-20 px-4 sm:px-6 flex flex-col items-center flex-grow">
         
         <div ref={iconRef} className="mb-8 bg-white/20 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/40 shadow-2xl">
           {activeSection === 'alojamiento' && <Hotel size={70} className="text-teal-900" />}
@@ -195,11 +195,14 @@ function App() {
           </div>
         </div>
 
-        {/* ⭐ OVERLAY DE CARGA con el vídeo centrado en pantalla */}
+        {/* ⭐ OVERLAY DE CARGA — negro puro para mix-blend-mode: screen */}
         {loading && (
-          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-teal-950/60 backdrop-blur-md">
-            <LoadingVideo size={220} />
-            <p className="mt-4 text-white font-black uppercase tracking-[0.4em] text-[11px] animate-pulse">
+          <div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+            style={{ backgroundColor: '#000000' }}
+          >
+            <LoadingVideo size={320} />
+            <p className="mt-2 text-white font-black uppercase tracking-[0.4em] text-[11px] animate-pulse">
               Buscando las mejores opciones...
             </p>
           </div>

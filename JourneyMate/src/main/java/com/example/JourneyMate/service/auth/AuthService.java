@@ -37,7 +37,6 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    // REGISTER
     public AuthResponse register(RegisterRequest request) {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
@@ -67,14 +66,12 @@ public class AuthService {
         tokenEntity.setUsuario(usuario);
         tokenEntity.setFechaCreacion(LocalDateTime.now());
         tokenEntity.setFechaExpiacion(LocalDateTime.now().plusDays(7));
-
         tokenJWTRepository.save(tokenEntity);
 
-        // ⭐ DEVOLVEMOS token + idUsuario
-        return new AuthResponse(token, usuario.getIdUsuario());
+        // ✅ CORREGIDO: ahora incluimos el nombre en la respuesta
+        return new AuthResponse(token, usuario.getIdUsuario(), usuario.getNombre());
     }
 
-    // LOGIN
     public AuthResponse login(LoginRequest request) {
 
         UsuarioEntity usuario = usuarioRepository.findByEmail(request.getEmail())
@@ -91,10 +88,9 @@ public class AuthService {
         tokenEntity.setUsuario(usuario);
         tokenEntity.setFechaCreacion(LocalDateTime.now());
         tokenEntity.setFechaExpiacion(LocalDateTime.now().plusDays(7));
-
         tokenJWTRepository.save(tokenEntity);
 
-        // ⭐ DEVOLVEMOS token + idUsuario
-        return new AuthResponse(token, usuario.getIdUsuario());
+        // ✅ CORREGIDO: ahora incluimos el nombre en la respuesta
+        return new AuthResponse(token, usuario.getIdUsuario(), usuario.getNombre());
     }
 }

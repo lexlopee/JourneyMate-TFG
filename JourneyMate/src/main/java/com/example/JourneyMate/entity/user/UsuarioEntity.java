@@ -1,5 +1,6 @@
 package com.example.JourneyMate.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,7 +34,9 @@ public class UsuarioEntity {
     private LocalDate fechaNacimiento;
     @Column(name = "email", length = 30)
     private String email;
-    @ManyToOne
+    // En UsuarioEntity.java
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
+    @JsonIgnoreProperties({"usuarios", "hibernateLazyInitializer", "handler"}) // <--- ESTO ES CLAVE
     private RolEntity rol;
 }

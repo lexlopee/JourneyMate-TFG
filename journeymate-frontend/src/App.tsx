@@ -9,6 +9,7 @@ import { ResultsList } from './components/results/ResultsList';
 import { HotelDetailsModal } from './components/results/HotelDetailsModal';
 import { FlightDetailsModal } from './components/results/FlightDetailsModal'; 
 import { AITravelAssistant } from './components/AITravelAssistant';
+import { LoadingVideo } from './components/LoadingVideo'; // ⭐ NUEVO
 import { performSearch, getHotelDetails, getFlightDetails } from './services/searchService'; 
 import { formatDateForBackend } from './utils/dateUtils'; 
 
@@ -16,15 +17,10 @@ import { formatDateForBackend } from './utils/dateUtils';
 import { Hotel, Plane, Car, Ticket, Ship, Train, Search } from 'lucide-react';
 
 function App() {
-  // --- 1. LÓGICA DE FECHAS DINÁMICAS ---
-  // Generamos "Hoy" en formato YYYY-MM-DD para el atributo 'min' de los inputs
   const todayStr = new Date().toISOString().split('T')[0];
-  // Mañana para salida por defecto
   const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-  // Pasado mañana para regreso por defecto
   const dayAfterTomorrowStr = new Date(Date.now() + 172800000).toISOString().split('T')[0];
 
-  // --- 2. ESTADOS ---
   const [activeSection, setActiveSection] = useState<Section>('alojamiento');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
@@ -37,15 +33,14 @@ function App() {
   const [selectedFlightBasic, setSelectedFlightBasic] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
 
-  // --- 3. ESTADO DE BÚSQUEDA ---
   const [searchData, setSearchData] = useState({
     fromId: '', 
     toId: '',
     originText: '',      
     destinationText: '', 
     destination: '',     
-    startDate: tomorrowStr, // Empieza mañana
-    endDate: dayAfterTomorrowStr, // Regresa pasado mañana
+    startDate: tomorrowStr,
+    endDate: dayAfterTomorrowStr,
     adults: 1,           
     childrenAge: '',     
     cabinClass: 'ECONOMY',
@@ -66,14 +61,9 @@ function App() {
     }
   }, [activeSection]);
 
-  // --- 4. MANEJADORES ---
-
   const handleChange = (field: string, value: any) => {
     setSearchData(prev => {
       const newData = { ...prev, [field]: value };
-      
-      // Validación de coherencia de fechas:
-      // Si la fecha de salida es posterior a la de regreso, igualamos el regreso
       if (field === 'startDate' && newData.startDate > newData.endDate) {
         newData.endDate = newData.startDate;
       }
@@ -82,7 +72,6 @@ function App() {
   };
 
   const handleSearch = async () => {
-    // Validaciones específicas
     if (activeSection === 'vuelos') {
       if (!searchData.fromId || !searchData.toId) {
         alert("Por favor, selecciona origen y destino.");
@@ -179,13 +168,12 @@ function App() {
             Tu compañero de viaje inteligente
           </p>
 
-          {/* Formulario de búsqueda principal */}
           <div className="grid grid-cols-1 md:grid-cols-7 gap-3 bg-white/30 p-4 rounded-[3rem] border border-white/30 items-end">
             <SearchForm 
               activeSection={activeSection} 
               searchData={searchData} 
               handleChange={handleChange}
-              minDate={todayStr} // Pasamos la fecha mínima permitida
+              minDate={todayStr}
             />
             
             <button 
@@ -194,7 +182,9 @@ function App() {
               className="md:col-span-1 bg-teal-900 text-white rounded-[2rem] h-[60px] font-black uppercase text-[11px] tracking-widest hover:bg-teal-800 transition-all flex items-center justify-center gap-2 shadow-2xl disabled:opacity-50"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                // ⭐ VÍDEO en vez de spinner dentro del botón
+                // Usamos tamaño pequeño (48px) para que quepa en el botón
+                <LoadingVideo size={48} />
               ) : (
                 <>
                   <Search size={18} />
@@ -204,6 +194,16 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* ⭐ OVERLAY DE CARGA con el vídeo centrado en pantalla */}
+        {loading && (
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-teal-950/60 backdrop-blur-md">
+            <LoadingVideo size={220} />
+            <p className="mt-4 text-white font-black uppercase tracking-[0.4em] text-[11px] animate-pulse">
+              Buscando las mejores opciones...
+            </p>
+          </div>
+        )}
 
         <div ref={resultsRef} className="w-full mt-12 max-w-7xl">
           <ResultsList 
@@ -215,9 +215,9 @@ function App() {
         </div>
 
         {!loading && results.length === 0 && (
-            <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">
-              Explora nuevos destinos y encuentra las mejores ofertas
-            </p>
+          <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">
+            Explora nuevos destinos y encuentra las mejores ofertas
+          </p>
         )}
       </main>
 

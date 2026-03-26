@@ -6,7 +6,6 @@ import {
 import { HotelMap } from '../HotelMap';
 
 export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchData, hotelBasicData }: any) => {
-  // ⭐ HOOKS (SIEMPRE ARRIBA, SIEMPRE EN EL MISMO ORDEN)
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [loginError, setLoginError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -17,34 +16,46 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
 
   if (!isOpen) return null;
 
-  // 1. DATA
+  console.log("MODAL RECIBE details:", details);
   console.log("MODAL RECIBE hotelBasicData:", hotelBasicData);
 
-  const hotelData = details?.data; 
+  // ✅ FIX: El DTO usa camelCase tras aplicar @JsonProperty en Java
+  // details.data contiene el DataPayload del backend
+  const hotelData = details?.data;
+
   const lat = hotelBasicData?.latitud;
   const lng = hotelBasicData?.longitud;
   const stars = hotelBasicData?.propertyClass || 0;
 
-  // 2. FOTOS
+  // 2. FOTOS — los campos ahora se llaman urlMax750 (camelCase del DTO)
   const allPhotos: string[] = [];
   if (hotelBasicData?.urlFoto) allPhotos.push(hotelBasicData.urlFoto);
 
   if (hotelData?.rooms) {
     Object.values(hotelData.rooms).forEach((room: any) => {
       room.photos?.forEach((photo: any) => {
-        if (photo.url_max750 && !allPhotos.includes(photo.url_max750)) {
-          allPhotos.push(photo.url_max750);
+        // ✅ FIX: era photo.url_max750, ahora es photo.urlMax750
+        const url = photo.urlMax750 || photo.url_max750;
+        if (url && !allPhotos.includes(url)) {
+          allPhotos.push(url);
         }
       });
     });
   }
 
-  // 3. HABITACIONES DISPONIBLES
-  const roomsLeft = hotelData?.available_rooms || 0;
+  // 3. HABITACIONES DISPONIBLES — ✅ FIX: era available_rooms, ahora availableRooms
+  const roomsLeft = hotelData?.availableRooms ?? hotelData?.available_rooms ?? 0;
 
-  // 4. PRECIOS
+  // 4. PRECIOS — ✅ FIX: usar la moneda del hotel, no hardcodear EUR
+  const currency = hotelBasicData?.moneda || hotelData?.currencyCode || hotelData?.currency_code || 'EUR';
+
   const formatPrice = (value: number) => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
   };
 
   const nights = (() => {
@@ -56,26 +67,33 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
 
   const currentPrice = hotelBasicData?.precio;
 
-  const facilities = hotelData?.facilities_block?.facilities || [];
-  const breakfast = hotelData?.breakfast_review_score;
+  // ✅ FIX: los campos del DTO ahora son camelCase — facilitiesBlock, reviewScore, etc.
+  const facilities = hotelData?.facilitiesBlock?.facilities
+    ?? hotelData?.facilities_block?.facilities  // fallback por si acaso
+    ?? [];
+
+  const breakfast = hotelData?.breakfastReviewScore ?? hotelData?.breakfast_review_score;
   const hasBreakfast = breakfast && breakfast.rating > 0;
 
-  const reviewScore = hotelData?.review_score || hotelBasicData?.calificacion;
-  const reviewWord = hotelData?.review_score_word || hotelBasicData?.reviewWord;
-  const numReviews = hotelData?.review_nr || 0;
-  const hotelType = hotelData?.accommodation_type_name;
+  // ✅ FIX: reviewScore, reviewScoreWord, reviewNr (camelCase)
+  const reviewScore = hotelData?.reviewScore ?? hotelData?.review_score ?? hotelBasicData?.calificacion;
+  const reviewWord  = hotelData?.reviewScoreWord ?? hotelData?.review_score_word ?? hotelBasicData?.reviewWord;
+  const numReviews  = hotelData?.reviewNr ?? hotelData?.review_nr ?? 0;
+
+  // ✅ FIX: accommodationTypeName (camelCase)
+  const hotelType = hotelData?.accommodationTypeName ?? hotelData?.accommodation_type_name;
+
+  // ✅ FIX: hotelName y address (camelCase)
+  const hotelName = hotelData?.hotelName ?? hotelData?.hotel_name ?? hotelBasicData?.nombre;
+  const address   = hotelData?.address ?? hotelBasicData?.direccion;
 
   const nextPhoto = () => setActivePhotoIndex((prev) => (prev + 1) % allPhotos.length);
   const prevPhoto = () => setActivePhotoIndex((prev) => (prev - 1 + allPhotos.length) % allPhotos.length);
 
-  // ⭐ FUNCIÓN RESERVAR
-    // ⭐ FUNCIÓN RESERVAR - CORREGIDA
-  // ⭐ FUNCIÓN RESERVAR - CORREGIDA
   const handleReserve = async () => {
     setLoginError("");
     setSuccessMessage("");
 
-    // 1. Comprobar que el usuario está logueado
     const token = localStorage.getItem("token");
     const idUsuario = localStorage.getItem("idUsuario");
 
@@ -84,14 +102,11 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
       return;
     }
 
-    // 2. Comprobar que tenemos precio
     if (!hotelBasicData?.precio) {
       setLoginError("No se pudo obtener el precio del hotel.");
       return;
     }
 
-    // ✅ CORRECCIÓN: estrellas debe ser entre 1 y 5 (constraint SQL ck_estr_hote)
-    // Si propertyClass es 0, null o undefined → mandamos null
     const estrellas = hotelBasicData.propertyClass && hotelBasicData.propertyClass >= 1
       ? hotelBasicData.propertyClass
       : null;
@@ -101,7 +116,7 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
       nombre: hotelBasicData.nombre ?? "Hotel sin nombre",
       precioBase: hotelBasicData.precio,
       descripcion: hotelBasicData.reviewWord ?? null,
-      estrellas: estrellas,   // ✅ nunca mandamos 0
+      estrellas,
       calle: null,
       numero: null,
       ciudad: null,
@@ -128,18 +143,14 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
       });
 
       if (!response.ok) {
-        // El backend devuelve el mensaje de error como texto plano en el 500
         const errorText = await response.text();
         console.error("Error del servidor:", errorText);
         setLoginError("Error al realizar la reserva: " + errorText);
         return;
       }
 
-      // ✅ Todo fue bien
       setSuccessMessage("¡Reserva realizada con éxito!");
-      // Ocultar el toast después de 3 segundos
       setTimeout(() => setSuccessMessage(""), 3000);
-
     } catch (error) {
       console.error("Error de red:", error);
       setLoginError("No se pudo conectar con el servidor. Inténtalo de nuevo.");
@@ -148,15 +159,10 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-teal-950/80 backdrop-blur-md animate-fade-in">
-      {/* TOAST DE ÉXITO */}
       {successMessage && (
         <div className="fixed top-6 right-6 bg-teal-600 text-white px-6 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-slide-in z-[999]">
-          <svg xmlns="http://www.w3.org/2000/svg" 
-              fill="none" viewBox="0 0 24 24" 
-              strokeWidth={2} stroke="white" 
-              className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" 
-                  d="M5 13l4 4L19 7" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           <span className="font-bold">{successMessage}</span>
         </div>
@@ -201,16 +207,10 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
               )}
               {allPhotos.length > 1 && (
                 <>
-                  <button 
-                    onClick={prevPhoto} 
-                    className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-teal-500 backdrop-blur-md p-3 rounded-full text-white transition-all"
-                  >
+                  <button onClick={prevPhoto} className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-teal-500 backdrop-blur-md p-3 rounded-full text-white transition-all">
                     <ChevronLeft size={24} />
                   </button>
-                  <button 
-                    onClick={nextPhoto} 
-                    className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-teal-500 backdrop-blur-md p-3 rounded-full text-white transition-all"
-                  >
+                  <button onClick={nextPhoto} className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-teal-500 backdrop-blur-md p-3 rounded-full text-white transition-all">
                     <ChevronRight size={24} />
                   </button>
                 </>
@@ -252,14 +252,12 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
                     </div>
 
                     <h2 className="text-4xl md:text-6xl font-black text-teal-900 uppercase tracking-tighter leading-[0.9] mb-8">
-                      {hotelData?.hotel_name || hotelBasicData?.nombre}
+                      {hotelName}
                     </h2>
                     
                     <div className="flex items-center gap-3 text-teal-600 font-bold bg-teal-50 px-5 py-3 rounded-2xl border border-teal-100 w-fit">
                       <MapPin size={18} />
-                      <span className="text-sm">
-                        {hotelData?.address || hotelBasicData?.direccion}
-                      </span>
+                      <span className="text-sm">{address || "Dirección no disponible"}</span>
                     </div>
                   </section>
 
@@ -287,10 +285,10 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
                   <div className={`grid grid-cols-1 ${hasBreakfast ? 'md:grid-cols-2' : 'md:grid-cols-1'} gap-6`}>
                     <div className="bg-teal-50/50 p-8 rounded-[2.5rem] border border-teal-100 flex items-center gap-6">
                       <div className="bg-teal-600 text-white min-w-[64px] h-16 rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-teal-600/20">
-                        {reviewScore}
+                        {reviewScore ?? "—"}
                       </div>
                       <div>
-                        <h4 className="font-black text-teal-900 uppercase text-sm">{reviewWord}</h4>
+                        <h4 className="font-black text-teal-900 uppercase text-sm">{reviewWord || "Sin valoración"}</h4>
                         <p className="text-[10px] font-bold text-teal-600/60 uppercase mt-1 tracking-widest">
                           {numReviews} reseñas verificadas
                         </p>
@@ -304,7 +302,7 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
                         </div>
                         <div>
                           <h4 className="font-black text-amber-900 uppercase text-sm">
-                            Desayuno {breakfast.review_score_word}
+                            Desayuno {breakfast.reviewScoreWord ?? breakfast.review_score_word}
                           </h4>
                           <p className="text-[10px] font-bold text-amber-800/60 uppercase tracking-widest mt-1">
                             Calificación: {breakfast.rating}/10
@@ -319,21 +317,27 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
                     <h4 className="font-black text-teal-900 uppercase text-[10px] tracking-[0.3em] opacity-40 mb-8 border-b border-teal-50 pb-4">
                       Servicios e Instalaciones
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {facilities.map((f: any, i: number) => (
-                        <div 
-                          key={i} 
-                          className="flex items-center gap-4 p-5 bg-white rounded-3xl border border-gray-100 hover:border-teal-200 hover:bg-teal-50/30 transition-all group"
-                        >
-                          <div className="bg-gray-100 group-hover:bg-teal-500 group-hover:text-white p-2 rounded-lg transition-colors">
-                            <Check size={14} />
+                    {facilities.length === 0 ? (
+                      <p className="text-[11px] text-teal-800/40 font-bold uppercase tracking-widest">
+                        No hay instalaciones disponibles
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {facilities.map((f: any, i: number) => (
+                          <div 
+                            key={i} 
+                            className="flex items-center gap-4 p-5 bg-white rounded-3xl border border-gray-100 hover:border-teal-200 hover:bg-teal-50/30 transition-all group"
+                          >
+                            <div className="bg-gray-100 group-hover:bg-teal-500 group-hover:text-white p-2 rounded-lg transition-colors">
+                              <Check size={14} />
+                            </div>
+                            <span className="text-[10px] font-black text-gray-600 uppercase truncate">
+                              {f.name}
+                            </span>
                           </div>
-                          <span className="text-[10px] font-black text-gray-600 uppercase truncate">
-                            {f.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
                 </div>
 
@@ -370,22 +374,17 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
                       </div>
                     </div>
 
-                    {/* MENSAJE ROJO SI NO ESTÁ LOGUEADO */}
                     {loginError && (
                       <div className="bg-red-100 text-red-700 text-xs font-bold px-4 py-3 rounded-xl border border-red-300 mb-4 text-center">
                         {loginError}
                         <div className="mt-2">
-                          <a 
-                            href="/login" 
-                            className="underline text-red-800 hover:text-red-900"
-                          >
+                          <a href="/login" className="underline text-red-800 hover:text-red-900">
                             Iniciar sesión
                           </a>
                         </div>
                       </div>
                     )}
 
-                    {/* BOTÓN DE RESERVAR */}
                     <button 
                       onClick={handleReserve}
                       className="relative w-full bg-teal-400 hover:bg-white text-teal-950 font-black py-6 rounded-[2rem] uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 group"

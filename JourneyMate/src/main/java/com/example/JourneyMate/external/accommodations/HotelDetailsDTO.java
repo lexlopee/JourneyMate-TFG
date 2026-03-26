@@ -1,6 +1,7 @@
 package com.example.JourneyMate.external.accommodations;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -16,34 +17,61 @@ public class HotelDetailsDTO {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class DataPayload {
-        private String hotel_name;
+
+        @JsonProperty("hotel_name")
+        private String hotelName;
+
         private String address;
         private String city;
-        private String currency_code;
-        private String accommodation_type_name;
-        private Double review_score;
-        private String review_score_word;
-        private int review_nr;
-        private int available_rooms;
 
-        // Estructura de precios robusta
-        private PriceBreakdown product_price_breakdown;
+        @JsonProperty("currency_code")
+        private String currencyCode;
+
+        @JsonProperty("accommodation_type_name")
+        private String accommodationTypeName;
+
+        @JsonProperty("review_score")
+        private Double reviewScore;
+
+        @JsonProperty("review_score_word")
+        private String reviewScoreWord;
+
+        @JsonProperty("review_nr")
+        private int reviewNr;
+
+        @JsonProperty("available_rooms")
+        private int availableRooms;
+
+        @JsonProperty("product_price_breakdown")
+        private PriceBreakdown productPriceBreakdown;
 
         private Map<String, RoomDetails> rooms;
-        private FacilitiesBlock facilities_block;
-        private BreakfastScore breakfast_review_score;
-    }
 
-    // --- NUEVAS CLASES PARA EL PRECIO (Crucial para que no salga "menos precio") ---
+        @JsonProperty("facilities_block")
+        private FacilitiesBlock facilitiesBlock;
+
+        @JsonProperty("breakfast_review_score")
+        private BreakfastScore breakfastReviewScore;
+    }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PriceBreakdown {
-        private PriceValue all_inclusive_amount; // El precio final
-        private PriceValue gross_amount;          // El precio base (neto)
-        private PriceValue excluded_amount;       // Impuestos y cargos aparte
-        private PriceValue discounted_amount;     // Lo que se ha ahorrado
-        private int nr_stays;                     // Número de noches real
+
+        @JsonProperty("all_inclusive_amount")
+        private PriceValue allInclusiveAmount;
+
+        @JsonProperty("gross_amount")
+        private PriceValue grossAmount;
+
+        @JsonProperty("excluded_amount")
+        private PriceValue excludedAmount;
+
+        @JsonProperty("discounted_amount")
+        private PriceValue discountedAmount;
+
+        @JsonProperty("nr_stays")
+        private int nrStays;
     }
 
     @Data
@@ -51,10 +79,10 @@ public class HotelDetailsDTO {
     public static class PriceValue {
         private double value;
         private String currency;
-        private String amount_rounded;
-    }
 
-    // --- CLASES DE SOPORTE YA EXISTENTES ---
+        @JsonProperty("amount_rounded")
+        private String amountRounded;
+    }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -65,7 +93,8 @@ public class HotelDetailsDTO {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Photo {
-        private String url_max750;
+        @JsonProperty("url_max750")
+        private String urlMax750;
     }
 
     @Data
@@ -85,6 +114,8 @@ public class HotelDetailsDTO {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class BreakfastScore {
         private double rating;
-        private String review_score_word;
+
+        @JsonProperty("review_score_word")
+        private String reviewScoreWord;
     }
 }

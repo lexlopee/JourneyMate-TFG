@@ -9,7 +9,7 @@ import { ResultsList } from './components/results/ResultsList';
 import { HotelDetailsModal } from './components/results/HotelDetailsModal';
 import { FlightDetailsModal } from './components/results/FlightDetailsModal'; 
 import { AITravelAssistant } from './components/AITravelAssistant';
-import { LoadingVideo } from './components/LoadingVideo'; // ⭐ NUEVO
+import { LoadingVideo } from './components/LoadingVideo';
 import { performSearch, getHotelDetails, getFlightDetails } from './services/searchService'; 
 import { formatDateForBackend } from './utils/dateUtils'; 
 
@@ -41,7 +41,8 @@ function App() {
     destination: '',     
     startDate: tomorrowStr,
     endDate: dayAfterTomorrowStr,
-    adults: 1,           
+    adults: 1,
+    roomQty: 1,          // ✅ FIX: inicializado a 1, antes faltaba → llegaba NaN al backend
     childrenAge: '',     
     cabinClass: 'ECONOMY',
     sort: 'BEST',
@@ -92,7 +93,8 @@ function App() {
         returnDate: (activeSection === 'vuelos' || activeSection === 'alojamiento') 
                     ? formatDateForBackend(searchData.endDate) 
                     : '',
-        adults: searchData.adults || 1
+        adults: searchData.adults || 1,
+        roomQty: searchData.roomQty || 1,  // ✅ FIX: garantía extra en el payload de búsqueda
       };
 
       const data = await performSearch(activeSection, payload);
@@ -182,8 +184,6 @@ function App() {
               className="md:col-span-1 bg-teal-900 text-white rounded-[2rem] h-[60px] font-black uppercase text-[11px] tracking-widest hover:bg-teal-800 transition-all flex items-center justify-center gap-2 shadow-2xl disabled:opacity-50"
             >
               {loading ? (
-                // ⭐ VÍDEO en vez de spinner dentro del botón
-                // Usamos tamaño pequeño (48px) para que quepa en el botón
                 <LoadingVideo size={48} />
               ) : (
                 <>
@@ -195,7 +195,6 @@ function App() {
           </div>
         </div>
 
-        {/* ⭐ OVERLAY DE CARGA con el vídeo centrado en pantalla */}
         {loading && (
           <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-teal-950/60 backdrop-blur-md">
             <LoadingVideo size={220} />

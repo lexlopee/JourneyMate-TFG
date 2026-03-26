@@ -195,13 +195,11 @@ function App() {
           </div>
         </div>
 
+        {/* ⭐ OVERLAY DE CARGA con el vídeo centrado en pantalla */}
         {loading && (
-          <div
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-            style={{ backgroundColor: '#000000' }}
-          >
-            <LoadingVideo size={320} />
-            <p className="mt-2 text-white font-black uppercase tracking-[0.4em] text-[11px] animate-pulse">
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-teal-950/60 backdrop-blur-md">
+            <LoadingVideo size={220} />
+            <p className="mt-4 text-white font-black uppercase tracking-[0.4em] text-[11px] animate-pulse">
               Buscando las mejores opciones...
             </p>
           </div>

@@ -2,6 +2,7 @@ package com.example.JourneyMate.entity.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -22,5 +23,6 @@ public class RolEntity {
     private String descripcion;
 
     @OneToMany(mappedBy = "rol")
+    @ToString.Exclude  // ⭐ ESTO es todo lo que necesitas añadir
     private List<UsuarioEntity> usuarios;
 }

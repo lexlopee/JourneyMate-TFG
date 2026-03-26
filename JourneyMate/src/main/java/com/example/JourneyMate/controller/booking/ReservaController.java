@@ -7,6 +7,7 @@ import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.JourneyMate.dto.reserva.ReservaListDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,8 +33,10 @@ public class ReservaController {
     }
 
     @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<ReservaEntity>> findByUsuario(@PathVariable Integer idUsuario) {
-        return ResponseEntity.ok(reservaService.findByUsuarioIdUsuario(idUsuario));
+    public ResponseEntity<List<ReservaListDTO>> findByUsuario(@PathVariable Integer idUsuario) {
+        // ⭐ Llama al nuevo método del service que usa la query JPQL directa
+        List<ReservaListDTO> result = reservaService.findDTOsByUsuarioId(idUsuario);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/estado/{nombreEstado}")

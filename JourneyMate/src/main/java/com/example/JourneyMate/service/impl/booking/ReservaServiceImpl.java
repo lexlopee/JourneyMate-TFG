@@ -5,6 +5,7 @@ import com.example.JourneyMate.dao.booking.ReservaRepository;
 import com.example.JourneyMate.dao.booking.TipoReservaRepository;
 import com.example.JourneyMate.dao.service_type.*;
 import com.example.JourneyMate.dao.user.UsuarioRepository;
+import com.example.JourneyMate.dto.reserva.ReservaListDTO;
 import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.dto.service.ServicioTuristicoRequestDTO;
 import com.example.JourneyMate.entity.booking.EstadoEntity;
@@ -213,5 +214,10 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     public List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin) {
         return reservaRepository.findByFechaReservaBetween(inicio, fin);
+    }
+
+    @Override
+    public List<ReservaListDTO> findDTOsByUsuarioId(Integer idUsuario) {
+        return reservaRepository.findDTOsByUsuarioId(idUsuario);
     }
 }

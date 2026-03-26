@@ -1,0 +1,243 @@
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  Hotel, Plane, Car, Ticket, Ship, Train,
+  CalendarDays, Tag, ArrowLeft,
+  PackageOpen, AlertCircle, Clock
+} from "lucide-react";
+
+// ── Tipo plano del nuevo DTO ──────────────────────────────
+interface Reserva {
+  idReserva: number;
+  servicioNombre: string;
+  precioTotal: number;
+  estadoNombre: string;
+  tipoReservaNombre: string;
+  fechaReserva: string; // "2025-06-15"
+}
+
+// ── Helpers ───────────────────────────────────────────────
+const TIPO_ICON: Record<string, React.ReactNode> = {
+  hotel:     <Hotel  size={20} />,
+  vuelo:     <Plane  size={20} />,
+  coche:     <Car    size={20} />,
+  actividad: <Ticket size={20} />,
+  crucero:   <Ship   size={20} />,
+  tren:      <Train  size={20} />,
+};
+
+function getTipoIcon(tipo: string) {
+  const key = tipo?.toLowerCase() ?? "";
+  for (const k of Object.keys(TIPO_ICON)) {
+    if (key.includes(k)) return TIPO_ICON[k];
+  }
+  return <Ticket size={20} />;
+}
+
+const ESTADO_STYLE: Record<string, string> = {
+  confirmada: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  pendiente:  "bg-amber-100  text-amber-700  border-amber-200",
+  cancelada:  "bg-red-100    text-red-600    border-red-200",
+  completada: "bg-teal-100   text-teal-700   border-teal-200",
+};
+
+function getEstadoStyle(estado: string) {
+  const key = estado?.toLowerCase() ?? "";
+  for (const k of Object.keys(ESTADO_STYLE)) {
+    if (key.includes(k)) return ESTADO_STYLE[k];
+  }
+  return "bg-gray-100 text-gray-600 border-gray-200";
+}
+
+function formatFecha(fecha: string) {
+  if (!fecha) return "—";
+  const [y, m, d] = fecha.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+// ── Componente principal ──────────────────────────────────
+export default function MisReservas() {
+  const navigate = useNavigate();
+
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState("");
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const token     = localStorage.getItem("token");
+    const idUsuario = localStorage.getItem("idUsuario");
+    const nombre    = localStorage.getItem("userName");
+
+    if (nombre) setUserName(nombre);
+
+    if (!token || !idUsuario) {
+      navigate("/login");
+      return;
+    }
+
+    fetch(`http://localhost:8080/api/v1/reservas/usuario/${idUsuario}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Error al cargar las reservas");
+        return res.json();
+      })
+      .then((data: Reserva[]) => setReservas(data))
+      .catch(() => setError("No se pudieron cargar tus reservas. Inténtalo de nuevo."))
+      .finally(() => setLoading(false));
+  }, [navigate]);
+
+  // ── Skeletons ──
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-4"
+        style={{ background: "linear-gradient(135deg,#1cb5b0 0%,#e9fc9e 50%,#1cb5b0 100%)" }}>
+        <div className="w-full max-w-3xl space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white/60 rounded-3xl h-28 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error ──
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4"
+        style={{ background: "linear-gradient(135deg,#1cb5b0 0%,#e9fc9e 50%,#1cb5b0 100%)" }}>
+        <div className="bg-white/80 backdrop-blur rounded-3xl p-8 flex flex-col items-center gap-3 shadow-xl max-w-sm w-full">
+          <AlertCircle size={40} className="text-red-500" />
+          <p className="text-red-600 font-bold text-center">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-2 bg-teal-900 text-white px-6 py-2 rounded-xl font-bold hover:bg-teal-800 transition-all"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Vista principal ──
+  return (
+    <div
+      className="min-h-screen flex flex-col font-sans"
+      style={{ background: "linear-gradient(135deg,#1cb5b0 0%,#e9fc9e 50%,#1cb5b0 100%)" }}
+    >
+      {/* Header */}
+      <header className="sticky top-0 z-20 px-4 pt-4 pb-2">
+        <div className="max-w-3xl mx-auto bg-white/70 backdrop-blur-md border border-white/50
+          rounded-2xl px-4 py-3 flex items-center justify-between shadow-lg">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-teal-900 font-black text-sm hover:text-teal-600 transition-colors"
+          >
+            <ArrowLeft size={18} />
+            Volver
+          </Link>
+          <div className="text-center">
+            <h1 className="text-teal-900 font-black text-lg uppercase tracking-tighter leading-none">
+              Mis Reservas
+            </h1>
+            {userName && (
+              <p className="text-teal-600 text-[10px] font-bold tracking-widest uppercase">
+                {userName}
+              </p>
+            )}
+          </div>
+          <span className="bg-teal-900 text-white text-xs font-black px-3 py-1 rounded-full">
+            {reservas.length}
+          </span>
+        </div>
+      </header>
+
+      {/* Contenido */}
+      <main className="flex-grow px-4 py-6">
+        <div className="max-w-3xl mx-auto">
+
+          {reservas.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-4 mt-16">
+              <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
+                <PackageOpen size={52} className="text-teal-900/30" />
+                <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">
+                  Aún no tienes reservas
+                </p>
+                <Link
+                  to="/"
+                  className="bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all"
+                >
+                  Explorar destinos
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {reservas.map((r, i) => (
+                <div
+                  key={r.idReserva}
+                  className="bg-white/75 backdrop-blur border border-white/60 rounded-3xl
+                    shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <div className="p-5 flex items-start gap-4">
+
+                    {/* Icono tipo */}
+                    <div className="shrink-0 w-12 h-12 rounded-2xl bg-teal-900/10
+                      flex items-center justify-center text-teal-900">
+                      {getTipoIcon(r.tipoReservaNombre)}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <h2 className="text-teal-900 font-black text-base leading-tight truncate max-w-[200px] sm:max-w-none">
+                          {r.servicioNombre ?? "Servicio"}
+                        </h2>
+                        <span className={`shrink-0 text-[10px] font-black uppercase tracking-wider
+                          px-2.5 py-1 rounded-full border ${getEstadoStyle(r.estadoNombre)}`}>
+                          {r.estadoNombre ?? "—"}
+                        </span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-teal-700/70 font-semibold">
+                        <span className="flex items-center gap-1">
+                          <Tag size={11} />
+                          {r.tipoReservaNombre ?? "—"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <CalendarDays size={11} />
+                          {formatFecha(r.fechaReserva)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock size={11} />
+                          Reserva #{r.idReserva}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Precio */}
+                    <div className="shrink-0 text-right">
+                      <p className="text-teal-900 font-black text-lg leading-none">
+                        {r.precioTotal != null ? `${Number(r.precioTotal).toFixed(2)} €` : "—"}
+                      </p>
+                      <p className="text-teal-600/60 text-[10px] font-bold mt-0.5 uppercase tracking-wider">
+                        precio total
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}

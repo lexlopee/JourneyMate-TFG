@@ -2,6 +2,7 @@ package com.example.JourneyMate.service.booking;
 
 import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
+import com.example.JourneyMate.dto.reserva.ReservaListDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,4 +27,6 @@ public interface ReservaService {
     List<ReservaEntity> findByEstadoNombre(String estado);
 
     List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin);
+
+    List<ReservaListDTO> findDTOsByUsuarioId(Integer idUsuario);
 }

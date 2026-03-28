@@ -16,7 +16,7 @@ public class TrenEntity extends ServicioTuristicoEntity {
 
     private LocalDate fechaSalida;
     private LocalDate fechaLlegada;
-    private String compañia;
+    private String compania;
     private String origen;
     private String destino;
 }

@@ -10,7 +10,7 @@ public class TrenMapper {
         TrenEntity entity = new TrenEntity();
         entity.setFechaSalida(dto.getFechaSalida());
         entity.setFechaLlegada(dto.getFechaLlegada());
-        entity.setCompañia(dto.getCompañia());
+        entity.setCompania(dto.getCompania());
         entity.setOrigen(dto.getOrigen());
         entity.setDestino(dto.getDestino());
         return entity;
@@ -21,7 +21,7 @@ public class TrenMapper {
         dto.setIdServicio(entity.getIdServicio());
         dto.setFechaSalida(entity.getFechaSalida());
         dto.setFechaLlegada(entity.getFechaLlegada());
-        dto.setCompañia(entity.getCompañia());
+        dto.setCompania(entity.getCompania());
         dto.setOrigen(entity.getOrigen());
         dto.setDestino(entity.getDestino());
         return dto;

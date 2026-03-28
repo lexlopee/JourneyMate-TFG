@@ -8,9 +8,9 @@ public class VueloMapper {
 
     public static VueloEntity toEntity(VueloRequestDTO dto) {
         VueloEntity entity = new VueloEntity();
-        entity.setCompañia(dto.getCompañia());
+        entity.setCompania(dto.getCompania());
         entity.setFechaSalida(dto.getFechaSalida());
-        entity.setFechaLlegada(dto.getFechaLlegada());
+        entity.setFechaRegreso(dto.getFechaRegreso());
         entity.setOrigen(dto.getOrigen());
         entity.setDestino(dto.getDestino());
         return entity;
@@ -19,9 +19,9 @@ public class VueloMapper {
     public static VueloResponseDTO toDTO(VueloEntity entity) {
         VueloResponseDTO dto = new VueloResponseDTO();
         dto.setIdServicio(entity.getIdServicio());
-        dto.setCompañia(entity.getCompañia());
+        dto.setCompania(entity.getCompania());
         dto.setFechaSalida(entity.getFechaSalida());
-        dto.setFechaLlegada(entity.getFechaLlegada());
+        dto.setFechaRegreso(entity.getFechaRegreso());
         dto.setOrigen(entity.getOrigen());
         dto.setDestino(entity.getDestino());
         return dto;

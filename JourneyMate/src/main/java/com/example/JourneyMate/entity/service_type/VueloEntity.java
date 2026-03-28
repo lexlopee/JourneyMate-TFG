@@ -15,13 +15,13 @@ import java.time.LocalDate;
 public class VueloEntity extends ServicioTuristicoEntity {
 
     @Column(name = "compañia")
-    private String compañia;
+    private String compania;
 
     @Column(name = "fecha_salida")
     private LocalDate fechaSalida;
 
-    @Column(name = "fecha_llegada")
-    private LocalDate fechaLlegada;
+    @Column(name = "fecha_regreso")
+    private LocalDate fechaRegreso;
 
     @Column(name = "origen")
     private String origen;

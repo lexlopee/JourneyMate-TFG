@@ -6,9 +6,9 @@ import java.time.LocalDate;
 
 @Data
 public class VueloRequestDTO {
-    private String compañia;
+    private String compania;
     private LocalDate fechaSalida;
-    private LocalDate fechaLlegada;
+    private LocalDate fechaRegreso;
     private String origen;
     private String destino;
 }

@@ -19,13 +19,6 @@ public class HotelMapper {
         dto.setEstrellas(entity.getEstrellas());
         dto.setDescripcion(entity.getDescripcion());
 
-        // Evitamos enviar la lista completa de habitaciones
-        if (entity.getHabitaciones() != null) {
-            dto.setNumeroHabitaciones(entity.getHabitaciones().size());
-        } else {
-            dto.setNumeroHabitaciones(0);
-        }
-
         return dto;
     }
 }

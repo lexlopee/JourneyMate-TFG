@@ -30,7 +30,6 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired private TipoReservaRepository tipoReservaRepository;
     @Autowired private DireccionRepository direccionRepository;
     @Autowired private HotelRepository hotelRepository;
-    @Autowired private ApartamentoRepository apartamentoRepository;
     @Autowired private ActividadRepository actividadRepository;
     @Autowired private CruceroRepository cruceroRepository;
     @Autowired private VTCRepository vtcRepository;
@@ -94,13 +93,6 @@ public class ReservaServiceImpl implements ReservaService {
                 yield hotelRepository.save(h);
             }
 
-            case "APARTAMENTO" -> {
-                ApartamentoEntity a = new ApartamentoEntity();
-                a.setNombre(s.getNombre());
-                a.setPrecioBase(s.getPrecioBase());
-                a.setDescripcion(s.getDescripcion());
-                yield apartamentoRepository.save(a);
-            }
 
             case "ACTIVIDAD" -> {
                 ActividadEntity a = new ActividadEntity();
@@ -118,7 +110,7 @@ public class ReservaServiceImpl implements ReservaService {
                 c.setPuertoLlegada(s.getDestino());
                 c.setNaviera(s.getNaviera());
                 c.setFechaSalida(s.getFechaSalida());
-                c.setFechaLlegada(s.getFechaLlegada());
+                c.setFechaLlegada(s.getFechaRegreso());
                 yield cruceroRepository.save(c);
             }
 
@@ -137,11 +129,11 @@ public class ReservaServiceImpl implements ReservaService {
                 VueloEntity v = new VueloEntity();
                 v.setNombre(s.getNombre());
                 v.setPrecioBase(s.getPrecioBase());
-                v.setCompañia(s.getCompañia());
+                v.setCompania(s.getCompania());
                 v.setOrigen(s.getOrigen());
                 v.setDestino(s.getDestino());
                 v.setFechaSalida(s.getFechaSalida());
-                v.setFechaLlegada(s.getFechaLlegada());
+                v.setFechaRegreso(s.getFechaRegreso());
                 yield vueloRepository.save(v);
             }
 
@@ -149,11 +141,11 @@ public class ReservaServiceImpl implements ReservaService {
                 TrenEntity t = new TrenEntity();
                 t.setNombre(s.getNombre());
                 t.setPrecioBase(s.getPrecioBase());
-                t.setCompañia(s.getCompañia());
+                t.setCompania(s.getCompania());
                 t.setOrigen(s.getOrigen());
                 t.setDestino(s.getDestino());
                 t.setFechaSalida(s.getFechaSalida());
-                t.setFechaLlegada(s.getFechaLlegada());
+                t.setFechaLlegada(s.getFechaRegreso());
                 yield trenRepository.save(t);
             }
 
@@ -164,9 +156,7 @@ public class ReservaServiceImpl implements ReservaService {
         if (s.getLatitud() != null && s.getLongitud() != null) {
             DireccionEntity dir = new DireccionEntity();
             dir.setServicio(servicioGuardado);
-            dir.setCalle(s.getCalle());
-            dir.setNumero(s.getNumero());
-            dir.setCiudad(s.getCiudad());
+            dir.setDescripcion(s.getDescripcion_direccion() != null ? s.getDescripcion_direccion() : s.getNombre());
             dir.setLatitud(s.getLatitud());
             dir.setLongitud(s.getLongitud());
             direccionRepository.save(dir);

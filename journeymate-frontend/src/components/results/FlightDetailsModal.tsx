@@ -84,11 +84,11 @@ export const FlightDetailsModal = ({ isOpen, onClose, details }: any) => {
       const aerolinea = primerSegmento.legs?.[0]?.carriersData?.[0]?.name ?? "Aerolínea desconocida";
       const isRoundTrip = data.tripType === 'ROUNDTRIP';
       const fechaSalida = primerSegmento.departureTime?.split("T")[0];
-      const fechaLlegada = isRoundTrip && segmentoRegreso 
+      const fechaRegreso = isRoundTrip && segmentoRegreso 
         ? segmentoRegreso.departureTime?.split("T")[0] 
         : null;
 
-      if (!fechaSalida || (isRoundTrip && !fechaLlegada)) {
+      if (!fechaSalida || (isRoundTrip && !fechaRegreso)) {
         setLoginError("Error en las fechas del itinerario.");
         setIsReserving(false);
         return;
@@ -106,11 +106,11 @@ export const FlightDetailsModal = ({ isOpen, onClose, details }: any) => {
           nombre: `${aerolinea} · ${primerSegmento.departureAirport.code} ${simbolo} ${primerSegmento.arrivalAirport.code}`,
           precioBase: precioTotal,
           ciudad: primerSegmento.departureAirport.cityName ?? null,
-          compañia: aerolinea,
+          compania: aerolinea,
           origen: primerSegmento.departureAirport.code,
           destino: primerSegmento.arrivalAirport.code,
           fechaSalida,
-          fechaLlegada, 
+          fechaRegreso, 
         },
       };
 

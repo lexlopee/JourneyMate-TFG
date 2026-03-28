@@ -22,7 +22,7 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
   // ✅ FIX: El DTO usa camelCase tras aplicar @JsonProperty en Java
   // details.data contiene el DataPayload del backend
   const hotelData = details?.data;
-
+  const desc = hotelBasicData?.descripcion;
   const lat = hotelBasicData?.latitud;
   const lng = hotelBasicData?.longitud;
   const stars = hotelBasicData?.propertyClass || 0;
@@ -117,11 +117,10 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
       precioBase: hotelBasicData.precio,
       descripcion: hotelBasicData.reviewWord ?? null,
       estrellas,
-      calle: null,
-      numero: null,
-      ciudad: null,
       latitud: hotelBasicData.latitud ?? null,
       longitud: hotelBasicData.longitud ?? null,
+      descripcion_direccion: hotelData?.address ?? hotelBasicData?.direccion ?? null,
+
     };
 
     const body = {

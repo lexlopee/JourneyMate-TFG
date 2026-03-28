@@ -19,6 +19,4 @@ public class HotelEntity extends ServicioTuristicoEntity {
     @Column(name = "descripcion")
     private String descripcion;
 
-    @OneToMany(mappedBy = "hotel")
-    private List<HabitacionEntity> habitaciones;
 }

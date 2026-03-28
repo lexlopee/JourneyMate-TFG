@@ -9,7 +9,7 @@ public class TrenResponseDTO {
     private Integer idServicio;
     private LocalDate fechaSalida;
     private LocalDate fechaLlegada;
-    private String compañia;
+    private String compania;
     private String origen;
     private String destino;
 }

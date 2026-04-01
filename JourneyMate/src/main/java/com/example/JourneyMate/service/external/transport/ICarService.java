@@ -15,7 +15,7 @@ public interface ICarService {
      * Busca ubicaciones (aeropuertos, ciudades, distritos) para alquiler de coches.
      * * @param query Texto de búsqueda (mínimo 2 caracteres).
      *
-     * @param languageCode Código de idioma (ej: "es-es", "en-us").
+     * @param languageCode Código de idioma
      * @param countryFlag  Código del país para el icono/bandera (ej: "es", "us").
      * @return Lista de DTOs con las ubicaciones encontradas.
      */
@@ -32,16 +32,9 @@ public interface ICarService {
      * @param dTime     Hora de devolución (HH:MM).
      * @param age       Edad del conductor (mínimo 18, defecto suele ser 30).
      * @param currency  Código de moneda (EUR, USD, etc.).
+     * @param carType el tipo de coche
      * @return Lista de DTOs con los coches y precios disponibles.
      */
-    List<CarDTO> searchCars(
-            String pickUpId,
-            String dropOffId,
-            String pDate,
-            String pTime,
-            String dDate,
-            String dTime,
-            Integer age,
-            String currency
-    );
+    List<CarDTO> searchCars(String pickUpId, String dropOffId, String pDate, String pTime,
+                            String dDate, String dTime, Integer age, String currency, String carType);
 }

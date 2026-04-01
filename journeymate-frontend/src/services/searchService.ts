@@ -8,16 +8,14 @@ const formatDate = (date: any): string | undefined => {
   if (!date) return undefined;
   if (typeof date === 'string') return date; 
   try {
-    return date.toISOString().split('T')[0];
+    return new Date(date).toISOString().split('T')[0];
   } catch (e) {
     return undefined;
   }
 };
 
 /**
- * ✅ FIX: Sanitiza parámetros numéricos antes de enviarlos al backend.
- * Evita que NaN, undefined o null lleguen como string "NaN" en la URL,
- * lo que causa un 500 al intentar parsear Integer en Spring.
+ * Sanitiza parámetros para evitar que "NaN" o "undefined" lleguen al backend.
  */
 const sanitizeParams = (params: Record<string, any>): Record<string, any> => {
   const clean: Record<string, any> = {};
@@ -29,6 +27,9 @@ const sanitizeParams = (params: Record<string, any>): Record<string, any> => {
   return clean;
 };
 
+/**
+ * Búsqueda General (Hoteles, Vuelos, Coches, Actividades)
+ */
 export const performSearch = async (activeSection: string, searchData: any) => {
   let response;
 
@@ -37,7 +38,7 @@ export const performSearch = async (activeSection: string, searchData: any) => {
     startDate: formatDate(searchData.startDate),
     endDate: formatDate(searchData.endDate),
     adults: searchData.adults || 1,
-    roomQty: searchData.roomQty || 1,  // ✅ FIX: garantía extra aquí también
+    roomQty: searchData.roomQty || 1,
   };
 
   switch (activeSection) {
@@ -54,6 +55,20 @@ export const performSearch = async (activeSection: string, searchData: any) => {
       const params = sanitizeParams(paramsMapper.vuelos(normalizedData));
       response = await api.get('/flights/search', { params });
       break;
+    }
+
+    case 'coches': {
+      // 1. Mapeamos los datos con los nuevos nombres
+      const rawParams = paramsMapper.coches(normalizedData);
+      // 2. Limpiamos nulos/undefined
+      const params = sanitizeParams(rawParams);
+      console.log("Enviando parámetros a Java:", params);
+      const res = await api.get('/external/cars/search', { params });
+      
+      if (res.data && Array.isArray(res.data)) {
+        return res.data.slice(0, 20); 
+      }
+      return res.data;
     }
 
     case 'actividades': {
@@ -82,7 +97,7 @@ export const performSearch = async (activeSection: string, searchData: any) => {
 };
 
 /**
- * Detalles de Hotel
+ * Detalles de Hotel (Exportado correctamente)
  */
 export const getHotelDetails = async (hotelId: string, searchData: any) => {
   const normalizedData = {
@@ -94,7 +109,6 @@ export const getHotelDetails = async (hotelId: string, searchData: any) => {
   };
 
   const rawParams = paramsMapper.hotelDetails(hotelId, normalizedData);
-
   const params = sanitizeParams({
     ...rawParams,
     _t: Date.now(),
@@ -105,7 +119,7 @@ export const getHotelDetails = async (hotelId: string, searchData: any) => {
 };
 
 /**
- * Detalles de Vuelo
+ * Detalles de Vuelo (La función que te faltaba exportar)
  */
 export const getFlightDetails = async (token: string, currencyCode: string = 'EUR') => {
   const response = await api.get('/flights/details', {

@@ -53,14 +53,25 @@ export const paramsMapper = {
     return params;
   },
 
-  coches: (data: any) => ({
-    pickUpId: normalize(data.origin),
-    pDate: formatDateForBackend(data.startDate),
-    pTime: data.pickupTime,
-    dDate: formatDateForBackend(data.endDate),
-    dTime: '10:00',
-    currencyCode: 'EUR'
-  }),
+  coches: (data: any) => {
+    const params: any = {
+      pickUpId: data.fromId,
+      dropOffId: data.toId || data.fromId, 
+      pickUpDate: formatDateForBackend(data.startDate),
+      pickUpTime: data.pickupTime || '10:00',
+      dropOffDate: formatDateForBackend(data.endDate),
+      dropOffTime: data.dropoffTime || '10:00',
+      driverAge: 30,
+      currencyCode: 'EUR',
+      units: 'metric'
+    };
+
+    if (data.carType && data.carType !== 'all') {
+      params.carType = `carCategory::${data.carType}`;
+    }
+
+    return params;
+  },
 
   actividades: (data: any, ufi?: string) => ({
     id: ufi,

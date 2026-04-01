@@ -19,7 +19,8 @@ public class ExternalCarController {
 
     @GetMapping("/autocomplete")
     public ResponseEntity<List<CarLocationDTO>> autocomplete(@RequestParam String query) {
-        List<CarLocationDTO> results = carService.searchCarLocation(query, "en-us", "us");
+        // Ajustado a idioma español por defecto como pediste
+        List<CarLocationDTO> results = carService.searchCarLocation(query, "es", "es");
         return results.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(results);
     }
 
@@ -27,14 +28,19 @@ public class ExternalCarController {
     public ResponseEntity<List<CarDTO>> search(
             @RequestParam String pickUpId,
             @RequestParam(required = false) String dropOffId,
-            @RequestParam String pDate,
-            @RequestParam String pTime,
-            @RequestParam String dDate,
-            @RequestParam String dTime,
-            @RequestParam(defaultValue = "30") Integer age,
-            @RequestParam(defaultValue = "USD") String currency) {
+            @RequestParam String pickUpDate,
+            @RequestParam String pickUpTime,
+            @RequestParam String dropOffDate,
+            @RequestParam String dropOffTime,
+            @RequestParam(defaultValue = "30") Integer driverAge,
+            @RequestParam(defaultValue = "EUR") String currencyCode,
+            @RequestParam(required = false) String carType) {
 
-        List<CarDTO> cars = carService.searchCars(pickUpId, dropOffId, pDate, pTime, dDate, dTime, age, currency);
+        List<CarDTO> cars = carService.searchCars(
+                pickUpId, dropOffId, pickUpDate, pickUpTime,
+                dropOffDate, dropOffTime, driverAge, currencyCode, carType
+        );
+
         return cars.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(cars);
     }
 }

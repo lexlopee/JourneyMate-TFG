@@ -7,12 +7,15 @@ import {
   PlaneTakeoff,
   Briefcase,
   Globe,
-  Ship
+  Ship,
+  Clock,
+  Car
 } from 'lucide-react';
 import { SearchInput } from "./SearchInput";
 import { SearchCounter } from "./SearchCounter";
 import { AutocompleteInput } from "./AutoCompleteInput";
 import { SearchSelect } from "./SearchSelect";
+import { CarLocationInput } from './CarLocationInput';
 
 export const SearchForm = ({ activeSection, searchData, handleChange }: any) => {
 
@@ -21,6 +24,13 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
     handleChange(key, formattedValue);
     handleChange(key + 'Text', value); 
   };
+
+  // Generar opciones de horas cada 30 minutos para los selectores
+  const timeOptions = Array.from({ length: 48 }, (_, i) => {
+    const h = Math.floor(i / 2).toString().padStart(2, '0');
+    const m = (i % 2 === 0 ? '00' : '30');
+    return { label: `${h}:${m}`, value: `${h}:${m}` };
+  });
 
   // Fecha de hoy para deshabilitar días pasados
   const today = new Date().toISOString().split('T')[0];
@@ -63,7 +73,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
           />
           <SearchInput
             label="Regreso"
-            placeholder="Opcional (Solo ida)" // Feedback visual para el usuario
+            placeholder="Opcional (Solo ida)"
             icon={<Calendar size={18} />} 
             type="date" 
             min={searchData.startDate || today}
@@ -122,6 +132,59 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
         </>
       );
 
+    case 'coches':
+      return (
+        <>
+          <div className="md:col-span-2">
+            <CarLocationInput 
+              label="Lugar de recogida" 
+              placeholder="Ciudad o aeropuerto" 
+              value={searchData.originText}
+              onSelect={(loc: any) => {
+                handleChange('fromId', loc.id);
+                handleChange('originText', loc.name);
+              }}
+            />
+          </div>
+          
+          <SearchInput label="Recogida" icon={<Calendar size={18} />} type="date" min={today} val={searchData.startDate} onChange={(v: any) => handleChange('startDate', v)} />
+          
+          <SearchSelect 
+            label="Hora Recogida" 
+            icon={<Clock size={18} />} 
+            value={searchData.pickupTime || '10:00'}
+            options={timeOptions}
+            onChange={(v: string) => handleChange('pickupTime', v)} 
+          />
+
+          <SearchInput label="Devolución" icon={<Calendar size={18} />} type="date" min={searchData.startDate || today} val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} />
+          
+          <SearchSelect 
+            label="Hora Devolución" 
+            icon={<Clock size={18} />} 
+            value={searchData.dropoffTime || '10:00'}
+            options={timeOptions}
+            onChange={(v: string) => handleChange('dropoffTime', v)} 
+          />
+          
+          <SearchSelect 
+            label="Tipo de coche" 
+            icon={<Car size={18} />} 
+            value={searchData.carType || 'all'}
+            options={[
+              { label: 'Todos los tipos', value: 'all' },
+              { label: 'Pequeño', value: 'small' },
+              { label: 'Mediano', value: 'medium' },
+              { label: 'Grande', value: 'large' },
+              { label: 'SUV', value: 'suvs' },
+              { label: 'Premium', value: 'premium' },
+              { label: 'Furgoneta', value: 'carriers' },
+            ]}
+            onChange={(v: string) => handleChange('carType', v)} 
+          />
+        </>
+      );  
+
     case 'actividades':
       return (
         <>
@@ -142,7 +205,6 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
             min={searchData.startDate || today}
             val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
           />
-          {/* Espaciadores para mantener el grid simétrico */}
           <div className="hidden lg:block opacity-0" aria-hidden="true" />
           <div className="hidden lg:block opacity-0" aria-hidden="true" />
         </>

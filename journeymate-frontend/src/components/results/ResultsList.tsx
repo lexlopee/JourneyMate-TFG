@@ -1,7 +1,11 @@
 import { useState, useMemo } from 'react';
-import { HotelCard } from '../HotelCard';
-import { FlightCard } from '../FlightCard';
-import { Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal, Plane, Clock, Hotel as HotelIcon } from 'lucide-react';
+import { HotelCard } from './HotelCard';
+import { FlightCard } from './FlightCard';
+import { CarCard } from './CarCard'; // <--- Añadimos CarCard
+import { 
+  Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal, 
+  Plane, Clock, Hotel as HotelIcon, Car // <--- Añadimos el icono Car
+} from 'lucide-react';
 
 interface ResultsListProps {
   results: any[];
@@ -13,13 +17,12 @@ interface ResultsListProps {
 export const ResultsList = ({ results, activeSection, onViewDetails, destination }: ResultsListProps) => {
   const [sortBy, setSortBy] = useState('default');
 
-  // Función auxiliar para convertir "12h 30min" a minutos totales (para poder comparar números)
+  // Función auxiliar para convertir "12h 30min" a minutos totales
   const parseDurationToMinutes = (durationStr: string) => {
     if (!durationStr) return 0;
     const hours = durationStr.match(/(\d+)h/);
     const minutes = durationStr.match(/(\d+)min/);
-    const totalMinutes = (hours ? parseInt(hours[1]) * 60 : 0) + (minutes ? parseInt(minutes[1]) : 0);
-    return totalMinutes;
+    return (hours ? parseInt(hours[1]) * 60 : 0) + (minutes ? parseInt(minutes[1]) : 0);
   };
 
   const sortedResults = useMemo(() => {
@@ -28,13 +31,15 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
 
     switch (sortBy) {
       case 'price_asc': 
-        return resultsCopy.sort((a, b) => (a.precio || 0) - (b.precio || 0));
+        // Soportamos a.precio (hoteles/vuelos) y a.price (coches)
+        return resultsCopy.sort((a, b) => 
+          (a.precio || a.price || 0) - (b.precio || b.price || 0)
+        );
       
       case 'rating_desc': 
         return resultsCopy.sort((a, b) => (b.calificacion || 0) - (a.calificacion || 0));
       
       case 'duration_asc':
-        // Ordenamos usando la propiedad 'duracion' que ya tiene tu objeto flight
         return resultsCopy.sort((a, b) => {
           return parseDurationToMinutes(a.duracion) - parseDurationToMinutes(b.duracion);
         });
@@ -67,8 +72,16 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
     const place = destination?.replace(/_/g, ' ');
     if (activeSection === 'alojamiento') return `Hoteles en ${place || 'tu destino'}`;
     if (activeSection === 'vuelos') return `Vuelos a ${place || 'tu destino'}`;
+    if (activeSection === 'coches') return `Coches en ${place || 'tu destino'}`; // <--- Título para coches
     return `Resultados para ${activeSection}`;
   };
+
+  // Determinar icono de la cabecera
+  const HeaderIcon = activeSection === 'vuelos' 
+    ? Plane 
+    : activeSection === 'coches' 
+      ? Car 
+      : HotelIcon;
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-20 animate-fade-in pb-20">
@@ -86,7 +99,7 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
           </div>
           
           <div className="flex items-center gap-3 bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-lg shadow-teal-900/20">
-             {activeSection === 'vuelos' ? <Plane size={16} /> : <HotelIcon size={16} />}
+             <HeaderIcon size={16} />
              <span className="font-black text-xs uppercase tracking-widest">{results.length} disponibles</span>
           </div>
         </div>
@@ -137,6 +150,16 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
               flight={item} 
               onViewDetails={() => onViewDetails(item)}
             />
+          ))
+        }
+
+        {/* SECCIÓN COCHES */}
+        {activeSection === 'coches' && 
+          sortedResults.map((item, index) => (
+            // Hacemos que ocupe todas las columnas porque la tarjeta de coche es alargada
+            <div key={index} className="md:col-span-2 lg:col-span-3">
+              <CarCard car={item} />
+            </div>
           ))
         }
       </div>

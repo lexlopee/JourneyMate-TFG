@@ -1,5 +1,5 @@
 import { PlaneTakeoff, PlaneLanding, MoveRight, Ticket, Clock, ArrowLeftRight } from 'lucide-react';
-import { formatCurrency } from '../utils/dateUtils';
+import { formatCurrency } from '../../utils/dateUtils';
 
 interface FlightCardProps {
   flight: any;

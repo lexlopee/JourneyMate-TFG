@@ -1,69 +1,59 @@
+// src/components/results/ResultsList.tsx
 import { useState, useMemo } from 'react';
 import { HotelCard } from './HotelCard';
 import { FlightCard } from './FlightCard';
-import { CarCard } from './CarCard'; // <--- Añadimos CarCard
-import { 
-  Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal, 
-  Plane, Clock, Hotel as HotelIcon, Car // <--- Añadimos el icono Car
+import { CarCard } from './CarCard';
+import {
+  Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal,
+  Plane, Clock, Hotel as HotelIcon, Car
 } from 'lucide-react';
 
 interface ResultsListProps {
   results: any[];
   activeSection: string;
   onViewDetails: (item: any) => void;
-  destination: string; 
+  onRentCar?: (car: any) => void; // ✅ NUEVO
+  destination: string;
+  searchData?: any;               // ✅ NUEVO para pasar días a CarCard
 }
 
-export const ResultsList = ({ results, activeSection, onViewDetails, destination }: ResultsListProps) => {
+export const ResultsList = ({
+  results,
+  activeSection,
+  onViewDetails,
+  onRentCar,
+  destination,
+  searchData,
+}: ResultsListProps) => {
   const [sortBy, setSortBy] = useState('default');
 
-  // Función auxiliar para convertir "12h 30min" a minutos totales
   const parseDurationToMinutes = (durationStr: string) => {
     if (!durationStr) return 0;
-    const hours = durationStr.match(/(\d+)h/);
+    const hours   = durationStr.match(/(\d+)h/);
     const minutes = durationStr.match(/(\d+)min/);
     return (hours ? parseInt(hours[1]) * 60 : 0) + (minutes ? parseInt(minutes[1]) : 0);
   };
 
   const sortedResults = useMemo(() => {
     if (!results) return [];
-    const resultsCopy = [...results];
-
+    const copy = [...results];
     switch (sortBy) {
-      case 'price_asc': 
-        // Soportamos a.precio (hoteles/vuelos) y a.price (coches)
-        return resultsCopy.sort((a, b) => 
-          (a.precio || a.price || 0) - (b.precio || b.price || 0)
-        );
-      
-      case 'rating_desc': 
-        return resultsCopy.sort((a, b) => (b.calificacion || 0) - (a.calificacion || 0));
-      
+      case 'price_asc':
+        return copy.sort((a, b) => (a.precio || a.price || 0) - (b.precio || b.price || 0));
+      case 'rating_desc':
+        return copy.sort((a, b) => (b.calificacion || 0) - (a.calificacion || 0));
       case 'duration_asc':
-        return resultsCopy.sort((a, b) => {
-          return parseDurationToMinutes(a.duracion) - parseDurationToMinutes(b.duracion);
-        });
-
-      default: 
-        return resultsCopy;
+        return copy.sort((a, b) => parseDurationToMinutes(a.duracion) - parseDurationToMinutes(b.duracion));
+      default:
+        return copy;
     }
   }, [results, sortBy]);
 
   const sortOptions = [
-    { id: 'default', label: 'Recomendados', icon: <SlidersHorizontal size={14} /> },
-    { id: 'price_asc', label: 'Más Barato', icon: <ArrowUpNarrowWide size={14} /> },
-    { 
-      id: 'duration_asc', 
-      label: 'Más Rápido', 
-      icon: <Clock size={14} />, 
-      showOnly: 'vuelos' 
-    },
-    { 
-      id: 'rating_desc', 
-      label: 'Mejor Valorados', 
-      icon: <Star size={14} />, 
-      showOnly: 'alojamiento' 
-    },
+    { id: 'default',      label: 'Recomendados',    icon: <SlidersHorizontal size={14} /> },
+    { id: 'price_asc',    label: 'Más Barato',       icon: <ArrowUpNarrowWide size={14} /> },
+    { id: 'duration_asc', label: 'Más Rápido',       icon: <Clock size={14} />, showOnly: 'vuelos' },
+    { id: 'rating_desc',  label: 'Mejor Valorados',  icon: <Star  size={14} />, showOnly: 'alojamiento' },
   ];
 
   if (!results || results.length === 0) return null;
@@ -71,21 +61,16 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
   const getSectionTitle = () => {
     const place = destination?.replace(/_/g, ' ');
     if (activeSection === 'alojamiento') return `Hoteles en ${place || 'tu destino'}`;
-    if (activeSection === 'vuelos') return `Vuelos a ${place || 'tu destino'}`;
-    if (activeSection === 'coches') return `Coches en ${place || 'tu destino'}`; // <--- Título para coches
+    if (activeSection === 'vuelos')      return `Vuelos a ${place || 'tu destino'}`;
+    if (activeSection === 'coches')      return `Coches disponibles`;
     return `Resultados para ${activeSection}`;
   };
 
-  // Determinar icono de la cabecera
-  const HeaderIcon = activeSection === 'vuelos' 
-    ? Plane 
-    : activeSection === 'coches' 
-      ? Car 
-      : HotelIcon;
+  const HeaderIcon = activeSection === 'vuelos' ? Plane : activeSection === 'coches' ? Car : HotelIcon;
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-20 animate-fade-in pb-20">
-      
+
       {/* CABECERA */}
       <div className="flex flex-col gap-8 mb-12 px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -97,68 +82,64 @@ export const ResultsList = ({ results, activeSection, onViewDetails, destination
               {getSectionTitle()}
             </h2>
           </div>
-          
-          <div className="flex items-center gap-3 bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-lg shadow-teal-900/20">
-             <HeaderIcon size={16} />
-             <span className="font-black text-xs uppercase tracking-widest">{results.length} disponibles</span>
+          <div className="flex items-center gap-3 bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-lg">
+            <HeaderIcon size={16} />
+            <span className="font-black text-xs uppercase tracking-widest">{results.length} disponibles</span>
           </div>
         </div>
 
-        {/* SELECTOR DE FILTROS */}
         <div className="flex flex-wrap items-center gap-3 bg-white/50 p-2 rounded-[2rem] border border-teal-100 w-fit backdrop-blur-sm">
           <span className="text-[9px] font-black uppercase tracking-widest text-teal-900/40 ml-4 mr-2">Ordenar por:</span>
           {sortOptions.map((option) => {
             if (option.showOnly && option.showOnly !== activeSection) return null;
-
             return (
               <button
                 key={option.id}
                 onClick={() => setSortBy(option.id)}
-                className={`
-                  flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300
-                  ${sortBy === option.id 
-                    ? 'bg-teal-500 text-white shadow-md scale-105' 
-                    : 'hover:bg-teal-100 text-teal-800 opacity-60 hover:opacity-100'}
-                `}
+                className={`flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300
+                  ${sortBy === option.id
+                    ? 'bg-teal-500 text-white shadow-md scale-105'
+                    : 'hover:bg-teal-100 text-teal-800 opacity-60 hover:opacity-100'}`}
               >
-                {option.icon}
-                {option.label}
+                {option.icon}{option.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* GRID DE RESULTADOS */}
+      {/* GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-6">
-        
-        {activeSection === 'alojamiento' && 
+
+        {activeSection === 'alojamiento' &&
           sortedResults.map((item, index) => (
-            <HotelCard 
-              key={item.hotelId || index} 
-              hotel={item} 
+            <HotelCard
+              key={item.hotelId || index}
+              hotel={item}
               onViewDetails={() => onViewDetails(item)}
-              destination={destination?.replace(/_/g, ' ')} 
+              destination={destination?.replace(/_/g, ' ')}
             />
           ))
         }
 
-        {activeSection === 'vuelos' && 
+        {activeSection === 'vuelos' &&
           sortedResults.map((item, index) => (
-            <FlightCard 
-              key={item.token || index} 
-              flight={item} 
+            <FlightCard
+              key={item.token || index}
+              flight={item}
               onViewDetails={() => onViewDetails(item)}
             />
           ))
         }
 
-        {/* SECCIÓN COCHES */}
-        {activeSection === 'coches' && 
+        {activeSection === 'coches' &&
           sortedResults.map((item, index) => (
-            // Hacemos que ocupe todas las columnas porque la tarjeta de coche es alargada
             <div key={index} className="md:col-span-2 lg:col-span-3">
-              <CarCard car={item} />
+              <CarCard
+                car={item}
+                searchData={searchData}
+                onRent={() => onRentCar?.(item)} // ✅ abre el modal
+              />
             </div>
           ))
         }

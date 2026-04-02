@@ -8,19 +8,19 @@ import java.time.LocalDate;
 @Data
 public class ServicioTuristicoRequestDTO {
 
-    private String tipo; // HOTEL, VUELO, CRUCERO, VTC, ACTIVIDAD, APARTAMENTO
+    private String tipo;
 
     private String nombre;
     private BigDecimal precioBase;
     private String descripcion;
-    private Integer estrellas; // solo para hoteles
+    private Integer estrellas;
 
-    // Dirección opcional
+    // Dirección
     private String descripcion_direccion;
     private Double latitud;
     private Double longitud;
 
-    // Datos específicos según tipo
+    // Transporte
     private String origen;
     private String destino;
     private String compania;
@@ -28,10 +28,13 @@ public class ServicioTuristicoRequestDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaSalida;
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaRegreso;
 
     private String marca;
     private String modelo;
-    private String distancia;
+
+    // ✅ CORREGIDO: era String, la tabla VTC tiene distancia NUMERIC(6,2)
+    private BigDecimal distancia;
 }

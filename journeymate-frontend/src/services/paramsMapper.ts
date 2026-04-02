@@ -67,7 +67,7 @@ export const paramsMapper = {
     };
 
     if (data.carType && data.carType !== 'all') {
-      params.carType = `carCategory::${data.carType}`;
+      params.carType = data.carType;  // ✅ CORREGIDO: la API espera 'small', no 'carCategory::small'
     }
 
     return params;

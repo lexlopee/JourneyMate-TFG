@@ -10,6 +10,8 @@ import { HotelDetailsModal } from './components/results/HotelDetailsModal';
 import { FlightDetailsModal } from './components/results/FlightDetailsModal'; 
 import { AITravelAssistant } from './components/AITravelAssistant';
 import { LoadingVideo } from './components/LoadingVideo';
+import { Car3D } from './components/Car3D';
+import { CarDetailsModal } from './components/results/CarDetailsModal';
 import { performSearch, getHotelDetails, getFlightDetails } from './services/searchService'; 
 import { formatDateForBackend } from './utils/dateUtils'; 
 
@@ -33,6 +35,10 @@ function App() {
   const [selectedFlightBasic, setSelectedFlightBasic] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
 
+  // Coche seleccionado para reservar
+  const [isCarModalOpen, setIsCarModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
+
   const [searchData, setSearchData] = useState({
     fromId: '', 
     toId: '',
@@ -49,7 +55,8 @@ function App() {
     childrenAge: '',     
     cabinClass: 'ECONOMY',
     sort: 'BEST',
-    currencyCode: 'EUR'  
+    currencyCode: 'EUR',
+    carType: 'all',
   });
 
   const iconRef = useRef<HTMLDivElement>(null);
@@ -159,7 +166,15 @@ function App() {
         <div ref={iconRef} className="mb-8 bg-white/20 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/40 shadow-2xl">
           {activeSection === 'alojamiento' && <Hotel size={70} className="text-teal-900" />}
           {activeSection === 'vuelos' && <Plane size={70} className="text-teal-900" />}
-          {activeSection === 'coches' && <Car size={70} className="text-teal-900" />}
+          {activeSection === 'coches' && (
+            <Car3D
+              carType={searchData.carType}
+              height={180}
+              interactive={true}
+              showLabel={true}
+              className="w-44"
+            />
+          )}
           {activeSection === 'actividades' && <Ticket size={70} className="text-teal-900" />}
           {activeSection === 'cruceros' && <Ship size={70} className="text-teal-900" />}
           {activeSection === 'trenes' && <Train size={70} className="text-teal-900" />}
@@ -213,6 +228,8 @@ function App() {
             activeSection={activeSection} 
             onViewDetails={handleViewDetails}
             destination={searchData.destinationText || searchData.destination}
+            searchData={searchData}
+            onRentCar={(car) => { setSelectedCar(car); setIsCarModalOpen(true); }}
           />
         </div>
 
@@ -238,6 +255,13 @@ function App() {
         details={selectedFlightDetails}
         loading={modalLoading}
         flightBasicData={selectedFlightBasic}
+      />
+
+      <CarDetailsModal
+        isOpen={isCarModalOpen}
+        onClose={() => setIsCarModalOpen(false)}
+        car={selectedCar}
+        searchData={searchData}
       />
 
       <Footer />

@@ -58,15 +58,38 @@ export const performSearch = async (activeSection: string, searchData: any) => {
     }
 
     case 'coches': {
-      // 1. Mapeamos los datos con los nuevos nombres
       const rawParams = paramsMapper.coches(normalizedData);
-      // 2. Limpiamos nulos/undefined
       const params = sanitizeParams(rawParams);
-      console.log("Enviando parámetros a Java:", params);
       const res = await api.get('/external/cars/search', { params });
-      
+
       if (res.data && Array.isArray(res.data)) {
-        return res.data.slice(0, 20); 
+        let cars = res.data;
+
+        // ✅ Filtro client-side por tipo de coche como fallback
+        // La API ya recibe carType, pero si devuelve todos igualmente los filtramos aquí
+        const carTypeMap: Record<string, string[]> = {
+          small:    ['mini', 'economy', 'small', 'compact'],
+          medium:   ['medium', 'intermediate', 'standard'],
+          large:    ['large', 'full-size', 'fullsize', 'full size'],
+          suvs:     ['suv', 'crossover', '4x4'],
+          premium:  ['premium', 'luxury', 'sport', 'convertible'],
+          carriers: ['van', 'minivan', 'people carrier', 'bus', 'truck'],
+        };
+
+        const selectedType = normalizedData.carType;
+        if (selectedType && selectedType !== 'all') {
+          const keywords = carTypeMap[selectedType] ?? [];
+          if (keywords.length > 0) {
+            const filtered = cars.filter((car: any) => {
+              const name = (car.carName ?? '').toLowerCase();
+              return keywords.some(kw => name.includes(kw));
+            });
+            // Solo aplicar filtro si encontró algo, si no mostrar todos
+            if (filtered.length > 0) cars = filtered;
+          }
+        }
+
+        return cars.slice(0, 20);
       }
       return res.data;
     }

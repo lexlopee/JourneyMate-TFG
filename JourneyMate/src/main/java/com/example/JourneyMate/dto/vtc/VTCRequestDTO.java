@@ -1,16 +1,15 @@
 package com.example.JourneyMate.dto.vtc;
 
 import lombok.Data;
-
 import java.math.BigDecimal;
-import java.time.LocalTime;
+import java.time.LocalDate;
 
 @Data
 public class VTCRequestDTO {
-    private LocalTime horaSalida;
-    private LocalTime horaLlegada;
+    private LocalDate horaSalida;
+    private LocalDate horaLlegada;
     private BigDecimal precio;
-    private String distancia;
+    private BigDecimal distancia;
     private String marca;
     private String modelo;
 }

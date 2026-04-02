@@ -18,7 +18,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -38,11 +37,6 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired private ReservaRepository reservaRepository;
     @Autowired private UsuarioRepository usuarioRepository;
 
-    // ELIMINADO: ServicioTuristicoRepository ya no se usa aquí.
-    // La inserción en servicio_turistico la hace JPA automáticamente
-    // al guardar la entidad específica (HotelEntity, ApartamentoEntity, etc.)
-    // gracias a @Inheritance(JOINED) + @PrimaryKeyJoinColumn.
-
     @Override
     public List<ReservaEntity> findAll() {
         return reservaRepository.findAll();
@@ -57,7 +51,6 @@ public class ReservaServiceImpl implements ReservaService {
     @Transactional
     public ReservaEntity crearCompleta(ReservaRequestDTO dto) {
 
-        // 1. Cargar entidades de referencia
         UsuarioEntity usuario = usuarioRepository.findById(dto.getIdUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getIdUsuario()));
 
@@ -69,30 +62,18 @@ public class ReservaServiceImpl implements ReservaService {
 
         ServicioTuristicoRequestDTO s = dto.getServicio();
 
-        // 2. Crear la entidad específica según tipo.
-        //    JPA con @Inheritance(JOINED) insertará automáticamente:
-        //      - una fila en servicio_turistico (nombre, precio_base)
-        //      - una fila en la tabla hija (hotel, apartamento, etc.)
-        //    con el mismo id_servicio. NO hay que guardar ServicioTuristicoEntity por separado.
-
-        // servicioGuardado es la entidad base que usaremos en la Reserva
         var servicioGuardado = switch (s.getTipo()) {
 
             case "HOTEL" -> {
                 HotelEntity h = new HotelEntity();
                 h.setNombre(s.getNombre());
                 h.setPrecioBase(s.getPrecioBase());
-                // ✅ CORRECCIÓN: la constraint ck_estr_hote exige estrellas BETWEEN 1 AND 5
-                // Si viene null, 0 o fuera de rango → usamos 1 como mínimo válido
                 Integer estrellas = s.getEstrellas();
-                if (estrellas == null || estrellas < 1 || estrellas > 5) {
-                    estrellas = 1;
-                }
+                if (estrellas == null || estrellas < 1 || estrellas > 5) estrellas = 1;
                 h.setEstrellas(estrellas);
                 h.setDescripcion(s.getDescripcion());
                 yield hotelRepository.save(h);
             }
-
 
             case "ACTIVIDAD" -> {
                 ActividadEntity a = new ActividadEntity();
@@ -120,7 +101,8 @@ public class ReservaServiceImpl implements ReservaService {
                 v.setPrecioBase(s.getPrecioBase());
                 v.setMarca(s.getMarca());
                 v.setModelo(s.getModelo());
-                v.setDistancia(s.getDistancia() != null ? String.valueOf(new BigDecimal(s.getDistancia())) : null);
+                // ✅ CORREGIDO: distancia es BigDecimal en DTO y entidad, no hace falta parsear String
+                v.setDistancia(s.getDistancia());
                 v.setPrecio(s.getPrecioBase());
                 yield vtcRepository.save(v);
             }
@@ -152,7 +134,6 @@ public class ReservaServiceImpl implements ReservaService {
             default -> throw new RuntimeException("Tipo de servicio no reconocido: " + s.getTipo());
         };
 
-        // 3. Dirección opcional (usa el id_servicio ya generado)
         if (s.getLatitud() != null && s.getLongitud() != null) {
             DireccionEntity dir = new DireccionEntity();
             dir.setServicio(servicioGuardado);
@@ -162,10 +143,9 @@ public class ReservaServiceImpl implements ReservaService {
             direccionRepository.save(dir);
         }
 
-        // 4. Crear la reserva enlazando todo
         ReservaEntity reserva = new ReservaEntity();
         reserva.setUsuario(usuario);
-        reserva.setServicio(servicioGuardado);   // apunta al servicio_turistico recién creado
+        reserva.setServicio(servicioGuardado);
         reserva.setTipoReserva(tipo);
         reserva.setEstado(estado);
         reserva.setPrecioTotal(dto.getPrecioTotal());
@@ -182,14 +162,10 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    public void deleteById(Integer idReserva) {
-        reservaRepository.deleteById(idReserva);
-    }
+    public void deleteById(Integer idReserva) { reservaRepository.deleteById(idReserva); }
 
     @Override
-    public boolean existsById(Integer idReserva) {
-        return reservaRepository.existsById(idReserva);
-    }
+    public boolean existsById(Integer idReserva) { return reservaRepository.existsById(idReserva); }
 
     @Override
     public List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario) {

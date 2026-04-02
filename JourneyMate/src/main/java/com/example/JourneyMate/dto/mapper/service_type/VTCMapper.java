@@ -7,17 +7,24 @@ import com.example.JourneyMate.entity.service_type.VTCEntity;
 public class VTCMapper {
 
     public static VTCEntity toEntity(VTCRequestDTO dto) {
+        if (dto == null) return null;
+
         VTCEntity entity = new VTCEntity();
+        // Asignación directa: ambos son LocalDate
         entity.setHoraSalida(dto.getHoraSalida());
         entity.setHoraLlegada(dto.getHoraLlegada());
         entity.setPrecio(dto.getPrecio());
+        // Asignación directa: ambos son BigDecimal
         entity.setDistancia(dto.getDistancia());
         entity.setMarca(dto.getMarca());
         entity.setModelo(dto.getModelo());
+
         return entity;
     }
 
     public static VTCResponseDTO toDTO(VTCEntity entity) {
+        if (entity == null) return null;
+
         VTCResponseDTO dto = new VTCResponseDTO();
         dto.setIdServicio(entity.getIdServicio());
         dto.setHoraSalida(entity.getHoraSalida());
@@ -26,6 +33,7 @@ public class VTCMapper {
         dto.setDistancia(entity.getDistancia());
         dto.setMarca(entity.getMarca());
         dto.setModelo(entity.getModelo());
+
         return dto;
     }
 }

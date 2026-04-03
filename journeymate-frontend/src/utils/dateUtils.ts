@@ -44,3 +44,21 @@ export const formatCurrency = (amount: number | string | undefined, currency: st
     return `${value.toFixed(2)} ${currency}`;
   }
 };
+
+export const formatTimeForBackend = (time1?: string, time2?: string): string => {
+  const t = (time1 || time2 || "").trim();
+  
+  if (!t) return "10:00:00"; 
+  
+  // Si solo tiene HH:mm (ej. "14:30"), le ponemos los segundos
+  if (/^\d{2}:\d{2}$/.test(t)) {
+    return `${t}:00`;
+  }
+  
+  // Si ya tiene HH:mm:ss (ej. "14:30:00"), lo dejamos igual
+  if (/^\d{2}:\d{2}:\d{2}$/.test(t)) {
+    return t;
+  }
+
+  return "10:00:00"; // Fallback por si llega basura
+};

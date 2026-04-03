@@ -1,5 +1,6 @@
 package com.example.JourneyMate.controller.booking;
 
+import com.example.JourneyMate.dto.reserva.ReservaListDTO;
 import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.dto.reserva.ReservaResponseDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
@@ -7,11 +8,9 @@ import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.JourneyMate.dto.reserva.ReservaListDTO;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/reservas")

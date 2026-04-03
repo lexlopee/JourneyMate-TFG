@@ -1,6 +1,7 @@
 package com.example.JourneyMate.external.flights;
 
 import lombok.Data;
+
 import java.util.List;
 
 @Data

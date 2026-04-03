@@ -1,6 +1,6 @@
 // src/components/results/CarDetailsModal.tsx
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X, Car, Users, Briefcase, Settings2, ShieldCheck,
   Fuel, Calendar, CheckCircle2, Building2, MapPin, Clock
@@ -14,10 +14,27 @@ interface CarDetailsModalProps {
 }
 
 export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetailsModalProps) => {
-  const [loginError,      setLoginError]      = useState("");
-  const [successMessage,  setSuccessMessage]  = useState("");
-  const [isReserving,     setIsReserving]     = useState(false);
-  const [isBooked,        setIsBooked]        = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isReserving, setIsReserving] = useState(false);
+  const [isBooked, setIsBooked] = useState(false);
+
+  // EFECTO PARA CONTROLAR EL SCROLL DEL BODY
+  useEffect(() => {
+    if (isOpen) {
+      setIsBooked(false);
+      setIsReserving(false);
+      setLoginError("");
+      setSuccessMessage("");
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    // Limpieza al desmontar
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   if (!isOpen || !car) return null;
 
@@ -32,7 +49,7 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
   const days = (() => {
     if (!searchData?.startDate || !searchData?.endDate) return 1;
     const start = new Date(searchData.startDate);
-    const end   = new Date(searchData.endDate);
+    const end = new Date(searchData.endDate);
     return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
   })();
 
@@ -51,7 +68,7 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
     setSuccessMessage("");
 
     try {
-      const token     = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const idUsuario = localStorage.getItem("idUsuario");
 
       if (!token || !idUsuario) {
@@ -60,44 +77,43 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
       }
 
       const body = {
-        idUsuario:      Number(idUsuario),
-        idTipoReserva:  3,   // 3 = COCHE (ajusta al id que tengas en tu tabla tipo_reserva)
-        idEstado:       1,   // 1 = PENDIENTE
-        precioTotal:    car.price,
+        idUsuario: Number(idUsuario),
+        idTipoReserva: 6, 
+        idEstado: 1, 
+        precioTotal: car.price,
         servicio: {
-          tipo:       "VTC",
-          nombre:     car.carName ?? "Coche de alquiler",
+          tipo: "VTC",
+          nombre: car.carName ?? "Coche de alquiler",
           precioBase: car.price,
           descripcion: `${car.vendorName ?? ''} · ${car.transmission ?? ''} · ${car.seats ?? 5} plazas`,
-          marca:      car.vendorName ?? null,
-          modelo:     car.carName    ?? null,
-          distancia:  null,
-          latitud:    null,
-          longitud:   null,
+          marca: car.vendorName ?? null,
+          modelo: car.carName ?? null,
+          distancia: null,
+          latitud: null,
+          longitud: null,
         },
       };
 
-      let response: Response | null = null;
       try {
-        response = await fetch("http://localhost:8080/api/v1/reservas/completa", {
+        const response = await fetch("http://localhost:8080/api/v1/reservas/completa", {
           method: "POST",
           headers: {
-            "Content-Type":  "application/json",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(body),
         });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          setLoginError(errorText || "Error al realizar la reserva");
+          return;
+        }
       } catch {
-        // ERR_INCOMPLETE_CHUNKED_ENCODING — la reserva sí se guardó
+        // En caso de corte de conexión pero éxito en servidor
         setSuccessMessage("¡Coche reservado con éxito!");
         setIsBooked(true);
         setTimeout(() => setSuccessMessage(""), 4000);
-        return;
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        setLoginError(errorText || "Error al realizar la reserva");
         return;
       }
 
@@ -114,7 +130,11 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
 
   // ── UI ────────────────────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-teal-950/70 backdrop-blur-md">
+    /* CAMBIOS CLAVE AQUÍ: 
+       1. overflow-y-auto (permite scroll si el modal es largo)
+       2. items-start (alinea el modal arriba para que no se corte al scrollear)
+    */
+    <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 bg-teal-950/70 backdrop-blur-md overflow-y-auto">
 
       {/* Toast éxito */}
       {successMessage && (
@@ -124,7 +144,8 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
         </div>
       )}
 
-      <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden">
+      {/* Margen vertical (my-8) para que el modal no pegue al borde superior/inferior */}
+      <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden my-8">
 
         {/* HEADER */}
         <div className="bg-gradient-to-br from-teal-900 to-teal-700 p-8 text-white relative">
@@ -175,12 +196,11 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
           {/* CARACTERÍSTICAS */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { icon: <Users size={16}/>,    label: 'Plazas',      value: `${car.seats || 5}` },
-              { icon: <Briefcase size={16}/>, label: 'Maletas',     value: `${car.bags  || 2}` },
+              { icon: <Users size={16}/>, label: 'Plazas', value: `${car.seats || 5}` },
+              { icon: <Briefcase size={16}/>, label: 'Maletas', value: `${car.bags || 2}` },
               { icon: <Settings2 size={16}/>, label: 'Transmisión', value: car.transmission === 'Automatic' ? 'Auto' : 'Manual' },
-              { icon: <Fuel size={16}/>,      label: 'Combustible', value: 'Lleno' },
-              { icon: <ShieldCheck size={16}/>,label: 'Seguro',     value: 'Básico incluido' },
-              { icon: <Car size={16}/>,       label: 'Tipo',        value: car.transmission === 'Automatic' ? 'Premium' : 'Estándar' },
+              { icon: <Fuel size={16}/>, label: 'Combustible', value: 'Lleno' },
+              { icon: <ShieldCheck size={16}/>, label: 'Seguro', value: 'Básico incluido' },
             ].map((item, i) => (
               <div key={i} className="bg-teal-50 rounded-2xl p-4 flex flex-col gap-1">
                 <div className="text-teal-500">{item.icon}</div>

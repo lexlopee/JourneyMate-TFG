@@ -25,17 +25,28 @@ import java.util.Optional;
 @Service
 public class ReservaServiceImpl implements ReservaService {
 
-    @Autowired private EstadoRepository estadoRepository;
-    @Autowired private TipoReservaRepository tipoReservaRepository;
-    @Autowired private DireccionRepository direccionRepository;
-    @Autowired private HotelRepository hotelRepository;
-    @Autowired private ActividadRepository actividadRepository;
-    @Autowired private CruceroRepository cruceroRepository;
-    @Autowired private VTCRepository vtcRepository;
-    @Autowired private VueloRepository vueloRepository;
-    @Autowired private TrenRepository trenRepository;
-    @Autowired private ReservaRepository reservaRepository;
-    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired
+    private EstadoRepository estadoRepository;
+    @Autowired
+    private TipoReservaRepository tipoReservaRepository;
+    @Autowired
+    private DireccionRepository direccionRepository;
+    @Autowired
+    private HotelRepository hotelRepository;
+    @Autowired
+    private ActividadRepository actividadRepository;
+    @Autowired
+    private CruceroRepository cruceroRepository;
+    @Autowired
+    private VTCRepository vtcRepository;
+    @Autowired
+    private VueloRepository vueloRepository;
+    @Autowired
+    private TrenRepository trenRepository;
+    @Autowired
+    private ReservaRepository reservaRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public List<ReservaEntity> findAll() {
@@ -101,9 +112,10 @@ public class ReservaServiceImpl implements ReservaService {
                 v.setPrecioBase(s.getPrecioBase());
                 v.setMarca(s.getMarca());
                 v.setModelo(s.getModelo());
-                // ✅ CORREGIDO: distancia es BigDecimal en DTO y entidad, no hace falta parsear String
                 v.setDistancia(s.getDistancia());
                 v.setPrecio(s.getPrecioBase());
+                v.setHoraSalida(s.getHoraSalida());
+                v.setHoraLlegada(s.getHoraLlegada());
                 yield vtcRepository.save(v);
             }
 
@@ -162,10 +174,14 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    public void deleteById(Integer idReserva) { reservaRepository.deleteById(idReserva); }
+    public void deleteById(Integer idReserva) {
+        reservaRepository.deleteById(idReserva);
+    }
 
     @Override
-    public boolean existsById(Integer idReserva) { return reservaRepository.existsById(idReserva); }
+    public boolean existsById(Integer idReserva) {
+        return reservaRepository.existsById(idReserva);
+    }
 
     @Override
     public List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario) {

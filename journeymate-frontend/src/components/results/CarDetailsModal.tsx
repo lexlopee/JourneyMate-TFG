@@ -5,6 +5,7 @@ import {
   X, Car, Users, Briefcase, Settings2, ShieldCheck,
   Fuel, Calendar, CheckCircle2, Building2, MapPin, Clock
 } from 'lucide-react';
+import { formatTimeForBackend } from '../../utils/dateUtils';
 
 interface CarDetailsModalProps {
   isOpen: boolean;
@@ -75,6 +76,8 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
         setLoginError("Debes iniciar sesión para reservar.");
         return;
       }
+      const pickupTimeStr = formatTimeForBackend(searchData?.pickupTime, searchData?.pickUpTime);
+      const dropoffTimeStr = formatTimeForBackend(searchData?.dropoffTime, searchData?.dropOffTime);
 
       const body = {
         idUsuario: Number(idUsuario),
@@ -88,7 +91,9 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
           descripcion: `${car.vendorName ?? ''} · ${car.transmission ?? ''} · ${car.seats ?? 5} plazas`,
           marca: car.vendorName ?? null,
           modelo: car.carName ?? null,
-          distancia: null,
+          horaSalida: `${searchData?.startDate} ${pickupTimeStr}`, 
+          horaLlegada: `${searchData?.endDate} ${dropoffTimeStr}`,
+          distancia: 0,
           latitud: null,
           longitud: null,
         },

@@ -16,4 +16,3 @@
  
 /*4.*/ 
    CREATE SCHEMA journeymate AUTHORIZATION journeymate_bbdd;
-

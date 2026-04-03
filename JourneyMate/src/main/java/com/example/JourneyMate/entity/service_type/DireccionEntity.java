@@ -17,10 +17,10 @@ public class DireccionEntity {
     @JoinColumn(name = "id_servicio")
     private ServicioTuristicoEntity servicio;
 
-    @Column (name = "descripcion")
+    @Column(name = "descripcion")
     private String descripcion;
-    @Column (name = "latitud")
+    @Column(name = "latitud")
     private Double latitud;
-    @Column (name = "longitud")
+    @Column(name = "longitud")
     private Double longitud;
 }

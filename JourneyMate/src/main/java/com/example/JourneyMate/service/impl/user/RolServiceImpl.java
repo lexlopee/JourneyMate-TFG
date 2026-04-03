@@ -35,6 +35,7 @@ public class RolServiceImpl implements RolService {
                 .map(List::of)
                 .orElse(List.of());
     }
+
     @Override
     public RolEntity save(RolEntity rolEntity) {
         return rolRepository.save(rolEntity);
@@ -54,6 +55,7 @@ public class RolServiceImpl implements RolService {
             rolRepository.save(rol);
         });
     }
+
     @Override
     public void deleteAllByRolId(Integer idRol) {
         rolRepository.deleteById(idRol);

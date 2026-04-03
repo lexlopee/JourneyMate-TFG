@@ -2,6 +2,7 @@ package com.example.JourneyMate.dto.service;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -37,4 +38,10 @@ public class ServicioTuristicoRequestDTO {
 
     // ✅ CORREGIDO: era String, la tabla VTC tiene distancia NUMERIC(6,2)
     private BigDecimal distancia;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private java.time.LocalDateTime horaSalida;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private java.time.LocalDateTime horaLlegada;
 }

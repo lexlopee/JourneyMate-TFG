@@ -217,7 +217,7 @@ CREATE TABLE journeymate.actividad(
 -- Creación de la Tabla VTC
 CREATE TABLE journeymate.vtc(
 	id_servicio INTEGER NOT NULL,
-	precio NUMERIC(5,2),
+	precio NUMERIC(10,2),
 	modelo VARCHAR(20),
 	hora_llegada DATE,
 	hora_salida DATE,

@@ -1,436 +1,152 @@
-# Aplicaciones y Plugins
+# JourneyMate – Plataforma Turística Inteligente
+JourneyMate es una plataforma turística multiplataforma (web y móvil) desarrollada como Trabajo Fin de Grado.
+Permite a los usuarios buscar, comparar y reservar servicios turísticos desde una única aplicación, integrando mapas interactivos, rutas personalizadas, comparador de precios y autenticación segura.
 
-# Cosas importantes
-Si hay Paginas Web en las cuales tenemos que iniciar sesion, lo suyo seria poner una cuenta conjunta o crear una cuenta para usarla solo para ello.
+## Descripción del proyecto
+JourneyMate centraliza todo el proceso de planificación de viajes: búsqueda de vuelos, hoteles, actividades, rutas turísticas y puntos de interés.
+El sistema está compuesto por una aplicación web (React), una aplicación móvil (Flutter) y un backend REST desarrollado con Spring Boot, conectado a una base de datos PostgreSQL y a múltiples APIs externas.
 
-# Ejecuccion del proyecto 
-Para ejecutar la base de datos y arrancar el backend hay que utilizar los siguientes comandos: 
+El objetivo es ofrecer una experiencia moderna, rápida y personalizada, permitiendo al usuario gestionar sus viajes de forma sencilla y eficiente.
+
+## Características principales
+- Registro y autenticación con JWT
+- Gestión de usuarios
+- Gestión de reservas
+- Comparador de precios (vuelos, hoteles, actividades…)
+- Mapas interactivos (Google Maps API)
+- Rutas turísticas personalizadas
+- Aplicación web (React + Vite)
+- Aplicación móvil (Flutter)
+- Backend REST con Spring Boot
+- Integración con APIs externas
+- Pagos con PayPal y Stripe
+- Envío de correos (Spring Mail)
+- Sistema de arranque automático mediante scripts .bat
+
+## Arquitectura del sistema
+A continuación se muestra la arquitectura general del sistema:
+<img width="1222" height="809" alt="Captura de pantalla 2026-04-07 234752" src="https://github.com/user-attachments/assets/575e274b-7a10-4ec0-818a-59368c56d884" />
+
+### Capas del backend
+- Controller → Endpoints REST
+- Service → Lógica de negocio
+- Repository (DAO) → Acceso a la base de datos
+- Entity → Modelos JPA
+- DTO → Transferencia de datos
+- Config → Seguridad, CORS, pagos, dotenv
+- External → Integración con APIs externas
+- Exception → Manejo global de errores
+
+## Modelo de datos
+Este es el modelo de datos utilizado por JourneyMate:
+<img width="2571" height="2314" alt="Diagrama_Estructura_TFG drawio" src="https://github.com/user-attachments/assets/fe67c080-e17b-47cf-b9e2-ae23e49c2625" />
+
+### Entidades principales
+- Usuario
+- Reserva
+- Pago
+- Ruta
+- Actividad
+- Punto de interés
+- Recomendación
+- Historial de búsqueda
+- Preferencias
+### Relaciones destacadas
+- Un usuario puede realizar muchas reservas
+- Un usuario puede recibir recomendaciones
+- Una ruta contiene varios puntos de interés
+- Un pago corresponde a una reserva
+- Un usuario tiene preferencias que afectan a las recomendaciones
+
+## Tecnologías destacadas
+### Backend              
+- Java 21
+- Spring Boot 3.2.5
+- Spring Web
+- Spring Data JPA
+- Spring Security
+- Bean Validation
+- PostgreSQL
+- Lombok
+- Swagger / OpenAPI
+- Actuator
+- Java Dotenv
+- Spring Mail
+### Autenticación
+- JJWT (API, Impl, Jackson)
+### Pagos
+- PayPal SDK
+- Stripe Java SDK
+### Frontend Web
+- React
+- Vite
+- TypeScript
+### Aplicación móvil
+- Flutter
+- Dart
+### Base de datos
+- PostgreSQL
+- Docker
+### APIs externas
+- Google Maps
+- RapidAPI (vuelos, hoteles, actividades…)
+
+## Estructura del repositorio
+
+<img width="583" height="122" alt="image" src="https://github.com/user-attachments/assets/0f6a5f74-a66e-4cdf-ab59-80666c47ad30" />
+
+
+## Instalación y ejecución (manual)
+JourneyMate incluye un sistema de arranque automático mediante scripts .bat.
+Esta sección muestra la ejecución manual para desarrolladores o entornos sin launcher.
+
+### Backend + Base de datos
 - cd JourneyMate
 - docker compose up -d
-- cd ..
-
-Insatalar las dependencias para que funcione
-Frontend Web (React + Vite)
+### Frontend Web
 - cd journeymate-frontend
 - npm install
-arrancar con:
 - npm run dev
-
-Aplicación Móvil (Flutter – Android)
-Requisitos
-- Android Studio instalado
-- Un emulador Android creado
-- El emulador debe estar encendido
-  - Comandos:
-  - flutter devices
-    Arrancar app movil prueba
-  - cd journeymate_mobile
-  - flutter run -d android
-    
-Probar la API con Postman
-Para probar la API REST:
-1. Arrancar backend
-- cd JourneyMate
-  docker compose up -d
-  cd ..
-  
-Si se utiliza Windows hay que darle permisos de Ejecucion a los .bat (NO LOS TIENE)
-
-
-# Creacion de la Base de Datos
-Mirar como crear esto
-
-<img width="1029" height="775" alt="image" src="https://github.com/user-attachments/assets/11ae753a-7506-4bf6-b644-eff11835d935" />
-
-
-# Android Studio
-Iniciamos el Android Studio y nos dirigimos al apartado de Plugins y le tenemos que poner esto en el buscador. 
-
-<img width="780" height="645" alt="image" src="https://github.com/user-attachments/assets/170fc577-ae28-444f-8074-d592fce63a84" />
-
-En Windows
-Instalas Flutter así:
-
-Descargas Flutter SDK desde la web oficial  --> https://flutter.dev/ 
-
-Lo descomprimes en C:\src\flutter
-
-Añades C:\src\flutter\bin al PATH
-
-Reinicias PowerShell o CMD
-
-Compruebas:
-    flutter --version
-
-# Instalacion de Postamn
-1. En el navegador ir a la pagina oficial de Postman
-   [https://www.postman.com/downloads/ ](https://www.postman.com/downloads/)
-2. Pinchar en "Dowload for Windows"
-3. Se descargaŕa un archivo:
-   Postman-win64-Setup.exe
-4. Doble click y en el archivo descargado 
-
-
-# Enlace para crear nuestro proyecto de backend
-
-https://start.spring.io/ 
-
-# Instalación de React 
-1. Enlace para instalar Node.js (importante para poder usar 'React').
-https://nodejs.org 
-
-Pasos:
-- Darle a seguir todo a "Next/Continua".
-- Reiniciar el PC (en algunos casos no hace falta, pero para asegurar lo hacemos).
-
-2. Comprobaciones de instalaciones (terminal)
-node -v 
-npm -v
-
-3. Crear un proyecto React 
-npx create-react-app mi-frontend 
-
-para arrancarlo:  
-- cd mi-frontend
-- npm start 
-
-# APIs Google Maps y API viajes
-
-- Crear una cuenta en Google Cloud --> https://console.cloud.google.com 
-
-Mas usadas --> 
-- Activar la API que queramos
- Las más usadas: 
- - Maps JavaScript API (para mostrar mapas en React)
- - Geocoding API (convertir direcciones en coordenadas)
- - Places API  (buscar sitios, restaurantes, hoteles…)
- - Directions API (rutas, distancias, tiempos)
-
-APIs de Vuelos
-- Amadeus AP (Vuelos, hoteles, precios, aeropuerto)
-- Skyscanner API (Búsqueda de vuelos y precios)
-- AviationStack (Información de vuelos en tiempo rea)
-
-APIs de hoteles
-- Booking.com API (Hoteles, disponibilidad, precios)
-- Hotels.com API (Hoteles y reviews)
-- Airbnb API (no oficial)  (Listados y precios)
-
-APIs de transporte 
-- Google Directions API (Rutas en coche, bus, bici, andando)
-- TransportAPI (Transporte público (UK))
-- OpenTripPlanner (Rutas multimodales)
-
-APIs de turismo 
-- TripAdvisor API  (Reviews, lugares, actividades)
-- OpenTripMap (Lugares turísticos, POIs, mapas)
-- WikiVoyage API (Información turística abierta)
-Más APIs para utilizar
-APIs de motores de búsqueda o agencias de viajes
-- Kiwi (Tequila API) – motor de búsqueda de vuelos muy potente que combina rutas de muchas aerolíneas, incluso low-cost, y permite hacer búsquedas complejas de itinerarios.
-
-- Kayak API – API de búsqueda de vuelos, hoteles y coches (según algunas fuentes está disponible o a través de partners).
-
-- Expedia API – ofrece datos de vuelos y disponibilidad, parte de un ecosistema grande de viajes.
-
-APIs de distribución global (GDS) y proveedores algo más serios
-- Amadeus Flight APIs – muy usado en la industria, permite búsqueda de ofertas de vuelos, precios, etc. Tiene sandbox gratuito y cuotas mensuales.
-
-- Sabre APIs – otro GDS mundial que da acceso a datos de vuelos (schedules, tarifas, disponibilidad).
-
-APIs de datos de aviación (no tan comercial como SkyScanner)
-
- datos de vuelos en tiempo real o rutas aunque no siempre tienen precios:
-- Aviationstack / AirLabs Data API – ofrecen datos de vuelos, aerolíneas, aeropuertos y del estado del vuelo (aunque no precios comerciales en todos los casos
-
-# Crear una cuenta de PayPal Developer
-https://developer.paypal.com 
-
-1. Crear una API Key/ Client ID
-
-2. Usar su SDK o API REST desde nuestro backend
-
-# Stripe (muy usado) igual que PayPal
-1. Creas cuenta en https://stripe.com
-
-2. Obtenemos la Secret Key 
-
-3. LLaamas a su API desde Spring Boot
-
-# División del BACKEND por integrantes (según el anteproyecto JourneyMate)
-
-Integrante 1 – Backend base y Base de Datos
-Rol: Gestión de datos y lógica principal
-Responsabilidades:
-Diseño e implementación del modelo relacional:
-Usuario
-Reserva
-Hotel
-Actividad
-Punto de interés
-Creación de entidades JPA y relaciones.
-Configuración de PostgreSQL.
-Repositorios (JpaRepository).
-Servicios CRUD principales.
-Validaciones de negocio básicas.
-Relacionado con el anteproyecto:
-Objetivo específico 1 (Base de datos).
-Objetivo específico 2 (Backend Spring Boot).
-Módulos: Bases de Datos y Acceso a Datos.
-
-Integrante 2 – Seguridad y Usuarios
-Rol: Autenticación y control de acceso
-Responsabilidades:
-Registro y login de usuarios.
-Implementación de Spring Security + JWT.
-Gestión de roles (usuario / administrador).
-Encriptación de contraseñas (BCrypt).
-Protección de endpoints REST.
-Controladores de usuario.
-Validación de datos de entrada.
-Relacionado con el anteproyecto:
-Objetivo específico 6 (Autenticación JWT).
-Arquitectura basada en APIs.
-Módulo: Servicios y Procesos.
-
-Integrante 3 – Integraciones y funcionalidades avanzadas
-Rol: APIs externas y lógica turística
-Responsabilidades:
-Integración con Google Maps API (mapas y geolocalización).
-Integración con Skyscanner / APIs de viajes.
-Implementación del comparador de precios.
-Gestión de rutas turísticas personalizadas.
-Gestión de pagos (PayPal – sandbox).
-Base del módulo opcional de IA recomendadora.
-Manejo global de errores.
-Relacionado con el anteproyecto:
-Objetivos específicos 5, 7 y 9.
-Conceptos clave: geolocalización, comparador, IA.
-Módulo: Servicios y Procesos.
-
-# Division del Frontend (Flutter + React)
-
-INTEGRANTE 1 — CRUD + Gestión de datos (React + Flutter)
-Lo que hizo en backend:
-Usuarios (CRUD);
-Reservas;
-Hoteles;
-Actividades;
-Puntos de interés;
-Servicios turísticos
-Lo que hará en frontend:
-- En React:
-Pantalla de listado de hoteles; 
-Pantalla de listado de actividades; 
-Pantalla de listado de puntos de interés; 
-Pantalla de reservas del usuario; 
-Crear/editar/eliminar reservas; 
-Mostrar detalles de cada elemento
-- En Flutter:
-Pantalla de hoteles; 
-Pantalla de actividades; 
-Pantalla de puntos de interés; 
-Pantalla de reservas; 
-Formularios CRUD
-
-INTEGRANTE 2 — Seguridad + Usuarios (React + Flutter)
-Lo que hizo en backend:
-Login; 
-Registro; 
-JWT; 
-Roles; 
-Protección de endpoints 
-Lo que hará en frontend:
-- En React:
-Pantalla de login; 
-Pantalla de registro; 
-Gestión del token JWT; 
-Guardar sesión en localStorage; 
-Rutas protegidas; 
-Pantalla de perfil del usuario 
-- En Flutter:
-Pantalla de login; 
-Pantalla de registro; 
-Guardar token en SecureStorage; 
-Navegación protegida; 
-Pantalla de perfil 
-
-INTEGRANTE 3 — APIs externas + Mapas + IA (React + Flutter)
-Lo que hizo en backend:
-Google Maps; 
-Skyscanner; 
-Comparador de precios; 
-Rutas turísticas; 
-IA recomendadora; 
-Pagos 
-Lo que hará en frontend:
-- En React:
-Mostrar mapa con Google Maps; 
-Mostrar puntos de interés en el mapa; 
-Crear rutas turísticas; 
-Mostrar recomendaciones de IA; 
-Comparador de precios (vuelos, hoteles…); 
-Pantalla de pagos 
-- En Flutter:
-Google Maps en móvil; 
-Marcadores; 
-Rutas turísticas;
-Recomendaciones de IA; 
-Comparador de precios; 
-Pagos.
-
-# BackEnd dvision por carpetas
-INTEGRANTE 1 — Backend base + Base de Datos
-Rol: Lógica principal, CRUD, entidades, repositorios, servicios base
-Carpetas que usa:
-   entity/
-   dao/
-   service/
-   controller/
-   config/app/
-   dto/
-
-Carpetas específicas dentro de cada dominio:
-Entidades (entity/)
-   - entity/user/ → solo Usuario (sin seguridad)
-   - entity/route/
-   - entity/interest/
-   - entity/booking/
-   - entity/payment/
-   - entity/service/
-   - entity/service_type/
------
-Repositorios (dao/)
-
-Todos los repositorios de CRUD:
-  - usuario
-  - ruta
-  - punto_interes
-  - reserva
-  - pago
-  - servicio_turistico
-  - vuelo, tren, hotel, etc.
--------
-Servicios (service/)
-   - Servicios CRUD de todos los dominios anteriores
--------
-Controladores (controller/)
-Endpoints CRUD de: 
-   - usuario (solo CRUD, no login)
-   - rutas
-   - puntos de interés
-   - reservas
-   - pagos
-   - servicios turísticos
--------
-Configuración (config/app/)
-   - Datasource
-   - PostgreSQL
-   - Beans generales
--------
-DTOs (dto/)
-   - Request y response para CRUD
-
-
-
-=================
-
-
-
-
-
-
-INTEGRANTE 2 — Seguridad y Usuarios
-Rol: Autenticación, autorización, JWT, roles, protección de endpoints
-Carpetas que usa:
-
-- config/security/
-- entity/user/
-- dao/user/
-- service/user/
-- controller/user/
-- utils/jwt/
-- exception/
---------
-Carpetas específicas:
-config/security/
-   - Configuración de Spring Security
-   - Filtros JWT
-   - PasswordEncoder
-   - AuthenticationManager
----------
-entity/user/
-   - Usuario
-   - Rol
-   - TokenJWT
----------
-dao/user/  
-   - UsuarioRepository
-   - RolRepository
-   - TokenRepository
----------
-service/user/
-  - Login
-  - Registro
-  - Gestión de roles
-  - Renovación de tokens 
-----------
-controller/user/
-   - /auth/login
-   - /auth/register
-   - /auth/refresh
-   - /auth/logout
-----------
-utils/jwt/
-   - Generación de tokens
-   - Validación
-   - Extracción de claims
-----------
-exception/
-   - Manejo de errores de autenticación
-   - Excepciones personalizadas
-
-
-
-=============
-
-
-
-
-INTEGRANTE 3 — Integraciones externas + Funcionalidades avanzadas
-Rol: APIs externas, comparadores, rutas inteligentes, IA, pagos
-Carpetas que usa:
-   - external/
-   - service/external/
-   - controller/external/
-   - utils/geolocation/
-   - exception/handler/
--------   
-Carpetas específicas:
-external/
-   - external/maps/ → Google Maps API
-   - external/flights/ → Skyscanner
-   - external/payments/ → PayPal
-   - external/ai/ → IA recomendadora
--------
-service/external/
-   - Servicios que consumen APIs externas
-   - Comparador de precios
-   - Generación de rutas personalizadas
---------
-controller/external/
-   Endpoints como:
-   - /maps/nearby
-   - /flights/search
-   - /payments/pay
-   - /ai/recommend
---------
-utils/geolocation/
-   - Cálculo de distancias
-   - Conversión de coordenadas
-   - Validación de lat/long
---------
-exception/handler/
-   - Manejo global de errores
-   - Respuestas uniformes para APIs externas
-# Errores Proyectos
+### Aplicación móvil
+- cd journeymate_mobile
+- flutter run -d android
+## Sistema de arranque automático (Launcher)
+JourneyMate incluye un launcher desarrollado en Visual Studio Community que permite iniciar cualquier parte del proyecto sin necesidad de ejecutar comandos manuales.
+### Ubicación de los scripts
+- JourneyMate-TFG\JourneyMateLauncher\JourneyMateLauncher\scripts\windows
+### Opciones del menú
+- Arrancar Backend
+- Arrancar Web
+- Arrancar Móvil
+- Arrancar Todo
+- Parar Servicios
+- Salir
+### Ventajas
+- Automatiza la ejecución del proyecto completo
+- Evita errores de configuración
+- Facilita la demostración del TFG
+- Permite arrancar cada módulo por separado
+- Comprueba que Docker, PostgreSQL y Vite están listos antes de continuar
+<img width="266" height="548" alt="image" src="https://github.com/user-attachments/assets/12796253-407a-4a79-a57f-b73a0bc12774" />
+
+## API REST (resumen)
+| Método | Endpoint | Descripción |
+| --- | --- | --- |
+| POST | /auth/login | Login |
+| POST | /auth/register | Registro |
+| GET | /routes | Listar rutas |
+| POST | /booking | Crear reserva |
+| GET | /interest | Puntos de interés |
+
+## Equipo de desarrollo
+Integrante 1 (Alejandro López) → Backend base + BD + CRUD
+
+Integrante 2 (Daniel Fernández) → Seguridad + JWT + Usuarios
+
+Integrante 3 (Marcos Hernández) → APIs externas + IA + Pagos
+
+## Estado del proyecto
+Proyecto desarrollado como Trabajo Fin de Grado.
+Actualmente en fase de mejora y ampliación.
+## Licencia
+Este proyecto se distribuye únicamente con fines académicos como parte del Trabajo Fin de Grado.

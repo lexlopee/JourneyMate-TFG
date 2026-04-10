@@ -76,12 +76,14 @@ export default function MisReservas() {
 
     if (nombre) setUserName(nombre);
 
-    if (!token || !idUsuario) {
+    // ✅ Limpiar idUsuario por si viene corrupto como "1:1"
+    const cleanId = String(Number(idUsuario));
+    if (!token || !idUsuario || cleanId === 'NaN') {
       navigate("/login");
       return;
     }
 
-    fetch(`http://localhost:8080/api/v1/reservas/usuario/${idUsuario}`, {
+    fetch(`http://localhost:8080/api/v1/reservas/usuario/${cleanId}`, {
       headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" }
     })
       .then(res => { if (!res.ok) throw new Error(); return res.json(); })
@@ -93,6 +95,7 @@ export default function MisReservas() {
   // ── Eliminar reserva ──
   const handleDelete = async (idReserva: number) => {
     const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
     setDeletingId(idReserva);
     setConfirmDeleteId(null);
 

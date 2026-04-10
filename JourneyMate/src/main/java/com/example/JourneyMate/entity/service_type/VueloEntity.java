@@ -23,7 +23,7 @@ public class VueloEntity extends ServicioTuristicoEntity {
     @Column(name = "fecha_salida")
     private LocalDate fechaSalida;
 
-    @Column(name = "fecha_llegada")   // ← corregido: en BD es fecha_llegada, no fecha_regreso
+    @Column(name = "fecha_regreso")   // ← corregido: en BD es fecha_llegada, no fecha_regreso
     private LocalDate fechaRegreso;
 
     @Column(name = "origen")

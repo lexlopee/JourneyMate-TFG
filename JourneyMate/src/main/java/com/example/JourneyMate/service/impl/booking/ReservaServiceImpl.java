@@ -28,30 +28,18 @@ import java.util.Optional;
 @Service
 public class ReservaServiceImpl implements ReservaService {
 
-    @Autowired
-    private EstadoRepository estadoRepository;
-    @Autowired
-    private TipoReservaRepository tipoReservaRepository;
-    @Autowired
-    private DireccionRepository direccionRepository;
-    @Autowired
-    private HotelRepository hotelRepository;
-    @Autowired
-    private ActividadRepository actividadRepository;
-    @Autowired
-    private CruceroRepository cruceroRepository;
-    @Autowired
-    private VTCRepository vtcRepository;
-    @Autowired
-    private VueloRepository vueloRepository;
-    @Autowired
-    private TrenRepository trenRepository;
-    @Autowired
-    private ReservaRepository reservaRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private ServicioTuristicoRepository servicioTuristicoRepository;
+    @Autowired private EstadoRepository estadoRepository;
+    @Autowired private TipoReservaRepository tipoReservaRepository;
+    @Autowired private DireccionRepository direccionRepository;
+    @Autowired private HotelRepository hotelRepository;
+    @Autowired private ActividadRepository actividadRepository;
+    @Autowired private CruceroRepository cruceroRepository;
+    @Autowired private VTCRepository vtcRepository;
+    @Autowired private VueloRepository vueloRepository;
+    @Autowired private TrenRepository trenRepository;
+    @Autowired private ReservaRepository reservaRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private ServicioTuristicoRepository servicioTuristicoRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -182,38 +170,36 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    @Transactional // ⭐ ¡OBLIGATORIO para ejecutar executeUpdate() y mantener la atomicidad!
+    @Transactional
     public void deleteById(Integer idReserva) {
-
-        // 1. Buscamos la reserva antes de borrarla para extraer la ID de su servicio
+        // 1. Obtener la reserva para saber el id del servicio asociado
         Optional<ReservaEntity> reservaOpt = reservaRepository.findById(idReserva);
-        if (reservaOpt.isEmpty()) {
-            return; // Si no existe, no hacemos nada
-        }
+        if (reservaOpt.isEmpty()) return;
 
         Integer idServicio = reservaOpt.get().getServicio().getIdServicio();
 
-        // 2. PRIMERO: Borramos la Reserva (la tabla "hija" que depende del servicio)
-        // Si no hacemos esto primero, la base de datos bloqueará el borrado por Foreign Key.
-        reservaRepository.deleteById(idReserva);
-
-        // 3. SEGUNDO: Borramos los servicios específicos (las tablas hijas de servicio_turistico)
-        // Usamos 'idServicio', no idReserva
-        entityManager.createNativeQuery("DELETE FROM journeymate.vtc WHERE id_servicio = :id")
-                .setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.tren WHERE id_servicio = :id")
-                .setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.actividad WHERE id_servicio = :id")
-                .setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.hotel WHERE id_servicio = :id")
-                .setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.crucero WHERE id_servicio = :id")
+        // 2. Borrar direcciones del servicio (FK direccion → servicio_turistico)
+        entityManager.createNativeQuery(
+                        "DELETE FROM journeymate.direccion WHERE id_servicio = :id")
                 .setParameter("id", idServicio).executeUpdate();
 
-        // NOTA: Añade aquí los demás servicios que tengas (apartamento, vuelo, etc)
+        // 3. Borrar la reserva (libera FK reserva → servicio_turistico)
+        entityManager.createNativeQuery(
+                        "DELETE FROM journeymate.reserva WHERE id_reserva = :id")
+                .setParameter("id", idReserva).executeUpdate();
 
-        // 4. FINALMENTE: Borramos la entidad padre
-        entityManager.createNativeQuery("DELETE FROM journeymate.servicio_turistico WHERE id_servicio = :id")
+        // 4. Borrar la tabla hija correspondiente (herencia JOINED)
+        //    Solo una tendrá registro, el resto no hacen nada
+        entityManager.createNativeQuery("DELETE FROM journeymate.hotel      WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM journeymate.vuelo      WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM journeymate.actividad  WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM journeymate.crucero    WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM journeymate.vtc        WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM journeymate.tren       WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
+
+        // 5. Borrar el servicio_turistico padre
+        entityManager.createNativeQuery(
+                        "DELETE FROM journeymate.servicio_turistico WHERE id_servicio = :id")
                 .setParameter("id", idServicio).executeUpdate();
     }
 

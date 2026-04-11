@@ -3,6 +3,8 @@ import App from './App';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MisReservas from './pages/Misreservas';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancelled from './pages/PaymentCancelled';
 
 const AppRouter = () => {
   return (
@@ -11,7 +13,8 @@ const AppRouter = () => {
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/pago-exitoso" element={<PaymentSuccess />} />
+        <Route path="/pago-cancelado" element={<PaymentCancelled />} />
         {/* ⭐ PÁGINA TEMPORAL DE MIS RESERVAS */}
         <Route path="/mis-reservas" element={<MisReservas />} />
       </Routes>

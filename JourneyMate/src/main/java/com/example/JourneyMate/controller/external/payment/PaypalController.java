@@ -3,7 +3,6 @@ package com.example.JourneyMate.controller.external.payment;
 import com.example.JourneyMate.dao.booking.ReservaRepository;
 import com.example.JourneyMate.dao.payment.MetodoRepository;
 import com.example.JourneyMate.dto.pago.PagoRequestDTO;
-import com.example.JourneyMate.dto.pago.PagoResponseDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.entity.payment.MetodoEntity;
 import com.example.JourneyMate.entity.payment.PagoEntity;
@@ -13,10 +12,13 @@ import com.example.JourneyMate.service.payment.PagoService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -30,76 +32,89 @@ public class PaypalController {
     private final MetodoRepository metodoRepository;
     private final EmailService emailService;
 
+    /**
+     * El frontend llama aquí con { idReserva } en el body.
+     * Devuelve { url } con la URL de aprobación de PayPal.
+     */
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody PagoRequestDTO request) {
+    public ResponseEntity<?> create(@RequestBody PagoRequestDTO request) {
         ReservaEntity reserva = reservaRepository.findById(request.getIdReserva())
                 .orElseThrow(() -> new RuntimeException("No existe la reserva " + request.getIdReserva()));
-
         try {
             Payment payment = paypalService.createPayment(reserva);
             for (Links link : payment.getLinks()) {
-                if (link.getRel().equals("approval_url")) {
-                    return ResponseEntity.ok(link.getHref());
+                if ("approval_url".equals(link.getRel())) {
+                    // ✅ Devolvemos { url } como JSON para que el frontend redirija
+                    return ResponseEntity.ok(Map.of("url", link.getHref()));
                 }
             }
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "No se encontró la URL de aprobación de PayPal"));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error en la pasarela de PayPal");
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Error en PayPal: " + e.getMessage()));
         }
-        return ResponseEntity.badRequest().build();
     }
 
+    /**
+     * PayPal redirige aquí tras la aprobación del usuario.
+     * Ejecutamos el pago, guardamos en BBDD y redirigimos al frontend.
+     */
     @GetMapping("/success")
-    public ResponseEntity<PagoResponseDTO> success(
+    public ResponseEntity<Void> success(
             @RequestParam("paymentId") String paymentId,
             @RequestParam("PayerID") String payerId,
             @RequestParam("reservaId") Integer reservaId) {
-
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
 
-            if (payment.getState().equals("approved")) {
+            if ("approved".equals(payment.getState())) {
                 ReservaEntity reserva = reservaRepository.findById(reservaId)
                         .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
                 MetodoEntity metodo = metodoRepository.findByNombre("PAYPAL")
-                        .orElseThrow(() -> new RuntimeException("Error: No se encuentra el metodo PAYPAL"));
+                        .orElseThrow(() -> new RuntimeException("Método PAYPAL no encontrado en BD"));
 
                 PagoEntity pago = new PagoEntity();
                 pago.setReserva(reserva);
                 pago.setMetodo(metodo);
                 pago.setEstado_pago("COMPLETADO");
                 pago.setFecha_pago(LocalDate.now());
+                pagoService.save(pago);
 
-                PagoEntity pagoGuardado = pagoService.save(pago);
+                try {
+                    emailService.enviarFactura(
+                            reserva.getUsuario().getEmail(),
+                            reserva.getUsuario().getNombre(),
+                            reserva.getIdReserva(),
+                            reserva.getPrecioTotal().doubleValue()
+                    );
+                } catch (Exception e) {
+                    System.err.println("Error al enviar email: " + e.getMessage());
+                }
 
-                // ============================================================
-                // ENVÍO DE CORREO TRAS EL PAGO EXITOSO
-                // ============================================================
-                emailService.enviarFactura(
-                        reserva.getUsuario().getEmail(),
-                        reserva.getUsuario().getNombre(),
-                        reserva.getIdReserva(),
-                        reserva.getPrecioTotal().doubleValue()
-                );
-                // ============================================================
-
-                PagoResponseDTO response = new PagoResponseDTO();
-                response.setIdPago(pagoGuardado.getIdPago());
-                response.setIdReserva(reserva.getIdReserva());
-                response.setIdMetodo(metodo.getIdMetodo());
-                response.setEstadoPago(pagoGuardado.getEstado_pago());
-                response.setFechaPago(pagoGuardado.getFecha_pago());
-
-                return ResponseEntity.ok(response);
+                // ✅ Redirigir al frontend
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Location",
+                        "http://localhost:5173/pago-exitoso?metodo=paypal&reservaId=" + reservaId);
+                return new ResponseEntity<>(headers, HttpStatus.FOUND);
             }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "http://localhost:5173/pago-cancelado");
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "http://localhost:5173/pago-cancelado");
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
-        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/cancel")
-    public ResponseEntity<String> cancel() {
-        return ResponseEntity.ok("Has cancelado el pago de PayPal. La reserva sigue pendiente.");
+    public ResponseEntity<Void> cancel() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "http://localhost:5173/pago-cancelado");
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

@@ -3,7 +3,6 @@ package com.example.JourneyMate.controller.external.payment;
 import com.example.JourneyMate.dao.booking.ReservaRepository;
 import com.example.JourneyMate.dao.payment.MetodoRepository;
 import com.example.JourneyMate.dto.pago.PagoRequestDTO;
-import com.example.JourneyMate.dto.pago.PagoResponseDTO;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.entity.payment.MetodoEntity;
 import com.example.JourneyMate.entity.payment.PagoEntity;
@@ -11,10 +10,13 @@ import com.example.JourneyMate.service.external.EmailService;
 import com.example.JourneyMate.service.external.payment.StripeService;
 import com.example.JourneyMate.service.payment.PagoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/stripe")
@@ -26,68 +28,74 @@ public class StripeController {
     private final PagoService pagoService;
     private final ReservaRepository reservaRepository;
     private final MetodoRepository metodoRepository;
-    private final EmailService emailService; // Inyectado
+    private final EmailService emailService;
 
+    /**
+     * El frontend llama aquí con { idReserva } en el body.
+     * Devuelve la URL de Stripe Checkout para redirigir al usuario.
+     */
     @PostMapping("/create-checkout")
-    public ResponseEntity<String> createCheckout(@RequestBody PagoRequestDTO request) {
+    public ResponseEntity<?> createCheckout(@RequestBody PagoRequestDTO request) {
         ReservaEntity reserva = reservaRepository.findById(request.getIdReserva())
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
-
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada: " + request.getIdReserva()));
         try {
             String url = stripeService.createCheckoutSession(reserva);
-            return ResponseEntity.ok(url);
+            // ✅ Devolvemos { url } como JSON para que el frontend redirija
+            return ResponseEntity.ok(Map.of("url", url));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error con Stripe: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Error con Stripe: " + e.getMessage()));
         }
     }
 
+    /**
+     * Stripe redirige aquí tras el pago exitoso.
+     * Guardamos el pago en BBDD, enviamos email y redirigimos al frontend.
+     */
     @GetMapping("/success")
-    public ResponseEntity<PagoResponseDTO> success(@RequestParam("reservaId") Integer reservaId) {
-
-        ReservaEntity reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
-
-        MetodoEntity metodo = metodoRepository.findByNombre("STRIPE")
-                .orElseThrow(() -> new RuntimeException("Método STRIPE no configurado en BD"));
-
-        // 1. Persistencia del pago en la base de datos
-        PagoEntity pago = new PagoEntity();
-        pago.setReserva(reserva);
-        pago.setMetodo(metodo);
-        pago.setEstado_pago("COMPLETADO (STRIPE)");
-        pago.setFecha_pago(LocalDate.now());
-
-        PagoEntity pagoGuardado = pagoService.save(pago);
-
-        // ============================================================
-        // 2. ENVÍO DE LA FACTURA POR EMAIL
-        // ============================================================
+    public ResponseEntity<Void> success(@RequestParam("reservaId") Integer reservaId) {
         try {
-            emailService.enviarFactura(
-                    reserva.getUsuario().getEmail(),
-                    reserva.getUsuario().getNombre(),
-                    reserva.getIdReserva(),
-                    reserva.getPrecioTotal().doubleValue()
-            );
+            ReservaEntity reserva = reservaRepository.findById(reservaId)
+                    .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+            MetodoEntity metodo = metodoRepository.findByNombre("STRIPE")
+                    .orElseThrow(() -> new RuntimeException("Método STRIPE no configurado en BD"));
+
+            PagoEntity pago = new PagoEntity();
+            pago.setReserva(reserva);
+            pago.setMetodo(metodo);
+            pago.setEstado_pago("COMPLETADO");
+            pago.setFecha_pago(LocalDate.now());
+            pagoService.save(pago);
+
+            try {
+                emailService.enviarFactura(
+                        reserva.getUsuario().getEmail(),
+                        reserva.getUsuario().getNombre(),
+                        reserva.getIdReserva(),
+                        reserva.getPrecioTotal().doubleValue()
+                );
+            } catch (Exception e) {
+                System.err.println("Error al enviar email: " + e.getMessage());
+            }
+
+            // ✅ Redirigir al frontend con los parámetros para mostrar pantalla de éxito
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location",
+                    "http://localhost:5173/pago-exitoso?metodo=stripe&reservaId=" + reservaId);
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
         } catch (Exception e) {
-            System.err.println("Error al enviar el correo: " + e.getMessage());
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "http://localhost:5173/pago-cancelado");
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
-        // ============================================================
-
-        // 3. Respuesta al Frontend
-        PagoResponseDTO response = new PagoResponseDTO();
-        response.setIdPago(pagoGuardado.getIdPago());
-        response.setIdReserva(reserva.getIdReserva());
-        response.setIdMetodo(metodo.getIdMetodo());
-        response.setEstadoPago(pagoGuardado.getEstado_pago());
-        response.setFechaPago(pagoGuardado.getFecha_pago());
-
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/cancel")
-    public ResponseEntity<String> cancel() {
-        return ResponseEntity.ok("El pago de Stripe ha sido cancelado por el usuario. " +
-                "Puedes volver a intentarlo desde tu reserva.");
+    public ResponseEntity<Void> cancel() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "http://localhost:5173/pago-cancelado");
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

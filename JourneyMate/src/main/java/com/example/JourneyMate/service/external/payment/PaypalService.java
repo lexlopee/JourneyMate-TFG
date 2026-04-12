@@ -22,10 +22,12 @@ public class PaypalService {
         this.baseUrl = baseUrl;
     }
 
+    /**
+     * Pago de UNA reserva (individual).
+     */
     public Payment createPayment(ReservaEntity reserva) throws PayPalRESTException {
         Amount amount = new Amount();
         amount.setCurrency("EUR");
-        // Usamos precio_total de tu tabla reserva
         amount.setTotal(String.format(Locale.US, "%.2f", reserva.getPrecioTotal()));
 
         Transaction transaction = new Transaction();
@@ -45,7 +47,47 @@ public class PaypalService {
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl(baseUrl + "/api/v1/payment/cancel");
+        // ⭐ returnUrl incluye reservaId (singular)
         redirectUrls.setReturnUrl(baseUrl + "/api/v1/payment/success?reservaId=" + reserva.getIdReserva());
+        payment.setRedirectUrls(redirectUrls);
+
+        return payment.create(apiContext);
+    }
+
+    /**
+     * ⭐ Pago de VARIAS reservas agrupadas.
+     * El precio es la suma de todas. Los IDs se pasan en el returnUrl
+     * para que el controller los confirme todos.
+     *
+     * @param reservaVirtual  entidad con el precio total sumado (no persistida)
+     * @param reservaIdsStr   IDs separados por coma, ej: "5,6,7"
+     */
+    public Payment createPaymentMultiple(ReservaEntity reservaVirtual, String reservaIdsStr)
+            throws PayPalRESTException {
+
+        Amount amount = new Amount();
+        amount.setCurrency("EUR");
+        amount.setTotal(String.format(Locale.US, "%.2f", reservaVirtual.getPrecioTotal()));
+
+        Transaction transaction = new Transaction();
+        transaction.setDescription("JourneyMate — Pago de " + reservaIdsStr.split(",").length + " reservas");
+        transaction.setAmount(amount);
+
+        List<Transaction> transactions = new ArrayList<>();
+        transactions.add(transaction);
+
+        Payer payer = new Payer();
+        payer.setPaymentMethod("paypal");
+
+        Payment payment = new Payment();
+        payment.setIntent("sale");
+        payment.setPayer(payer);
+        payment.setTransactions(transactions);
+
+        RedirectUrls redirectUrls = new RedirectUrls();
+        redirectUrls.setCancelUrl(baseUrl + "/api/v1/payment/cancel");
+        // ⭐ returnUrl incluye reservaIds (plural)
+        redirectUrls.setReturnUrl(baseUrl + "/api/v1/payment/success?reservaIds=" + reservaIdsStr);
         payment.setRedirectUrls(redirectUrls);
 
         return payment.create(apiContext);

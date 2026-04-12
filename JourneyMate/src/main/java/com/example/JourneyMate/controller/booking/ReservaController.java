@@ -1,8 +1,11 @@
 package com.example.JourneyMate.controller.booking;
 
+import com.example.JourneyMate.dao.booking.EstadoRepository;
+import com.example.JourneyMate.dao.booking.ReservaRepository;
 import com.example.JourneyMate.dto.reserva.ReservaListDTO;
 import com.example.JourneyMate.dto.reserva.ReservaRequestDTO;
 import com.example.JourneyMate.dto.reserva.ReservaResponseDTO;
+import com.example.JourneyMate.entity.booking.EstadoEntity;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.service.booking.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/reservas")
@@ -18,6 +22,12 @@ public class ReservaController {
 
     @Autowired
     private ReservaService reservaService;
+
+    @Autowired
+    private ReservaRepository reservaRepository;
+
+    @Autowired
+    private EstadoRepository estadoRepository;
 
     @GetMapping
     public ResponseEntity<List<ReservaEntity>> findAll() {
@@ -33,7 +43,6 @@ public class ReservaController {
 
     @GetMapping("/usuario/{idUsuario}")
     public ResponseEntity<List<ReservaListDTO>> findByUsuario(@PathVariable Integer idUsuario) {
-        // ⭐ Llama al nuevo método del service que usa la query JPQL directa
         List<ReservaListDTO> result = reservaService.findDTOsByUsuarioId(idUsuario);
         return ResponseEntity.ok(result);
     }
@@ -53,12 +62,11 @@ public class ReservaController {
     @PostMapping("/completa")
     public ResponseEntity<?> createCompleta(@RequestBody ReservaRequestDTO dto) {
         try {
+            // ⭐ Forzamos estado PENDIENTE (id=1) siempre al crear
+            dto.setIdEstado(1);
+
             ReservaEntity reserva = reservaService.crearCompleta(dto);
 
-            // ✅ SOLUCIÓN: devolver solo un DTO simple con el ID y los datos básicos.
-            // Devolver la ReservaEntity completa causa bucles infinitos en la
-            // serialización JSON (ServicioTuristicoEntity → subclase → padre → ...)
-            // lo que rompe la respuesta HTTP con ERR_INCOMPLETE_CHUNKED_ENCODING.
             ReservaResponseDTO response = new ReservaResponseDTO();
             response.setIdReserva(reserva.getIdReserva());
             response.setIdUsuario(reserva.getUsuario().getIdUsuario());
@@ -72,6 +80,40 @@ public class ReservaController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(500).body("ERROR: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ⭐ NUEVO: Actualizar el estado de una reserva por nombre de estado
+     * Usado por los controllers de Stripe y PayPal tras el pago exitoso
+     * PATCH /api/v1/reservas/{id}/estado   body: { "estado": "CONFIRMADA" }
+     */
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<?> actualizarEstado(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> body) {
+        try {
+            String nombreEstado = body.get("estado");
+            if (nombreEstado == null || nombreEstado.isBlank()) {
+                return ResponseEntity.badRequest().body("Campo 'estado' requerido");
+            }
+
+            ReservaEntity reserva = reservaRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Reserva no encontrada: " + id));
+
+            EstadoEntity estado = estadoRepository.findByNombreIgnoreCase(nombreEstado)
+                    .orElseThrow(() -> new RuntimeException("Estado no encontrado: " + nombreEstado));
+
+            reserva.setEstado(estado);
+            reservaRepository.save(reserva);
+
+            return ResponseEntity.ok(Map.of(
+                    "idReserva", id,
+                    "estadoNuevo", estado.getNombre()
+            ));
+
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("ERROR: " + e.getMessage());
         }
     }

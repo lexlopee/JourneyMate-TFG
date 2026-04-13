@@ -40,8 +40,18 @@ public class PaypalController {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody PagoRequestDTO request) {
-        ReservaEntity reserva = reservaRepository.findById(request.getIdReserva())
-                .orElseThrow(() -> new RuntimeException("No existe la reserva " + request.getIdReserva()));
+        // Determinar qué ID usar: idReserva (singular) o el primero de reservaIds
+        Integer id = request.getIdReserva();
+        if (id == null && request.getReservaIds() != null && !request.getReservaIds().isEmpty()) {
+            id = request.getReservaIds().get(0);
+        }
+        if (id == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "No se proporcionó idReserva"));
+        }
+
+        final Integer reservaId = id;
+        ReservaEntity reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("No existe la reserva " + reservaId));
         try {
             Payment payment = paypalService.createPayment(reserva);
             for (Links link : payment.getLinks()) {

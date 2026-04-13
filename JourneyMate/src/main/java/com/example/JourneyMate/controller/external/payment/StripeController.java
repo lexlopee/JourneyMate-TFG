@@ -38,8 +38,17 @@ public class StripeController {
 
     @PostMapping("/create-checkout")
     public ResponseEntity<?> createCheckout(@RequestBody PagoRequestDTO request) {
-        ReservaEntity reserva = reservaRepository.findById(request.getIdReserva())
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada: " + request.getIdReserva()));
+        Integer id = request.getIdReserva();
+        if (id == null && request.getReservaIds() != null && !request.getReservaIds().isEmpty()) {
+            id = request.getReservaIds().get(0);
+        }
+        if (id == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "No se proporcionó idReserva"));
+        }
+
+        final Integer reservaId = id;
+        ReservaEntity reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada: " + reservaId));
         try {
             String url = stripeService.createCheckoutSession(reserva);
             return ResponseEntity.ok(Map.of("url", url));

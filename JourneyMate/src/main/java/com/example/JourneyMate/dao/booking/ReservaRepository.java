@@ -11,9 +11,7 @@ import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer> {
 
-    // ⭐ Query directa que construye el DTO sin cargar relaciones anidadas
-    // Evita el ERR_INCOMPLETE_CHUNKED_ENCODING causado por la herencia JOINED
-    // de ServicioTuristicoEntity al serializar el grafo completo de entidades
+    // ── "Mis Reservas": solo PENDIENTE (sin pagar) ───────────────────────────
     @Query("""
                 SELECT new com.example.JourneyMate.dto.reserva.ReservaListDTO(
                     r.idReserva,
@@ -21,20 +19,45 @@ public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer>
                     r.precioTotal,
                     e.nombre,
                     t.nombre,
-                    r.fechaReserva
+                    r.fechaReserva,
+                    s.idServicio,
+                    t.idTipoReserva,
+                    s.precioBase
                 )
                 FROM ReservaEntity r
                 JOIN r.servicio s
                 JOIN r.estado e
                 JOIN r.tipoReserva t
                 WHERE r.usuario.idUsuario = :idUsuario
+                AND UPPER(e.nombre) = 'PENDIENTE'
+                ORDER BY r.fechaReserva DESC
             """)
     List<ReservaListDTO> findDTOsByUsuarioId(@Param("idUsuario") Integer idUsuario);
 
-    // Métodos originales — no tocar
+    // ── "Historial": TODAS las reservas del usuario sin filtro de estado ─────
+    // Así aparece todo: pendiente, confirmada, completada, cancelada
+    @Query("""
+                SELECT new com.example.JourneyMate.dto.reserva.ReservaListDTO(
+                    r.idReserva,
+                    s.nombre,
+                    r.precioTotal,
+                    e.nombre,
+                    t.nombre,
+                    r.fechaReserva,
+                    s.idServicio,
+                    t.idTipoReserva,
+                    s.precioBase
+                )
+                FROM ReservaEntity r
+                JOIN r.servicio s
+                JOIN r.estado e
+                JOIN r.tipoReserva t
+                WHERE r.usuario.idUsuario = :idUsuario
+                ORDER BY r.fechaReserva DESC
+            """)
+    List<ReservaListDTO> findHistorialByUsuarioId(@Param("idUsuario") Integer idUsuario);
+
     List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario);
-
     List<ReservaEntity> findByEstadoNombre(String nombre);
-
     List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin);
 }

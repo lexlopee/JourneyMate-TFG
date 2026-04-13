@@ -3,7 +3,6 @@ package com.example.JourneyMate.service.impl.booking;
 import com.example.JourneyMate.dao.booking.EstadoRepository;
 import com.example.JourneyMate.dao.booking.ReservaRepository;
 import com.example.JourneyMate.dao.booking.TipoReservaRepository;
-import com.example.JourneyMate.dao.service.ServicioTuristicoRepository;
 import com.example.JourneyMate.dao.service_type.*;
 import com.example.JourneyMate.dao.user.UsuarioRepository;
 import com.example.JourneyMate.dto.reserva.ReservaListDTO;
@@ -15,8 +14,6 @@ import com.example.JourneyMate.entity.booking.TipoReservaEntity;
 import com.example.JourneyMate.entity.service_type.*;
 import com.example.JourneyMate.entity.user.UsuarioEntity;
 import com.example.JourneyMate.service.booking.ReservaService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,10 +36,6 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired private TrenRepository trenRepository;
     @Autowired private ReservaRepository reservaRepository;
     @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private ServicioTuristicoRepository servicioTuristicoRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     public List<ReservaEntity> findAll() {
@@ -108,10 +101,9 @@ public class ReservaServiceImpl implements ReservaService {
                 v.setPrecioBase(s.getPrecioBase());
                 v.setMarca(s.getMarca());
                 v.setModelo(s.getModelo());
+                // ✅ CORREGIDO: distancia es BigDecimal en DTO y entidad, no hace falta parsear String
                 v.setDistancia(s.getDistancia());
                 v.setPrecio(s.getPrecioBase());
-                v.setHoraSalida(s.getHoraSalida());
-                v.setHoraLlegada(s.getHoraLlegada());
                 yield vtcRepository.save(v);
             }
 
@@ -170,43 +162,10 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    @Transactional
-    public void deleteById(Integer idReserva) {
-        // 1. Obtener la reserva para saber el id del servicio asociado
-        Optional<ReservaEntity> reservaOpt = reservaRepository.findById(idReserva);
-        if (reservaOpt.isEmpty()) return;
-
-        Integer idServicio = reservaOpt.get().getServicio().getIdServicio();
-
-        // 2. Borrar direcciones del servicio (FK direccion → servicio_turistico)
-        entityManager.createNativeQuery(
-                        "DELETE FROM journeymate.direccion WHERE id_servicio = :id")
-                .setParameter("id", idServicio).executeUpdate();
-
-        // 3. Borrar la reserva (libera FK reserva → servicio_turistico)
-        entityManager.createNativeQuery(
-                        "DELETE FROM journeymate.reserva WHERE id_reserva = :id")
-                .setParameter("id", idReserva).executeUpdate();
-
-        // 4. Borrar la tabla hija correspondiente (herencia JOINED)
-        //    Solo una tendrá registro, el resto no hacen nada
-        entityManager.createNativeQuery("DELETE FROM journeymate.hotel      WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.vuelo      WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.actividad  WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.crucero    WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.vtc        WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM journeymate.tren       WHERE id_servicio = :id").setParameter("id", idServicio).executeUpdate();
-
-        // 5. Borrar el servicio_turistico padre
-        entityManager.createNativeQuery(
-                        "DELETE FROM journeymate.servicio_turistico WHERE id_servicio = :id")
-                .setParameter("id", idServicio).executeUpdate();
-    }
+    public void deleteById(Integer idReserva) { reservaRepository.deleteById(idReserva); }
 
     @Override
-    public boolean existsById(Integer idReserva) {
-        return reservaRepository.existsById(idReserva);
-    }
+    public boolean existsById(Integer idReserva) { return reservaRepository.existsById(idReserva); }
 
     @Override
     public List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario) {
@@ -226,5 +185,10 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     public List<ReservaListDTO> findDTOsByUsuarioId(Integer idUsuario) {
         return reservaRepository.findDTOsByUsuarioId(idUsuario);
+    }
+
+    @Override
+    public List<ReservaListDTO> findHistorialByUsuarioId(Integer idUsuario) {
+        return reservaRepository.findHistorialByUsuarioId(idUsuario);
     }
 }

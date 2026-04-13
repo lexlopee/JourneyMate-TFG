@@ -2,7 +2,7 @@ import api from './api';
 import { paramsMapper } from './paramsMapper';
 
 /**
- * Asegura que la fecha sea un String YYYY-MM-DD para Java.
+ * Asegura que la fecha sea un String YYYY-MM-DD para el backend.
  */
 const formatDate = (date: any): string | undefined => {
   if (!date) return undefined;
@@ -15,7 +15,7 @@ const formatDate = (date: any): string | undefined => {
 };
 
 /**
- * Sanitiza parámetros para evitar que "NaN" o "undefined" lleguen al backend.
+ * Sanitiza parámetros para evitar que "NaN", null o "undefined" lleguen al backend.
  */
 const sanitizeParams = (params: Record<string, any>): Record<string, any> => {
   const clean: Record<string, any> = {};
@@ -31,7 +31,7 @@ const sanitizeParams = (params: Record<string, any>): Record<string, any> => {
  * Búsqueda General (Hoteles, Vuelos, Coches, Actividades)
  */
 export const performSearch = async (activeSection: string, searchData: any) => {
-  let response;
+  let response: any; // Declarada con let para poder ser asignada en el switch
 
   const normalizedData = {
     ...searchData,
@@ -41,11 +41,16 @@ export const performSearch = async (activeSection: string, searchData: any) => {
     roomQty: searchData.roomQty || 1,
   };
 
+  const query = searchData.destinationText || searchData.destination;
+
   switch (activeSection) {
     case 'alojamiento': {
+      if (!query) throw new Error("Destino no proporcionado");
+      
       const { data: dId } = await api.get('/hotels/destination', {
-        params: { name: searchData.destination }
+        params: { name: query }
       });
+      
       const params = sanitizeParams(paramsMapper.alojamiento(normalizedData, dId));
       response = await api.get('/hotels/search', { params });
       break;
@@ -64,9 +69,6 @@ export const performSearch = async (activeSection: string, searchData: any) => {
 
       if (res.data && Array.isArray(res.data)) {
         let cars = res.data;
-
-        // ✅ Filtro client-side por tipo de coche como fallback
-        // La API ya recibe carType, pero si devuelve todos igualmente los filtramos aquí
         const carTypeMap: Record<string, string[]> = {
           small:    ['mini', 'economy', 'small', 'compact'],
           medium:   ['medium', 'intermediate', 'standard'],
@@ -84,23 +86,55 @@ export const performSearch = async (activeSection: string, searchData: any) => {
               const name = (car.carName ?? '').toLowerCase();
               return keywords.some(kw => name.includes(kw));
             });
-            // Solo aplicar filtro si encontró algo, si no mostrar todos
             if (filtered.length > 0) cars = filtered;
           }
         }
-
         return cars.slice(0, 20);
       }
       return res.data;
     }
 
     case 'actividades': {
-      const { data: locations } = await api.get('/activities/location', {
-        params: { query: searchData.destination }
+      if (!query) throw new Error("Destino no proporcionado");
+
+      // Paso 1: Obtener localización
+      const { data: locData } = await api.get('/activities/location', {
+          params: { query: query }
       });
-      const ufi = locations[0]?.id; 
-      const params = sanitizeParams(paramsMapper.actividades(normalizedData, ufi));
-      response = await api.get('/activities/search', { params });
+
+      // DEBUG: Descomenta la línea de abajo si vuelve a fallar para ver qué llega exactamente
+      // console.log("Estructura recibida del backend:", locData);
+
+      let ufi = null;
+
+      // Navegación: El backend ya envía el objeto con destinos y productos
+      // Accedemos directamente a locData
+      if (locData.destinations && locData.destinations.length > 0) {
+          ufi = locData.destinations[0].id; 
+      } else if (locData.products && locData.products.length > 0) {
+          // A veces el UFI viene como cityUfi en el producto
+          ufi = locData.products[0].id;
+      }
+
+      if (!ufi) {
+          console.warn("No se encontró un UFI válido para:", query);
+          return [];
+      }
+
+      // Paso 2: Búsqueda con el ID obtenido (UFI)
+      const searchParams = {
+          id: ufi,
+          startDate: normalizedData.startDate,
+          endDate: normalizedData.endDate,
+          currencyCode: searchData.currencyCode || 'EUR',
+          sortBy: 'trending',
+          page: 1
+      };
+
+      const cleanParams = sanitizeParams(searchParams);
+      
+      // Realizamos la búsqueda final
+      response = await api.get('/activities/search', { params: cleanParams });
       break;
     }
 
@@ -120,7 +154,7 @@ export const performSearch = async (activeSection: string, searchData: any) => {
 };
 
 /**
- * Detalles de Hotel (Exportado correctamente)
+ * Detalles de Hotel
  */
 export const getHotelDetails = async (hotelId: string, searchData: any) => {
   const normalizedData = {
@@ -142,7 +176,7 @@ export const getHotelDetails = async (hotelId: string, searchData: any) => {
 };
 
 /**
- * Detalles de Vuelo (La función que te faltaba exportar)
+ * Detalles de Vuelo
  */
 export const getFlightDetails = async (token: string, currencyCode: string = 'EUR') => {
   const response = await api.get('/flights/details', {
@@ -150,6 +184,20 @@ export const getFlightDetails = async (token: string, currencyCode: string = 'EU
       token, 
       currencyCode, 
       _t: Date.now() 
+    }
+  });
+  return response.data;
+};
+
+/**
+ * Detalles de Actividad
+ */
+export const getActivityDetails = async (slug: string) => {
+  const response = await api.get('/activities/details', {
+    params: { 
+      slug: slug,
+      currencyCode: 'EUR',
+      _t: Date.now()
     }
   });
   return response.data;

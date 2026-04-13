@@ -17,4 +17,5 @@ public class ActivityDTO {
     private Double calificacion;
     private String urlFoto;
     private String idActividad;
+    private String slug;
 }

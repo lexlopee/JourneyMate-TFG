@@ -29,4 +29,6 @@ public interface ReservaService {
     List<ReservaEntity> findByFechaReservaBetween(LocalDate inicio, LocalDate fin);
 
     List<ReservaListDTO> findDTOsByUsuarioId(Integer idUsuario);
+
+    List<ReservaListDTO> findHistorialByUsuarioId(Integer idUsuario);
 }

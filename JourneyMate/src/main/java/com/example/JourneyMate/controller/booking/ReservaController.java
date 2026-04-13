@@ -47,6 +47,12 @@ public class ReservaController {
         return ResponseEntity.ok(result);
     }
 
+    // ✅ NUEVO: Historial completo — todas las reservas del usuario
+    @GetMapping("/usuario/{idUsuario}/historial")
+    public ResponseEntity<List<ReservaListDTO>> findHistorial(@PathVariable Integer idUsuario) {
+        return ResponseEntity.ok(reservaService.findHistorialByUsuarioId(idUsuario));
+    }
+
     @GetMapping("/estado/{nombreEstado}")
     public ResponseEntity<List<ReservaEntity>> findByEstado(@PathVariable String nombreEstado) {
         return ResponseEntity.ok(reservaService.findByEstadoNombre(nombreEstado));

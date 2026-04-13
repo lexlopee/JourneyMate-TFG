@@ -16,12 +16,12 @@ interface Reserva {
   estadoNombre: string;
   tipoReservaNombre: string;
   fechaReserva: string;
-  // ✅ Nuevos campos para "Repetir reserva"
   idServicio?: number;
   idTipoReserva?: number;
   precioBase?: number;
 }
 
+// ── Helpers ───────────────────────────────────────────────
 const TIPO_ICON: Record<string, React.ReactNode> = {
   hotel:     <Hotel  size={20} />,
   vuelo:     <Plane  size={20} />,
@@ -54,8 +54,32 @@ function formatFecha(fecha: string) {
   return `${d}/${m}/${y}`;
 }
 
+/**
+ * Mapea el nombre del tipo de reserva (columna tipo_reserva.nombre)
+ * al string que espera el switch de ReservaServiceImpl.
+ * Los valores en BD son: HOTEL, COCHE, CRUCERO, VUELO, TREN, VTC, ACTIVIDAD
+ */
+function getTipoServicio(tipoReserva: string): string {
+  const t = tipoReserva?.toUpperCase() ?? "";
+  if (t === "HOTEL")    return "HOTEL";
+  if (t === "VUELO")    return "VUELO";
+  if (t === "VTC" || t === "COCHE") return "VTC";
+  if (t === "CRUCERO")  return "CRUCERO";
+  if (t === "TREN")     return "TREN";
+  if (t === "ACTIVIDAD") return "ACTIVIDAD";
+  // fallback: intentar por substring
+  if (t.includes("HOTEL"))    return "HOTEL";
+  if (t.includes("VUELO"))    return "VUELO";
+  if (t.includes("VTC") || t.includes("COCHE")) return "VTC";
+  if (t.includes("CRUCERO"))  return "CRUCERO";
+  if (t.includes("TREN"))     return "TREN";
+  if (t.includes("ACTIVIDAD")) return "ACTIVIDAD";
+  return "HOTEL"; // fallback final
+}
+
+// ── Componente principal ──────────────────────────────────
 export default function MisReservas() {
-  const navigate = useNavigate();
+  const navigate      = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [reservas,        setReservas]        = useState<Reserva[]>([]);
@@ -68,23 +92,19 @@ export default function MisReservas() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [pagoToast,       setPagoToast]       = useState("");
 
+  // Pago
   const [payModalOpen, setPayModalOpen] = useState(false);
   const [payReserva,   setPayReserva]   = useState<Reserva | null>(null);
   const [payAllMode,   setPayAllMode]   = useState(false);
 
-  // ── Estado para modal "Repetir reserva" ──
+  // Repetir reserva
   const [repeatModalOpen, setRepeatModalOpen] = useState(false);
   const [repeatReserva,   setRepeatReserva]   = useState<Reserva | null>(null);
   const [repeating,       setRepeating]       = useState(false);
   const [repeatSuccess,   setRepeatSuccess]   = useState(false);
 
-  // ✅ Activas = solo PENDIENTE (sin pagar)
-  // CONFIRMADA ya fue pagada → va al historial
-  const reservasActivas   = reservas.filter(r => {
-    const e = r.estadoNombre?.toLowerCase();
-    return e === "pendiente";
-  });
-  const reservasPendientes = reservasActivas.filter(
+  // Solo PENDIENTE en activas
+  const reservasPendientes = reservas.filter(
     r => r.estadoNombre?.toLowerCase() === "pendiente"
   );
   const totalPendiente = reservasPendientes.reduce(
@@ -99,23 +119,20 @@ export default function MisReservas() {
     if (!token || cleanId === "NaN") { navigate("/login"); return; }
 
     try {
-      // Activas (solo PENDIENTE)
+      // Activas: solo PENDIENTE
       const resActivas = await fetch(
         `http://localhost:8080/api/v1/reservas/usuario/${cleanId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (resActivas.ok) setReservas(await resActivas.json());
 
-      // Historial (COMPLETADA + CANCELADA)
+      // Historial: CONFIRMADA + COMPLETADA + CANCELADA
       const resHistorial = await fetch(
         `http://localhost:8080/api/v1/reservas/usuario/${cleanId}/historial`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (resHistorial.ok) {
-        // ✅ El endpoint devuelve TODAS las reservas del usuario
-        // sin filtro de estado — así siempre hay registro de todo
-        setHistorial(await resHistorial.json());
-      }
+      if (resHistorial.ok) setHistorial(await resHistorial.json());
+
     } catch {
       setError("No se pudieron cargar tus reservas. Inténtalo de nuevo.");
     } finally {
@@ -129,17 +146,13 @@ export default function MisReservas() {
     cargarReservas();
   }, [cargarReservas]);
 
-  // ── Detectar retorno del pago (Stripe/PayPal redirigen aquí) ─────────────
+  // ── Detectar retorno del pago ─────────────────────────────────────────────
   useEffect(() => {
     const pago = searchParams.get("pago");
-    const tab  = searchParams.get("tab");
-
     if (pago === "ok") {
-      // ✅ Pago exitoso: recargar datos, ir a historial y mostrar toast
       setPagoToast("✅ ¡Pago completado! Tu reserva está en el historial.");
       setTab("historial");
       cargarReservas();
-      // Limpiar los params de la URL
       setSearchParams({});
       setTimeout(() => setPagoToast(""), 5000);
     } else if (pago === "cancelado") {
@@ -151,16 +164,14 @@ export default function MisReservas() {
       setSearchParams({});
       setTimeout(() => setPagoToast(""), 4000);
     }
-
-    if (tab === "historial") setTab("historial");
+    if (searchParams.get("tab") === "historial") setTab("historial");
   }, [searchParams]); // eslint-disable-line
 
-  // ── Eliminar reserva ─────────────────────────────────────────────────────
+  // ── Eliminar reserva ──────────────────────────────────────────────────────
   const handleDelete = async (idReserva: number) => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
-    setDeletingId(idReserva);
-    setConfirmDeleteId(null);
+    setDeletingId(idReserva); setConfirmDeleteId(null);
     try {
       const res = await fetch(`http://localhost:8080/api/v1/reservas/${idReserva}`, {
         method: "DELETE",
@@ -168,46 +179,37 @@ export default function MisReservas() {
       });
       if (!res.ok) throw new Error();
       setReservas(prev => prev.filter(r => r.idReserva !== idReserva));
-    } catch {
-      alert("No se pudo eliminar la reserva.");
-    } finally {
-      setDeletingId(null);
-    }
+    } catch { alert("No se pudo eliminar la reserva."); }
+    finally { setDeletingId(null); }
   };
 
-  // ── Pagar una reserva ────────────────────────────────────────────────────
+  // ── Pagar una reserva ─────────────────────────────────────────────────────
   const handlePagarReserva = (r: Reserva) => {
-    setPayReserva(r);
-    setPayAllMode(false);
-    setPayModalOpen(true);
+    setPayReserva(r); setPayAllMode(false); setPayModalOpen(true);
   };
 
-  // ── Pagar todo ───────────────────────────────────────────────────────────
+  // ── Pagar todo ────────────────────────────────────────────────────────────
   const handlePagarTodo = () => {
     if (reservasPendientes.length === 0) return;
     setPayReserva({
-      idReserva: reservasPendientes[0].idReserva,
-      servicioNombre: `${reservasPendientes.length} reservas pendientes`,
-      precioTotal: totalPendiente,
-      estadoNombre: "pendiente",
-      tipoReservaNombre: "múltiple",
-      fechaReserva: "",
+      idReserva:        reservasPendientes[0].idReserva,
+      servicioNombre:   `${reservasPendientes.length} reservas pendientes`,
+      precioTotal:      totalPendiente,
+      estadoNombre:     "pendiente",
+      tipoReservaNombre:"múltiple",
+      fechaReserva:     "",
     });
     setPayAllMode(true);
     setPayModalOpen(true);
   };
 
-  const cerrarModal = () => {
-    setPayModalOpen(false);
-    setPayReserva(null);
-    setPayAllMode(false);
+  const cerrarModalPago = () => {
+    setPayModalOpen(false); setPayReserva(null); setPayAllMode(false);
   };
 
-  // ── Repetir reserva ─────────────────────────────────────────────────────
+  // ── Repetir reserva ───────────────────────────────────────────────────────
   const handleRepetir = (r: Reserva) => {
-    setRepeatReserva(r);
-    setRepeatSuccess(false);
-    setRepeatModalOpen(true);
+    setRepeatReserva(r); setRepeatSuccess(false); setRepeatModalOpen(true);
   };
 
   const confirmarRepeticion = async () => {
@@ -218,17 +220,23 @@ export default function MisReservas() {
       const idUsuario = localStorage.getItem("idUsuario");
       if (!token || !idUsuario) { navigate("/login"); return; }
 
+      const tipoServicio = getTipoServicio(repeatReserva.tipoReservaNombre);
+
       const body = {
-        idUsuario:    Number(String(Number(idUsuario))),
+        idUsuario:     Number(idUsuario),
         idTipoReserva: repeatReserva.idTipoReserva ?? 1,
-        idEstado:     1, // PENDIENTE
-        precioTotal:  repeatReserva.precioTotal,
+        idEstado:      1, // PENDIENTE — siempre al crear
+        precioTotal:   repeatReserva.precioTotal,
         servicio: {
-          tipo:       getTipoServicio(repeatReserva.tipoReservaNombre),
-          nombre:     repeatReserva.servicioNombre,
-          precioBase: repeatReserva.precioBase ?? repeatReserva.precioTotal,
+          tipo:        tipoServicio,
+          nombre:      repeatReserva.servicioNombre,
+          precioBase:  repeatReserva.precioBase ?? repeatReserva.precioTotal,
           descripcion: "Reserva repetida desde historial",
-          estrellas:  1,
+          // Campos requeridos según el tipo (valores mínimos para no romper el switch)
+          estrellas:   tipoServicio === "HOTEL" ? 1 : undefined,
+          origen:      (tipoServicio === "VUELO" || tipoServicio === "TREN" || tipoServicio === "CRUCERO") ? "—" : undefined,
+          destino:     (tipoServicio === "VUELO" || tipoServicio === "TREN" || tipoServicio === "CRUCERO") ? "—" : undefined,
+          fechaSalida: (tipoServicio === "VUELO" || tipoServicio === "TREN" || tipoServicio === "CRUCERO") ? null : undefined,
         },
       };
 
@@ -238,9 +246,12 @@ export default function MisReservas() {
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || `Error ${res.status}`);
+      }
+
       setRepeatSuccess(true);
-      // Recargar reservas activas para que aparezca la nueva
       await cargarReservas();
       setTimeout(() => {
         setRepeatModalOpen(false);
@@ -253,18 +264,6 @@ export default function MisReservas() {
       setRepeating(false);
     }
   };
-
-  // Mapea el nombre del tipo de reserva al tipo del servicio
-  function getTipoServicio(tipoReserva: string): string {
-    const t = tipoReserva?.toUpperCase() ?? "";
-    if (t.includes("HOTEL")) return "HOTEL";
-    if (t.includes("VUELO")) return "VUELO";
-    if (t.includes("VTC") || t.includes("COCHE")) return "VTC";
-    if (t.includes("CRUCERO")) return "CRUCERO";
-    if (t.includes("TREN")) return "TREN";
-    if (t.includes("ACTIVIDAD")) return "ACTIVIDAD";
-    return "HOTEL";
-  }
 
   // ── Loading / error ───────────────────────────────────────────────────────
   if (loading) return (
@@ -327,7 +326,7 @@ export default function MisReservas() {
               <p className="text-teal-600/60 text-[10px] font-bold mt-0.5 uppercase tracking-wider">precio total</p>
             </div>
 
-            {/* ✅ Botón REPETIR — siempre visible en historial (showActions=false) */}
+            {/* Historial: botón Repetir */}
             {!showActions && (
               <button onClick={() => handleRepetir(r)}
                 className="flex items-center gap-1.5 text-[10px] font-black px-3 py-2 rounded-xl bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 transition-all">
@@ -335,24 +334,20 @@ export default function MisReservas() {
               </button>
             )}
 
+            {/* Activas: Pagar + Eliminar */}
             {showActions && (
               <>
-                {/* Botón PAGAR — solo PENDIENTE */}
                 {isPendiente && (
                   <button onClick={() => handlePagarReserva(r)}
                     className="flex items-center gap-1.5 text-[10px] font-black px-3 py-2 rounded-xl bg-teal-900 text-white hover:bg-teal-700 transition-all shadow-md shadow-teal-900/20">
                     <CreditCard size={12}/> Pagar
                   </button>
                 )}
-
-                {/* Badge pagada — CONFIRMADA */}
                 {isConfirmada && (
                   <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
                     <CheckCircle2 size={12}/> Pagada
                   </span>
                 )}
-
-                {/* Eliminar — solo PENDIENTE, con confirmación */}
                 {isPendiente && (
                   confirmDeleteId === r.idReserva ? (
                     <div className="flex items-center gap-1">
@@ -380,10 +375,10 @@ export default function MisReservas() {
     );
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* Toast de resultado de pago */}
+      {/* Toast resultado de pago */}
       {pagoToast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[300] bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm max-w-sm text-center">
           {pagoToast}
@@ -404,7 +399,7 @@ export default function MisReservas() {
               {userName && <p className="text-teal-600 text-[10px] font-bold tracking-widest uppercase">{userName}</p>}
             </div>
             <span className="bg-teal-900 text-white text-xs font-black px-3 py-1 rounded-full">
-              {reservasActivas.length + historial.length}
+              {reservas.length + historial.length}
             </span>
           </div>
         </header>
@@ -419,9 +414,9 @@ export default function MisReservas() {
                   tab === "activas" ? "bg-teal-900 text-white shadow-lg" : "text-teal-800 hover:bg-white/60"
                 }`}>
                 <ShoppingBag size={14}/> Mis reservas
-                {reservasActivas.length > 0 && (
+                {reservas.length > 0 && (
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${tab==="activas"?"bg-white/20":"bg-teal-900/10"}`}>
-                    {reservasActivas.length}
+                    {reservas.length}
                   </span>
                 )}
               </button>
@@ -441,10 +436,10 @@ export default function MisReservas() {
             {/* ── TAB ACTIVAS ── */}
             {tab === "activas" && (
               <>
-                {reservasActivas.length === 0 ? (
+                {reservas.length === 0 ? (
                   <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
                     <PackageOpen size={52} className="text-teal-900/30"/>
-                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas activas</p>
+                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas pendientes</p>
                     <Link to="/" className="bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all">
                       Explorar destinos
                     </Link>
@@ -452,10 +447,10 @@ export default function MisReservas() {
                 ) : (
                   <>
                     <div className="space-y-4">
-                      {reservasActivas.map(r => <ReservaCard key={r.idReserva} r={r} showActions />)}
+                      {reservas.map(r => <ReservaCard key={r.idReserva} r={r} showActions />)}
                     </div>
 
-                    {/* Panel total pendiente + Pagar todo */}
+                    {/* Panel pagar todo */}
                     {reservasPendientes.length > 0 && (
                       <div className="bg-white/80 backdrop-blur border border-white/60 rounded-3xl shadow-lg p-5">
                         <div className="flex items-start justify-between gap-4 mb-4">
@@ -490,19 +485,14 @@ export default function MisReservas() {
                 {historial.length === 0 ? (
                   <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
                     <History size={52} className="text-teal-900/30"/>
-                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">
-                      Aún no tienes historial
-                    </p>
+                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">Aún no tienes historial</p>
                     <p className="text-teal-900/40 text-xs font-bold text-center">
-                      Las reservas completadas o canceladas aparecerán aquí.
+                      Las reservas confirmadas, completadas o canceladas aparecerán aquí.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {historial.map(r => (
-                      // En historial no mostramos botones de acción
-                      <ReservaCard key={r.idReserva} r={r} showActions={false} />
-                    ))}
+                    {historial.map(r => <ReservaCard key={r.idReserva} r={r} showActions={false}/>)}
                   </div>
                 )}
               </>
@@ -578,7 +568,7 @@ export default function MisReservas() {
       {payReserva && (
         <PaymentModal
           isOpen={payModalOpen}
-          onClose={cerrarModal}
+          onClose={cerrarModalPago}
           reservaId={payReserva.idReserva}
           precio={Number(payReserva.precioTotal)}
           descripcion={payReserva.servicioNombre}

@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer> {
 
-    // ── "Mis Reservas": solo PENDIENTE (sin pagar) ───────────────────────────
+    // ── "Mis Reservas" activas: solo PENDIENTE (sin pagar) ──────────────────
     @Query("""
                 SELECT new com.example.JourneyMate.dto.reserva.ReservaListDTO(
                     r.idReserva,
@@ -34,8 +34,8 @@ public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer>
             """)
     List<ReservaListDTO> findDTOsByUsuarioId(@Param("idUsuario") Integer idUsuario);
 
-    // ── "Historial": TODAS las reservas del usuario sin filtro de estado ─────
-    // Así aparece todo: pendiente, confirmada, completada, cancelada
+    // ── "Historial": CONFIRMADA + COMPLETADA + CANCELADA ────────────────────
+    // (excluye PENDIENTE porque esas ya aparecen en "Mis Reservas")
     @Query("""
                 SELECT new com.example.JourneyMate.dto.reserva.ReservaListDTO(
                     r.idReserva,
@@ -53,6 +53,7 @@ public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer>
                 JOIN r.estado e
                 JOIN r.tipoReserva t
                 WHERE r.usuario.idUsuario = :idUsuario
+                AND UPPER(e.nombre) IN ('CONFIRMADA', 'COMPLETADA', 'CANCELADA')
                 ORDER BY r.fechaReserva DESC
             """)
     List<ReservaListDTO> findHistorialByUsuarioId(@Param("idUsuario") Integer idUsuario);

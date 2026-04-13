@@ -16,6 +16,7 @@ import { SearchCounter } from "./SearchCounter";
 import { AutocompleteInput } from "./AutoCompleteInput";
 import { SearchSelect } from "./SearchSelect";
 import { CarLocationInput } from './CarLocationInput';
+import { ActivityAutocomplete } from './ActivityAutocomplete';
 
 export const SearchForm = ({ activeSection, searchData, handleChange }: any) => {
 
@@ -188,25 +189,44 @@ export const SearchForm = ({ activeSection, searchData, handleChange }: any) => 
     case 'actividades':
       return (
         <>
-          <SearchInput 
-            label="Ciudad" 
-            icon={<MapPin size={18} />} 
-            placeholder="¿Qué quieres hacer?" 
-            val={searchData.destination?.replace(/_/g, ' ')}
-            onChange={(v: any) => handleLegacyLocationChange('destination', v)} 
-          />
-          <SearchInput 
-            label="Desde" icon={<Calendar size={18} />} type="date" 
-            min={today}
-            val={searchData.startDate} onChange={(v: any) => handleChange('startDate', v)} 
-          />
-          <SearchInput 
-            label="Hasta" icon={<Calendar size={18} />} type="date" 
-            min={searchData.startDate || today}
-            val={searchData.endDate} onChange={(v: any) => handleChange('endDate', v)} 
-          />
-          <div className="hidden lg:block opacity-0" aria-hidden="true" />
-          <div className="hidden lg:block opacity-0" aria-hidden="true" />
+          <div className="md:col-span-2">
+            <ActivityAutocomplete 
+              label="Ciudad o Atracción" 
+              placeholder="Ej: Madrid, París, Roma..." 
+              value={searchData.destinationText}
+              onSelect={(loc: any) => {
+                // Guardamos el ID técnico (ej: city:123) en destination
+                handleChange('destination', loc.id); 
+                // Guardamos el nombre bonito (ej: Madrid) en destinationText
+                handleChange('destinationText', loc.nombre);
+              }} 
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <SearchInput 
+              label="Fecha desde" 
+              icon={<Calendar size={18} />} 
+              type="date" 
+              min={today}
+              val={searchData.startDate} 
+              onChange={(v: any) => handleChange('startDate', v)} 
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <SearchInput 
+              label="Fecha hasta" 
+              icon={<Calendar size={18} />} 
+              type="date" 
+              min={searchData.startDate || today}
+              val={searchData.endDate} 
+              onChange={(v: any) => handleChange('endDate', v)} 
+            />
+          </div>
+          
+          {/* Un espacio vacío opcional para cuadrar la rejilla si tu grid es de 7 columnas */}
+          <div className="hidden md:block md:col-span-1" />
         </>
       );
 

@@ -1,20 +1,21 @@
-// src/components/results/ResultsList.tsx
 import { useState, useMemo } from 'react';
 import { HotelCard } from './HotelCard';
 import { FlightCard } from './FlightCard';
 import { CarCard } from './CarCard';
+import { ActivityCard } from './ActivityCard';
 import {
   Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal,
-  Plane, Clock, Hotel as HotelIcon, Car
+  Plane, Clock, Hotel as HotelIcon, Car, Ticket
 } from 'lucide-react';
 
 interface ResultsListProps {
   results: any[];
   activeSection: string;
   onViewDetails: (item: any) => void;
-  onRentCar?: (car: any) => void; // ✅ NUEVO
+  onRentCar?: (car: any) => void;
+  onBookActivity: (activity: any) => void;
   destination: string;
-  searchData?: any;               // ✅ NUEVO para pasar días a CarCard
+  searchData?: any;
 }
 
 export const ResultsList = ({
@@ -22,6 +23,7 @@ export const ResultsList = ({
   activeSection,
   onViewDetails,
   onRentCar,
+  onBookActivity,
   destination,
   searchData,
 }: ResultsListProps) => {
@@ -63,10 +65,15 @@ export const ResultsList = ({
     if (activeSection === 'alojamiento') return `Hoteles en ${place || 'tu destino'}`;
     if (activeSection === 'vuelos')      return `Vuelos a ${place || 'tu destino'}`;
     if (activeSection === 'coches')      return `Coches disponibles`;
+    if (activeSection === 'actividades') return `Experiencias en ${place || 'tu destino'}`;
     return `Resultados para ${activeSection}`;
   };
 
-  const HeaderIcon = activeSection === 'vuelos' ? Plane : activeSection === 'coches' ? Car : HotelIcon;
+  const HeaderIcon = 
+  activeSection === 'vuelos' ? Plane : 
+  activeSection === 'coches' ? Car : 
+  activeSection === 'actividades' ? Ticket :
+  HotelIcon;
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-20 animate-fade-in pb-20">
@@ -143,6 +150,17 @@ export const ResultsList = ({
             </div>
           ))
         }
+
+        {activeSection === 'actividades' &&
+          sortedResults.map((item, index) => (
+            <ActivityCard
+              key={item.idActividad || index}
+              activity={item}
+              onViewDetails={() => onBookActivity(item)}
+            />
+          ))
+        }
+
       </div>
     </div>
   );

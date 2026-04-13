@@ -210,7 +210,7 @@ CREATE TABLE journeymate.crucero(
 -- Creación de la Tabla ACTIVIDAD
 CREATE TABLE journeymate.actividad(
 	id_servicio INTEGER NOT NULL,
-	descripcion VARCHAR(50),
+	descripcion VARCHAR(400),
 	CONSTRAINT pk_id_ser_act PRIMARY KEY (id_servicio),
 	CONSTRAINT fk_id_ser_act FOREIGN KEY (id_servicio) REFERENCES journeymate.servicio_turistico(id_servicio) ON DELETE CASCADE
 );

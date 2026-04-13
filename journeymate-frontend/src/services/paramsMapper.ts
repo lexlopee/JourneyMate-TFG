@@ -75,8 +75,14 @@ export const paramsMapper = {
 
   actividades: (data: any, ufi?: string) => ({
     id: ufi,
-    startDate: formatDateForBackend(data.startDate),
-    endDate: formatDateForBackend(data.endDate),
+    startDate: data.startDate,
+    endDate: data.endDate,sortBy: data.sort || 'trending',
+    page: 1,
+    currencyCode: 'EUR'
+  }),
+
+  activityDetails: (slug: string) => ({
+    slug: slug,
     currencyCode: 'EUR'
   }),
 

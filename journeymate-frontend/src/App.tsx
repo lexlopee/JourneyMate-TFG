@@ -8,37 +8,33 @@ import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/results/ResultsList';
 import { HotelDetailsModal } from './components/results/HotelDetailsModal';
 import { FlightDetailsModal } from './components/results/FlightDetailsModal'; 
+import { ActivityDetailsModal } from './components/results/ActivityDetailsModal'; 
+import { CarDetailsModal } from './components/results/CarDetailsModal';
 import { AITravelAssistant } from './components/AITravelAssistant';
 import { LoadingVideo } from './components/LoadingVideo';
 import { Car3D } from './components/Car3D';
-import { CarDetailsModal } from './components/results/CarDetailsModal';
-import { performSearch, getHotelDetails, getFlightDetails } from './services/searchService'; 
-import { formatDateForBackend } from './utils/dateUtils'; 
+
+// Servicios
+import { 
+  performSearch, 
+  getHotelDetails, 
+  getFlightDetails, 
+  getActivityDetails 
+} from './services/searchService'; 
+import { formatDateForBackend } from './utils/dateUtils';
 
 // Iconos
-import { Hotel, Plane, Car, Ticket, Ship, Train, Search } from 'lucide-react';
+import { Hotel, Plane, Ticket, Ship, Train, Search } from 'lucide-react';
 
 function App() {
-  const todayStr = new Date().toISOString().split('T')[0];
+  // --- FECHAS POR DEFECTO ---
   const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
   const dayAfterTomorrowStr = new Date(Date.now() + 172800000).toISOString().split('T')[0];
 
+  // --- ESTADOS DE NAVEGACIÓN Y BÚSQUEDA ---
   const [activeSection, setActiveSection] = useState<Section>('alojamiento');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedHotelDetails, setSelectedHotelDetails] = useState<any>(null);
-  const [selectedHotelBasic, setSelectedHotelBasic] = useState<any>(null);
-  const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
-  const [selectedFlightDetails, setSelectedFlightDetails] = useState<any>(null);
-  const [selectedFlightBasic, setSelectedFlightBasic] = useState<any>(null);
-  const [modalLoading, setModalLoading] = useState(false);
-
-  // Coche seleccionado para reservar
-  const [isCarModalOpen, setIsCarModalOpen] = useState(false);
-  const [selectedCar, setSelectedCar] = useState<any>(null);
-
   const [searchData, setSearchData] = useState({
     fromId: '', 
     toId: '',
@@ -59,9 +55,32 @@ function App() {
     carType: 'all',
   });
 
+  // --- ESTADOS DE MODALES Y DETALLES ---
+  const [modalLoading, setModalLoading] = useState(false);
+
+  // Hoteles
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedHotelBasic, setSelectedHotelBasic] = useState<any>(null);
+  const [selectedHotelDetails, setSelectedHotelDetails] = useState<any>(null);
+
+  // Vuelos
+  const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
+  const [selectedFlightBasic, setSelectedFlightBasic] = useState<any>(null);
+  const [selectedFlightDetails, setSelectedFlightDetails] = useState<any>(null);
+
+  // Actividades
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+  const [selectedActivityBasic, setSelectedActivityBasic] = useState<any>(null);
+  const [selectedActivityDetails, setSelectedActivityDetails] = useState<any>(null);
+
+  // Coches
+  const [isCarModalOpen, setIsCarModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
+
   const iconRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  // --- ANIMACIÓN DE ICONO ---
   useEffect(() => {
     if (iconRef.current) {
       anime({
@@ -72,6 +91,7 @@ function App() {
     }
   }, [activeSection]);
 
+  // --- MANEJADORES ---
   const handleChange = (field: string, value: any) => {
     setSearchData(prev => {
       const newData = { ...prev, [field]: value };
@@ -103,18 +123,10 @@ function App() {
         returnDate: (activeSection === 'vuelos' || activeSection === 'alojamiento') 
                     ? formatDateForBackend(searchData.endDate) 
                     : '',
-        adults: searchData.adults || 1,
-        roomQty: searchData.roomQty || 1,  // ✅ FIX: garantía extra en el payload de búsqueda
       };
 
       const data = await performSearch(activeSection, payload);
-      
-      let finalResults = [];
-      if (Array.isArray(data)) {
-        finalResults = data;
-      } else {
-        finalResults = data?.data?.flightOffers || data?.result || data?.data || [];
-      }
+      let finalResults = Array.isArray(data) ? data : (data?.data?.flightOffers || data?.result || data?.data || []);
       
       setResults(finalResults);
 
@@ -133,6 +145,7 @@ function App() {
 
   const handleViewDetails = async (item: any) => {
     setModalLoading(true);
+
     if (activeSection === 'alojamiento') {
       setSelectedHotelBasic(item);
       setIsModalOpen(true);
@@ -140,7 +153,7 @@ function App() {
       try {
         const details = await getHotelDetails(item.hotelId, searchData);
         setSelectedHotelDetails(details);
-      } catch (error) { console.error(error); } 
+      } catch (e) { console.error(e); } 
       finally { setModalLoading(false); }
     } 
     else if (activeSection === 'vuelos') {
@@ -150,7 +163,18 @@ function App() {
       try {
         const details = await getFlightDetails(item.token, searchData.currencyCode);
         setSelectedFlightDetails(details);
-      } catch (error) { console.error(error); } 
+      } catch (e) { console.error(e); } 
+      finally { setModalLoading(false); }
+    }
+    else if (activeSection === 'actividades') {
+      setSelectedActivityBasic(item);
+      setIsActivityModalOpen(true);
+      setSelectedActivityDetails(null);
+      try {
+        const details = await getActivityDetails(item.slug);
+        console.log("Detalles recibidos:",details);
+        setSelectedActivityDetails(details);
+      } catch (e) { console.error(e); } 
       finally { setModalLoading(false); }
     }
   };
@@ -163,23 +187,17 @@ function App() {
 
       <main className="relative z-10 pt-24 sm:pt-28 pb-20 px-4 sm:px-6 flex flex-col items-center flex-grow">
         
+        {/* ICONO SECCIÓN */}
         <div ref={iconRef} className="mb-8 bg-white/20 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/40 shadow-2xl">
           {activeSection === 'alojamiento' && <Hotel size={70} className="text-teal-900" />}
           {activeSection === 'vuelos' && <Plane size={70} className="text-teal-900" />}
-          {activeSection === 'coches' && (
-            <Car3D
-              carType={searchData.carType}
-              height={180}
-              interactive={true}
-              showLabel={true}
-              className="w-44"
-            />
-          )}
+          {activeSection === 'coches' && <Car3D carType={searchData.carType} height={180} interactive={true} showLabel={true} className="w-44" />}
           {activeSection === 'actividades' && <Ticket size={70} className="text-teal-900" />}
           {activeSection === 'cruceros' && <Ship size={70} className="text-teal-900" />}
           {activeSection === 'trenes' && <Train size={70} className="text-teal-900" />}
         </div>
 
+        {/* CONTENEDOR BUSCADOR */}
         <div className="w-full max-w-7xl backdrop-blur-2xl bg-white/40 rounded-[4rem] border border-white/60 shadow-2xl p-8 lg:p-12 text-center">
           <h2 className="text-5xl md:text-7xl font-black text-teal-900 tracking-tighter uppercase mb-2 leading-none">
             JourneyMate <span className="text-teal-600/40">{activeSection}</span>
@@ -193,7 +211,7 @@ function App() {
               activeSection={activeSection} 
               searchData={searchData} 
               handleChange={handleChange}
-              minDate={todayStr}
+              minDate={new Date().toISOString().split('T')[0]}
             />
             
             <button 
@@ -201,18 +219,12 @@ function App() {
               disabled={loading}
               className="md:col-span-1 bg-teal-900 text-white rounded-[2rem] h-[60px] font-black uppercase text-[11px] tracking-widest hover:bg-teal-800 transition-all flex items-center justify-center gap-2 shadow-2xl disabled:opacity-50"
             >
-              {loading ? (
-                <LoadingVideo size={48} />
-              ) : (
-                <>
-                  <Search size={18} />
-                  <span>BUSCAR</span>
-                </>
-              )}
+              {loading ? <LoadingVideo size={48} /> : <><Search size={18} /><span>BUSCAR</span></>}
             </button>
           </div>
         </div>
 
+        {/* CARGA PRINCIPAL */}
         {loading && (
           <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-teal-950/60 backdrop-blur-md">
             <LoadingVideo size={220} />
@@ -222,6 +234,7 @@ function App() {
           </div>
         )}
 
+        {/* LISTADO DE RESULTADOS */}
         <div ref={resultsRef} className="w-full mt-12 max-w-7xl">
           <ResultsList 
             results={results} 
@@ -230,16 +243,12 @@ function App() {
             destination={searchData.destinationText || searchData.destination}
             searchData={searchData}
             onRentCar={(car) => { setSelectedCar(car); setIsCarModalOpen(true); }}
+            onBookActivity={handleViewDetails}
           />
         </div>
-
-        {!loading && results.length === 0 && (
-          <p className="mt-16 text-teal-900/30 font-black uppercase tracking-widest text-xs animate-pulse">
-            Explora nuevos destinos y encuentra las mejores ofertas
-          </p>
-        )}
       </main>
 
+      {/* --- MODALES --- */}
       <HotelDetailsModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -255,6 +264,15 @@ function App() {
         details={selectedFlightDetails}
         loading={modalLoading}
         flightBasicData={selectedFlightBasic}
+      />
+
+      <ActivityDetailsModal 
+        isOpen={isActivityModalOpen}
+        onClose={() => setIsActivityModalOpen(false)}
+        details={selectedActivityDetails}
+        loading={modalLoading}
+        activityBasicData={selectedActivityBasic}
+        searchData={searchData}
       />
 
       <CarDetailsModal

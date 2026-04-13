@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -18,25 +19,34 @@ public class UsuarioEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
     private Integer idUsuario;
+
     @Column(name = "telefono", length = 13)
     private String telefono;
+
     @Column(name = "password_hash", length = 255)
     private String passwordHash;
+
     @Column(name = "nombre", length = 30)
     private String nombre;
+
     @Column(name = "primer_apellido", length = 30)
     private String primerApellido;
+
     @Column(name = "segundo_apellido", length = 30)
     private String segundoApellido;
+
     @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
+
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
+
     @Column(name = "email", length = 30)
     private String email;
-    // En UsuarioEntity.java
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
-    @JsonIgnoreProperties({"usuarios", "hibernateLazyInitializer", "handler"}) // <--- ESTO ES CLAVE
+    @JsonIgnoreProperties({"usuarios", "hibernateLazyInitializer", "handler"})
+    @ToString.Exclude  // ⭐ ESTO corta el ciclo: UsuarioEntity.toString() ya no llama a RolEntity.toString()
     private RolEntity rol;
 }

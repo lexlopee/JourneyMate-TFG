@@ -13,6 +13,7 @@ import { CarDetailsModal } from './components/results/CarDetailsModal';
 import { AITravelAssistant } from './components/AITravelAssistant';
 import { LoadingVideo } from './components/LoadingVideo';
 import { Car3D } from './components/Car3D';
+import { useSearchParams } from 'react-router-dom';
 
 // Servicios
 import { 
@@ -32,6 +33,7 @@ function App() {
   const dayAfterTomorrowStr = new Date(Date.now() + 172800000).toISOString().split('T')[0];
 
   // --- ESTADOS DE NAVEGACIÓN Y BÚSQUEDA ---
+  const [searchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState<Section>('alojamiento');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);

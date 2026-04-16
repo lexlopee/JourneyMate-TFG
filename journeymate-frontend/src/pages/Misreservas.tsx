@@ -160,12 +160,13 @@ export default function MisReservas() {
           r.estadoNombre = "COMPLETADA"; // actualizar localmente
         }
 
-        // Pestaña CONFIRMADAS: pagadas y fecha aún vigente
+        // ✅ CONFIRMADAS: pagadas cuya fecha AÚN NO ha pasado → pestaña Confirmadas
         setConfirmadas(
           todas.filter(r => r.estadoNombre?.toLowerCase() === "confirmada" && !estaExpirada(r.fechaReserva))
         );
 
-        // Pestaña HISTORIAL: completadas, canceladas, y confirmadas expiradas
+        // ✅ HISTORIAL: completadas + canceladas + confirmadas cuya fecha YA pasó
+        // Las confirmadas expiradas se muestran como COMPLETADA visualmente
         setHistorial(
           todas.filter(r => {
             const e = r.estadoNombre?.toLowerCase();
@@ -208,6 +209,7 @@ export default function MisReservas() {
     const t = searchParams.get("tab");
     if (t === "confirmadas") setTab("confirmadas");
     if (t === "historial")   setTab("historial");
+    if (t === "pendientes")  setTab("pendientes");
   }, [searchParams]); // eslint-disable-line
 
   // ── Pagar ───────────────────────────────────────────────────────────────────
@@ -579,7 +581,7 @@ export default function MisReservas() {
                     <div className="bg-teal-50/60 border border-teal-100 rounded-2xl px-4 py-3 flex items-center gap-2">
                       <AlertTriangle size={14} className="text-amber-500 shrink-0"/>
                       <p className="text-teal-700 text-[10px] font-bold">
-                        Puedes cancelar una reserva hasta <strong>1 día antes</strong> de la fecha indicada.
+                        Puedes cancelar una reserva siempre que falte <strong>más de 1 día</strong> para la fecha de entrada.
                         El reembolso se procesa en 3-5 días hábiles.
                       </p>
                     </div>

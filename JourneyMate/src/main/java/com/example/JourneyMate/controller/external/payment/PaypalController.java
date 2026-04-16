@@ -40,18 +40,8 @@ public class PaypalController {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody PagoRequestDTO request) {
-        // Determinar qué ID usar: idReserva (singular) o el primero de reservaIds
-        Integer id = request.getIdReserva();
-        if (id == null && request.getReservaIds() != null && !request.getReservaIds().isEmpty()) {
-            id = request.getReservaIds().get(0);
-        }
-        if (id == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No se proporcionó idReserva"));
-        }
-
-        final Integer reservaId = id;
-        ReservaEntity reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new RuntimeException("No existe la reserva " + reservaId));
+        ReservaEntity reserva = reservaRepository.findById(request.getIdReserva())
+                .orElseThrow(() -> new RuntimeException("No existe la reserva " + request.getIdReserva()));
         try {
             Payment payment = paypalService.createPayment(reserva);
             for (Links link : payment.getLinks()) {
@@ -87,8 +77,7 @@ public class PaypalController {
             MetodoEntity metodo = metodoRepository.findByNombre("PAYPAL")
                     .orElseThrow(() -> new RuntimeException("Método PAYPAL no encontrado en BD"));
 
-            // ✅ Solo guardar pago si NO existe ya uno para esta reserva
-            // (evita el error de constraint UNIQUE uq_pago_reserva)
+            // ✅ Solo guardar pago si no existe ya (evita constraint UNIQUE)
             List<PagoEntity> pagosExistentes = pagoRepository.findByReserva_IdReserva(reservaId);
             if (pagosExistentes.isEmpty()) {
                 PagoEntity pago = new PagoEntity();
@@ -99,14 +88,13 @@ public class PaypalController {
                 pagoService.save(pago);
             }
 
-            // ✅ Cambiar estado a COMPLETADA (con A — igual que en la BBDD)
-            EstadoEntity estadoCompletada = estadoRepository
-                    .findByNombreIgnoreCase("COMPLETADA")
-                    .orElseThrow(() -> new RuntimeException("Estado COMPLETADA no encontrado en BD"));
-            reserva.setEstado(estadoCompletada);
+            // ✅ Al pagar → CONFIRMADA (no COMPLETADA)
+            EstadoEntity estadoConfirmada = estadoRepository
+                    .findByNombreIgnoreCase("CONFIRMADA")
+                    .orElseThrow(() -> new RuntimeException("Estado CONFIRMADA no encontrado en BD"));
+            reserva.setEstado(estadoConfirmada);
             reservaRepository.save(reserva);
 
-            // Email (no crítico)
             try {
                 emailService.enviarFactura(
                         reserva.getUsuario().getEmail(),
@@ -118,9 +106,9 @@ public class PaypalController {
                 System.err.println("Email error: " + e.getMessage());
             }
 
-            // ✅ Redirigir a /mis-reservas con tab=historial
+            // Redirigir a Confirmadas
             headers.add("Location",
-                    "http://localhost:5173/mis-reservas?pago=ok&metodo=paypal&reservaId=" + reservaId + "&tab=historial");
+                    "http://localhost:5173/mis-reservas?pago=ok&metodo=paypal&reservaId=" + reservaId + "&tab=confirmadas");
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
         } catch (Exception e) {

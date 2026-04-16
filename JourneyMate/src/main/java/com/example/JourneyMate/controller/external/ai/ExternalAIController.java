@@ -19,4 +19,9 @@ public class ExternalAIController {
             @RequestParam String budget) {
         return ResponseEntity.ok(aiService.getRecommendation(pref, budget));
     }
+
+    @GetMapping("/itinerary")
+    public ResponseEntity<String> getItinerary(@RequestParam String query) {
+        return ResponseEntity.ok(aiService.getItinerary(query));
+    }
 }

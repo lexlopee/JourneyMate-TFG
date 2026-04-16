@@ -91,6 +91,6 @@ export const paramsMapper = {
     endDate: formatDateForBackend(data.endDate),
     destination: normalize(data.destination),
     departurePort: normalize(data.origin),
-    currencyCode: 'EUR'
+    currency: 'EUR'
   })
 };

@@ -26,17 +26,17 @@ public class CruiseServiceImpl extends BaseExternalService implements ICruiseSer
 
     @Override
     public JsonNode getDestinations() {
-        String url = UriComponentsBuilder.fromHttpUrl("https://cruisewave-api.p.rapidapi.com/metadata/destinations")
+        String url = UriComponentsBuilder
+                .fromHttpUrl("https://cruisewave-api.p.rapidapi.com/metadata/destinations")
                 .toUriString();
-
         return executeGetRequest(url, apiKey, apiHost);
     }
 
     @Override
     public JsonNode getPorts() {
-        String url = UriComponentsBuilder.fromHttpUrl("https://cruisewave-api.p.rapidapi.com/metadata/ports")
+        String url = UriComponentsBuilder
+                .fromHttpUrl("https://cruisewave-api.p.rapidapi.com/metadata/ports")
                 .toUriString();
-
         return executeGetRequest(url, apiKey, apiHost);
     }
 
@@ -44,56 +44,95 @@ public class CruiseServiceImpl extends BaseExternalService implements ICruiseSer
     public List<CruiseDTO> searchCruises(String startDate, String endDate, String destination,
                                          String departurePort, String currency, String country) {
 
-        // 1. Construcción de la URL con parámetros opcionales
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://cruisewave-api.p.rapidapi.com/cruise-search")
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl("https://cruisewave-api.p.rapidapi.com/cruise-search")
                 .queryParam("start_date", startDate)
                 .queryParam("end_date", endDate)
                 .queryParam("destination", destination)
                 .queryParam("departure_port", departurePort);
 
-        if (currency != null) builder.queryParam("currency", currency);
-        if (country != null) builder.queryParam("country", country);
+        if (currency != null && !currency.isEmpty()) builder.queryParam("currency", currency);
+        if (country  != null && !country.isEmpty())  builder.queryParam("country", country);
 
-        // 2. Usamos el metodo de la clase base
         JsonNode body = executeGetRequest(builder.toUriString(), apiKey, apiHost);
-
         List<CruiseDTO> cruiseList = new ArrayList<>();
 
-        if (body != null) {
-            // Accedemos a la ruta profunda del JSON de CruiseWave
-            JsonNode cruisesArray = body.path("data")
-                    .path("cruiseSearch")
-                    .path("results")
-                    .path("cruises");
+        // ✅ NUEVA RUTA: El JSON tiene los cruceros en data.cruiseSearch.results.cruises
+        JsonNode cruisesArray = body.path("data")
+                .path("cruiseSearch")
+                .path("results")
+                .path("cruises");
 
-            if (cruisesArray.isArray()) {
-                for (JsonNode node : cruisesArray) {
-                    cruiseList.add(mapToDTO(node));
-                }
+        if (cruisesArray.isArray()) {
+            int limite = 20;
+            int contador = 0;
+
+            for (JsonNode node : cruisesArray) {
+                if (contador >= limite) break; // Si llegamos al límite, dejamos de añadir
+
+                cruiseList.add(mapToDTO(node));
+                contador++;
             }
+            System.out.println("DEBUG: Se han procesado " + contador + " cruceros (Límite: " + limite + ")");
+        } else {
+            System.out.println("DEBUG: No se encontró la lista de cruceros en la ruta esperada.");
         }
+
         return cruiseList;
     }
 
     private CruiseDTO mapToDTO(JsonNode node) {
-        CruiseDTO dto = new CruiseDTO();
+        JsonNode master = node.path("masterSailing").path("itinerary");
+        JsonNode pricing = node.path("lowestPriceSailing");
 
-        // 1. Información del Itinerario y Barco
-        JsonNode itinerary = node.path("masterSailing").path("itinerary");
-        dto.setNombreCrucero(itinerary.path("name").asText("Crucero Desconocido"));
-        dto.setNombreBarco(itinerary.path("ship").path("name").asText("Barco N/A"));
-        dto.setNoches(itinerary.path("sailingNights").asInt(0));
-        dto.setPuertoSalida(itinerary.path("departurePort").path("name").asText("N/A"));
+        // 1. Extraer Imágenes
+        List<String> images = new ArrayList<>();
+        master.path("media").path("images").forEach(img ->
+                images.add("https://www.royalcaribbean.com" + img.path("path").asText())
+        );
 
-        // 2. Información de Fecha y Precio
-        JsonNode lowestSailing = node.path("lowestPriceSailing");
-        dto.setFechaSalida(lowestSailing.path("startDate").asText("N/A"));
+        // 2. Extraer Itinerario
+        List<CruiseDTO.ItinerarioDTO> paradas = new ArrayList<>();
+        master.path("days").forEach(day -> {
+            JsonNode firstPort = day.path("ports").get(0);
+            paradas.add(CruiseDTO.ItinerarioDTO.builder()
+                    .dia(day.path("number").asInt())
+                    .tipo(day.path("type").asText())
+                    .puerto(firstPort.path("port").path("name").asText())
+                    .region(firstPort.path("port").path("region").asText())
+                    .llegada(firstPort.path("arrivalTime").asText("---"))
+                    .salida(firstPort.path("departureTime").asText("---"))
+                    .build());
+        });
 
-        // 3. Extracción del Precio
-        JsonNode priceNode = lowestSailing.path("lowestStateroomClassPrice").path("price");
-        dto.setPrecioDesde(priceNode.path("value").asDouble(0.0));
-        dto.setMoneda(priceNode.path("currency").path("code").asText("USD"));
+        // 3. Extraer Cabinas y Precios
+        List<CruiseDTO.CabinaDTO> cabinas = new ArrayList<>();
+        pricing.path("stateroomClassPricing").forEach(c -> {
+            if (!c.path("price").isMissingNode()) {
+                cabinas.add(CruiseDTO.CabinaDTO.builder()
+                        .tipo(c.path("stateroomClass").path("id").asText())
+                        .precio(c.path("price").path("value").asDouble())
+                        .build());
+            }
+        });
 
-        return dto;
+        return CruiseDTO.builder()
+                .id(node.path("id").asText())
+                .nombreCrucero(master.path("name").asText())
+                .nombreBarco(master.path("ship").path("name").asText())
+                .noches(master.path("sailingNights").asInt())
+                .puertoSalida(master.path("departurePort").path("name").asText())
+                .destino(master.path("destination").path("name").asText())
+                .fechaSalida(pricing.path("startDate").asText())
+                .fechaLlegada(pricing.path("endDate").asText())
+                .precioDesde(pricing.path("lowestStateroomClassPrice").path("price").path("value").asDouble())
+                .tasasYImpuestos(pricing.path("taxesAndFees").path("value").asDouble())
+                .moneda(pricing.path("lowestStateroomClassPrice").path("price").path("currency").path("code").asText("EUR"))
+                .linkReserva(pricing.path("bookingLink").asText())
+                .imagenPrincipal(!images.isEmpty() ? images.get(0) : "")
+                .galeriaImagenes(images)
+                .paradas(paradas)
+                .cabinas(cabinas)
+                .build();
     }
 }

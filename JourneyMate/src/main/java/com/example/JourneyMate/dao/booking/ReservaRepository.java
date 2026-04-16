@@ -11,52 +11,49 @@ import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer> {
 
-    // ── "Mis Reservas" activas: solo PENDIENTE (sin pagar) ──────────────────
-    @Query("""
-                SELECT new com.example.JourneyMate.dto.reserva.ReservaListDTO(
-                    r.idReserva,
-                    s.nombre,
-                    r.precioTotal,
-                    e.nombre,
-                    t.nombre,
-                    r.fechaReserva,
-                    s.idServicio,
-                    t.idTipoReserva,
-                    s.precioBase
-                )
-                FROM ReservaEntity r
-                JOIN r.servicio s
-                JOIN r.estado e
-                JOIN r.tipoReserva t
-                WHERE r.usuario.idUsuario = :idUsuario
+    // ── "Mis Reservas": solo PENDIENTE ────────────────────────────────────────
+    // Usamos SQL nativo para evitar problemas de tipos JPQL con BigDecimal/NUMERIC
+    @Query(value = """
+                SELECT
+                    r.id_reserva       AS idReserva,
+                    s.nombre           AS servicioNombre,
+                    r.precio_total     AS precioTotal,
+                    e.nombre           AS estadoNombre,
+                    t.nombre           AS tipoReservaNombre,
+                    r.fecha_reserva    AS fechaReserva,
+                    s.id_servicio      AS idServicio,
+                    t.id_tipo_reserva  AS idTipoReserva,
+                    s.precio_base      AS precioBase
+                FROM journeymate.reserva r
+                JOIN journeymate.servicio_turistico s ON r.id_servicio = s.id_servicio
+                JOIN journeymate.estado e ON r.id_estado = e.id_estado
+                JOIN journeymate.tipo_reserva t ON r.id_tipo_reserva = t.id_tipo_reserva
+                WHERE r.id_usuario = :idUsuario
                 AND UPPER(e.nombre) = 'PENDIENTE'
-                ORDER BY r.fechaReserva DESC
-            """)
-    List<ReservaListDTO> findDTOsByUsuarioId(@Param("idUsuario") Integer idUsuario);
+                ORDER BY r.fecha_reserva DESC
+            """, nativeQuery = true)
+    List<Object[]> findRawDTOsByUsuarioId(@Param("idUsuario") Integer idUsuario);
 
-    // ── "Historial": CONFIRMADA + COMPLETADA + CANCELADA ────────────────────
-    // (excluye PENDIENTE porque esas ya aparecen en "Mis Reservas")
-    @Query("""
-                SELECT new com.example.JourneyMate.dto.reserva.ReservaListDTO(
-                    r.idReserva,
-                    s.nombre,
-                    r.precioTotal,
-                    e.nombre,
-                    t.nombre,
-                    r.fechaReserva,
-                    s.idServicio,
-                    t.idTipoReserva,
-                    s.precioBase
-                )
-                FROM ReservaEntity r
-                JOIN r.servicio s
-                JOIN r.estado e
-                JOIN r.tipoReserva t
-                WHERE r.usuario.idUsuario = :idUsuario
-                AND UPPER(e.nombre) IN ('CONFIRMADA', 'COMPLETADA', 'CANCELADA')
-                ORDER BY r.fechaReserva DESC
-            """)
-    List<ReservaListDTO> findHistorialByUsuarioId(@Param("idUsuario") Integer idUsuario);
+    // ── "Historial": TODAS las reservas sin filtro de estado ─────────────────
+    @Query(value = """
+                SELECT
+                    r.id_reserva       AS idReserva,
+                    s.nombre           AS servicioNombre,
+                    r.precio_total     AS precioTotal,
+                    e.nombre           AS estadoNombre,
+                    t.nombre           AS tipoReservaNombre,
+                    r.fecha_reserva    AS fechaReserva,
+                    s.id_servicio      AS idServicio,
+                    t.id_tipo_reserva  AS idTipoReserva,
+                    s.precio_base      AS precioBase
+                FROM journeymate.reserva r
+                JOIN journeymate.servicio_turistico s ON r.id_servicio = s.id_servicio
+                JOIN journeymate.estado e ON r.id_estado = e.id_estado
+                JOIN journeymate.tipo_reserva t ON r.id_tipo_reserva = t.id_tipo_reserva
+                WHERE r.id_usuario = :idUsuario
+                ORDER BY r.fecha_reserva DESC
+            """, nativeQuery = true)
+    List<Object[]> findRawHistorialByUsuarioId(@Param("idUsuario") Integer idUsuario);
 
     List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario);
     List<ReservaEntity> findByEstadoNombre(String nombre);

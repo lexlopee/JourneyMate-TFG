@@ -3,9 +3,10 @@ import { HotelCard } from './HotelCard';
 import { FlightCard } from './FlightCard';
 import { CarCard } from './CarCard';
 import { ActivityCard } from './ActivityCard';
+import { CruiseCard } from './CruiseCard';
 import {
   Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal,
-  Plane, Clock, Hotel as HotelIcon, Car, Ticket
+  Plane, Clock, Hotel as HotelIcon, Car, Ticket, Ship
 } from 'lucide-react';
 
 interface ResultsListProps {
@@ -66,6 +67,7 @@ export const ResultsList = ({
     if (activeSection === 'vuelos')      return `Vuelos a ${place || 'tu destino'}`;
     if (activeSection === 'coches')      return `Coches disponibles`;
     if (activeSection === 'actividades') return `Experiencias en ${place || 'tu destino'}`;
+    if (activeSection === 'cruceros') return `Cruceros disponibles`;
     return `Resultados para ${activeSection}`;
   };
 
@@ -73,6 +75,7 @@ export const ResultsList = ({
   activeSection === 'vuelos' ? Plane : 
   activeSection === 'coches' ? Car : 
   activeSection === 'actividades' ? Ticket :
+  activeSection === 'cruceros' ? Ship :
   HotelIcon;
 
   return (
@@ -145,7 +148,7 @@ export const ResultsList = ({
               <CarCard
                 car={item}
                 searchData={searchData}
-                onRent={() => onRentCar?.(item)} // ✅ abre el modal
+                onRent={() => onRentCar?.(item)}
               />
             </div>
           ))
@@ -157,6 +160,16 @@ export const ResultsList = ({
               key={item.idActividad || index}
               activity={item}
               onViewDetails={() => onBookActivity(item)}
+            />
+          ))
+        }
+
+        {activeSection === 'cruceros' &&
+          sortedResults.map((item, index) => (
+            <CruiseCard
+              key={index}
+              cruise={item}
+              onViewDetails={() => onViewDetails(item)}
             />
           ))
         }

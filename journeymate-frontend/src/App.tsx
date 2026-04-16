@@ -14,6 +14,8 @@ import { AITravelAssistant } from './components/AITravelAssistant';
 import { LoadingVideo } from './components/LoadingVideo';
 import { Car3D } from './components/Car3D';
 import { useSearchParams } from 'react-router-dom';
+import { CruiseDetailsModal } from './components/results/CruiseDetailsModal';
+
 
 // Servicios
 import { 
@@ -55,6 +57,8 @@ function App() {
     sort: 'BEST',
     currencyCode: 'EUR',
     carType: 'all',
+    cruiseDestination: '',
+    cruisePort: '',
   });
 
   // --- ESTADOS DE MODALES Y DETALLES ---
@@ -78,6 +82,10 @@ function App() {
   // Coches
   const [isCarModalOpen, setIsCarModalOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState<any>(null);
+
+  // Cruceros
+  const [isCruiseModalOpen, setIsCruiseModalOpen] = useState(false);
+  const [selectedCruise, setSelectedCruise] = useState<any>(null);
 
   const iconRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -178,6 +186,11 @@ function App() {
         setSelectedActivityDetails(details);
       } catch (e) { console.error(e); } 
       finally { setModalLoading(false); }
+    }
+    else if (activeSection === 'cruceros') {
+      setSelectedCruise(item);
+      setIsCruiseModalOpen(true);
+      setModalLoading(false);
     }
   };
 
@@ -281,6 +294,13 @@ function App() {
         isOpen={isCarModalOpen}
         onClose={() => setIsCarModalOpen(false)}
         car={selectedCar}
+        searchData={searchData}
+      />
+
+      <CruiseDetailsModal
+        isOpen={isCruiseModalOpen}
+        onClose={() => setIsCruiseModalOpen(false)}
+        cruise={selectedCruise}
         searchData={searchData}
       />
 

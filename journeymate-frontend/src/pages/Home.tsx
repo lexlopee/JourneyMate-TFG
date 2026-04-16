@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AITravelAssistant } from '../components/AITravelAssistant';
 import {
   Hotel, Plane, Car, Ticket, Ship, Train,
   ArrowRight, Star, Zap, Globe, Shield, ChevronDown
@@ -350,6 +351,7 @@ export default function Home() {
           </span>
         </div>
       </footer>
+      <AITravelAssistant />
 
     </div>
   );

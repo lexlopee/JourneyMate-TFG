@@ -26,6 +26,11 @@ public class ServicioTuristicoRequestDTO {
     private String destino;
     private String compania;
     private String naviera;
+    private String puertoSalida;
+    private String puertoLlegada;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaLlegada;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaSalida;

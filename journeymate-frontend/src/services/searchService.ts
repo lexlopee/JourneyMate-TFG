@@ -138,6 +138,12 @@ export const performSearch = async (activeSection: string, searchData: any) => {
       break;
     }
 
+    case 'cruceros': {
+      const params = sanitizeParams(paramsMapper.cruceros(normalizedData));
+      response = await api.get('/cruises/search', { params }); 
+      break;
+    }
+
     default: {
       const mapperKey = activeSection as keyof typeof paramsMapper;
       const mapperFn = paramsMapper[mapperKey];

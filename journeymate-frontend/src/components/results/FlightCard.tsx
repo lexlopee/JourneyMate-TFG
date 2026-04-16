@@ -1,4 +1,5 @@
-import { PlaneTakeoff, PlaneLanding, MoveRight, Ticket, Clock, ArrowLeftRight } from 'lucide-react';
+import { useState } from 'react'; // Importamos useState
+import { PlaneTakeoff, PlaneLanding, MoveRight, Ticket, Clock, ArrowLeftRight, Loader2 } from 'lucide-react'; // Añadimos Loader2
 import { formatCurrency } from '../../utils/dateUtils';
 
 interface FlightCardProps {
@@ -7,18 +8,28 @@ interface FlightCardProps {
 }
 
 export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
-  
+  // Estado para controlar la carga local del botón
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
   const formatTime = (timeString: string) => {
     if (!timeString) return '--:--';
     const date = new Date(timeString);
     return isNaN(date.getTime()) ? timeString : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const handleViewDetails = async () => {
+    setIsLoadingDetails(true);
+    
+    // Simulamos un pequeño delay o esperamos a que el padre termine
+    // Si onViewDetails es síncrono, puedes quitar el await
+    await onViewDetails();
+    
+    // Opcional: Si el modal tarda en abrir, mantenemos el loading un momento
+    setTimeout(() => setIsLoadingDetails(false), 500);
+  };
+
   const stops = flight.stops || 0;
   const isDirect = stops === 0;
-
-  // Lógica para detectar si es ida y vuelta
-  // Comprobamos si existe hora de regreso, token de regreso o bandera explícita
   const isRoundTrip = !!(flight.horaLlegadaRegreso || flight.fechaRegreso || flight.isRoundTrip);
 
   return (
@@ -64,7 +75,6 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
       <div className="bg-teal-50/30 rounded-[2rem] p-6 mb-8 border border-teal-100/20 flex-grow relative">
         <div className="flex items-center justify-between gap-2">
           
-          {/* Salida */}
           <div className="flex-1">
             <div className="flex items-center gap-2 text-teal-500/50 mb-2">
               <PlaneTakeoff size={14} />
@@ -78,16 +88,13 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
             </span>
           </div>
 
-          {/* Lógica de Flechas Dinámica */}
           <div className="flex-[1.5] flex flex-col items-center justify-center px-2">
             <div className="w-full h-[2px] relative flex items-center justify-center">
                <div className="w-full border-t-2 border-teal-200 border-dashed absolute top-1/2"></div>
                <div className="bg-white p-1.5 rounded-full border border-teal-100 z-10 group-hover:scale-110 transition-transform duration-500 shadow-sm">
                   {isRoundTrip ? (
-                    // DOBLE FLECHA para Ida y Vuelta
                     <ArrowLeftRight className="text-amber-500" size={16} strokeWidth={3} />
                   ) : (
-                    // FLECHA SIMPLE para Solo Ida
                     <MoveRight className="text-teal-500" size={16} strokeWidth={3} />
                   )}
                </div>
@@ -97,7 +104,6 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
             </span>
           </div>
 
-          {/* Llegada */}
           <div className="flex-1 text-right">
             <div className="flex items-center justify-end gap-2 text-teal-500/50 mb-2">
               <span className="text-[8px] font-black uppercase tracking-widest">Llegada</span>
@@ -127,11 +133,21 @@ export const FlightCard = ({ flight, onViewDetails }: FlightCardProps) => {
         </div>
 
         <button 
-          onClick={onViewDetails}
-          className="bg-teal-900 text-white px-7 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-teal-600 hover:-translate-y-1 transition-all shadow-lg shadow-teal-900/20 active:scale-95 flex items-center gap-2"
+          onClick={handleViewDetails} // Usamos la nueva función
+          disabled={isLoadingDetails} // Deshabilitamos mientras carga
+          className="bg-teal-900 text-white min-w-[140px] px-7 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-teal-600 hover:-translate-y-1 transition-all shadow-lg shadow-teal-900/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 disabled:translate-y-0"
         >
-          Detalles
-          <MoveRight size={14} className="opacity-50" />
+          {isLoadingDetails ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Cargando
+            </>
+          ) : (
+            <>
+              Detalles
+              <MoveRight size={14} className="opacity-50" />
+            </>
+          )}
         </button>
       </div>
     </div>

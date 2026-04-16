@@ -18,9 +18,11 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservaServiceImpl implements ReservaService {
@@ -37,10 +39,29 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired private ReservaRepository reservaRepository;
     @Autowired private UsuarioRepository usuarioRepository;
 
-    @Override
-    public List<ReservaEntity> findAll() {
-        return reservaRepository.findAll();
+    // ── Convierte una fila Object[] de SQL nativo a ReservaListDTO ───────────
+    // Columnas: 0=idReserva, 1=servicioNombre, 2=precioTotal, 3=estadoNombre,
+    //           4=tipoReservaNombre, 5=fechaReserva, 6=idServicio,
+    //           7=idTipoReserva, 8=precioBase
+    private ReservaListDTO mapRow(Object[] row) {
+        ReservaListDTO dto = new ReservaListDTO();
+        dto.setIdReserva(row[0] != null ? ((Number) row[0]).intValue() : null);
+        dto.setServicioNombre(row[1] != null ? row[1].toString() : null);
+        dto.setPrecioTotal(row[2] != null ? new BigDecimal(row[2].toString()) : null);
+        dto.setEstadoNombre(row[3] != null ? row[3].toString() : null);
+        dto.setTipoReservaNombre(row[4] != null ? row[4].toString() : null);
+        // fecha_reserva viene como java.sql.Date desde JDBC
+        if (row[5] != null) {
+            dto.setFechaReserva(((java.sql.Date) row[5]).toLocalDate());
+        }
+        dto.setIdServicio(row[6] != null ? ((Number) row[6]).intValue() : null);
+        dto.setIdTipoReserva(row[7] != null ? ((Number) row[7]).intValue() : null);
+        dto.setPrecioBase(row[8] != null ? new BigDecimal(row[8].toString()) : null);
+        return dto;
     }
+
+    @Override
+    public List<ReservaEntity> findAll() { return reservaRepository.findAll(); }
 
     @Override
     public Optional<ReservaEntity> findById(Integer idReserva) {
@@ -101,7 +122,6 @@ public class ReservaServiceImpl implements ReservaService {
                 v.setPrecioBase(s.getPrecioBase());
                 v.setMarca(s.getMarca());
                 v.setModelo(s.getModelo());
-                // ✅ CORREGIDO: distancia es BigDecimal en DTO y entidad, no hace falta parsear String
                 v.setDistancia(s.getDistancia());
                 v.setPrecio(s.getPrecioBase());
                 yield vtcRepository.save(v);
@@ -137,7 +157,8 @@ public class ReservaServiceImpl implements ReservaService {
         if (s.getLatitud() != null && s.getLongitud() != null) {
             DireccionEntity dir = new DireccionEntity();
             dir.setServicio(servicioGuardado);
-            dir.setDescripcion(s.getDescripcion_direccion() != null ? s.getDescripcion_direccion() : s.getNombre());
+            dir.setDescripcion(s.getDescripcion_direccion() != null
+                    ? s.getDescripcion_direccion() : s.getNombre());
             dir.setLatitud(s.getLatitud());
             dir.setLongitud(s.getLongitud());
             direccionRepository.save(dir);
@@ -162,10 +183,14 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    public void deleteById(Integer idReserva) { reservaRepository.deleteById(idReserva); }
+    public void deleteById(Integer idReserva) {
+        reservaRepository.deleteById(idReserva);
+    }
 
     @Override
-    public boolean existsById(Integer idReserva) { return reservaRepository.existsById(idReserva); }
+    public boolean existsById(Integer idReserva) {
+        return reservaRepository.existsById(idReserva);
+    }
 
     @Override
     public List<ReservaEntity> findByUsuarioIdUsuario(Integer idUsuario) {
@@ -184,11 +209,13 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<ReservaListDTO> findDTOsByUsuarioId(Integer idUsuario) {
-        return reservaRepository.findDTOsByUsuarioId(idUsuario);
+        return reservaRepository.findRawDTOsByUsuarioId(idUsuario)
+                .stream().map(this::mapRow).collect(Collectors.toList());
     }
 
     @Override
     public List<ReservaListDTO> findHistorialByUsuarioId(Integer idUsuario) {
-        return reservaRepository.findHistorialByUsuarioId(idUsuario);
+        return reservaRepository.findRawHistorialByUsuarioId(idUsuario)
+                .stream().map(this::mapRow).collect(Collectors.toList());
     }
 }

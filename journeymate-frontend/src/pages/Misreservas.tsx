@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { PaymentModal } from "../components/payment/PaymentModal";
 
-// ── Tipos ─────────────────────────────────────────────────────────────────────
 interface Reserva {
   idReserva: number;
   servicioNombre: string;
@@ -37,7 +36,6 @@ function getTipoIcon(tipo: string) {
   for (const k of Object.keys(TIPO_ICON)) if (key.includes(k)) return TIPO_ICON[k];
   return <Ticket size={20} />;
 }
-
 const ESTADO_STYLE: Record<string, string> = {
   confirmada: "bg-emerald-100 text-emerald-700 border-emerald-200",
   pendiente:  "bg-amber-100  text-amber-700  border-amber-200",
@@ -56,33 +54,44 @@ function formatFecha(fecha: string) {
 }
 function getTipoServicio(tipoReserva: string): string {
   const t = tipoReserva?.toUpperCase() ?? "";
-  if (t === "HOTEL")    return "HOTEL";
-  if (t === "VUELO")    return "VUELO";
+  if (t === "HOTEL")     return "HOTEL";
+  if (t === "VUELO")     return "VUELO";
   if (t === "VTC" || t === "COCHE") return "VTC";
-  if (t === "CRUCERO")  return "CRUCERO";
-  if (t === "TREN")     return "TREN";
+  if (t === "CRUCERO")   return "CRUCERO";
+  if (t === "TREN")      return "TREN";
   if (t === "ACTIVIDAD") return "ACTIVIDAD";
   return "HOTEL";
 }
 
-// ── Lógica de cancelación ─────────────────────────────────────────────────────
-// Puede cancelar si faltan MÁS de 1 día para la fecha de la reserva
+// ── Lógica de fechas ──────────────────────────────────────────────────────────
+
+/**
+ * Puede cancelar si el momento actual es ANTES de las 00:00 del día de la reserva.
+ * Es decir: puede cancelar cualquier momento del día anterior (incluyendo 00:00),
+ * pero NO puede cancelar una vez que ha llegado el día de la reserva (00:00 de ese día).
+ *
+ * Ejemplo:
+ *   - Reserva el 16 de mayo → puede cancelar hasta las 23:59 del 15 de mayo
+ *   - A las 00:00 del 16 de mayo → ya NO puede cancelar
+ */
 function puedeCancel(fechaReserva: string): boolean {
   if (!fechaReserva) return false;
-  const fecha = new Date(fechaReserva);
-  const hoy   = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const diff  = Math.floor((fecha.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
-  return diff > 1; // más de 1 día → puede cancelar
+  // Medianoche del día de la reserva (inicio del día)
+  const [y, m, d] = fechaReserva.split("-").map(Number);
+  const inicioReserva = new Date(y, m - 1, d, 0, 0, 0, 0);
+  const ahora = new Date();
+  return ahora < inicioReserva; // puede cancelar si AÚN no ha llegado el día
 }
 
-// Reserva expirada: fecha_reserva ya pasó hoy
+/**
+ * La reserva está expirada cuando ha llegado o pasado el día de la reserva.
+ * Desde las 00:00 del día de la reserva → pasa al Historial.
+ */
 function estaExpirada(fechaReserva: string): boolean {
   if (!fechaReserva) return false;
-  const fecha = new Date(fechaReserva);
-  const hoy   = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  return fecha < hoy;
+  const [y, m, d] = fechaReserva.split("-").map(Number);
+  const inicioReserva = new Date(y, m - 1, d, 0, 0, 0, 0);
+  return new Date() >= inicioReserva;
 }
 
 // ── Componente principal ──────────────────────────────────────────────────────
@@ -92,24 +101,23 @@ export default function MisReservas() {
 
   type Tab = "pendientes" | "confirmadas" | "historial";
 
-  const [pendientes,   setPendientes]   = useState<Reserva[]>([]);
-  const [confirmadas,  setConfirmadas]  = useState<Reserva[]>([]);
-  const [historial,    setHistorial]    = useState<Reserva[]>([]);
-  const [loading,      setLoading]      = useState(true);
-  const [error,        setError]        = useState("");
-  const [userName,     setUserName]     = useState("");
-  const [tab,          setTab]          = useState<Tab>("pendientes");
-  const [pagoToast,    setPagoToast]    = useState("");
+  const [pendientes,  setPendientes]  = useState<Reserva[]>([]);
+  const [confirmadas, setConfirmadas] = useState<Reserva[]>([]);
+  const [historial,   setHistorial]   = useState<Reserva[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState("");
+  const [userName,    setUserName]    = useState("");
+  const [tab,         setTab]         = useState<Tab>("pendientes");
+  const [pagoToast,   setPagoToast]   = useState("");
 
   // Pago
-  const [payModalOpen,  setPayModalOpen]  = useState(false);
-  const [payReserva,    setPayReserva]    = useState<Reserva | null>(null);
-  const [payAllMode,    setPayAllMode]    = useState(false);
+  const [payModalOpen, setPayModalOpen] = useState(false);
+  const [payReserva,   setPayReserva]   = useState<Reserva | null>(null);
+  const [payAllMode,   setPayAllMode]   = useState(false);
 
   // Cancelación
-  const [cancelModalId,   setCancelModalId]   = useState<number | null>(null);
-  const [cancelReserva,   setCancelReserva]   = useState<Reserva | null>(null);
-  const [cancelling,      setCancelling]      = useState(false);
+  const [cancelReserva, setCancelReserva] = useState<Reserva | null>(null);
+  const [cancelling,    setCancelling]    = useState(false);
 
   // Repetir
   const [repeatModalOpen, setRepeatModalOpen] = useState(false);
@@ -119,7 +127,7 @@ export default function MisReservas() {
 
   const totalPendiente = pendientes.reduce((s, r) => s + (Number(r.precioTotal) || 0), 0);
 
-  // ── Carga de datos ──────────────────────────────────────────────────────────
+  // ── Carga ───────────────────────────────────────────────────────────────────
   const cargarReservas = useCallback(async () => {
     const token   = localStorage.getItem("token");
     const rawId   = localStorage.getItem("idUsuario");
@@ -127,17 +135,17 @@ export default function MisReservas() {
     if (!token || cleanId === "NaN") { navigate("/login"); return; }
 
     try {
-      // Endpoint activas (PENDIENTE)
+      // Pendientes
       const rA = await fetch(
         `http://localhost:8080/api/v1/reservas/usuario/${cleanId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (rA.ok) {
-        const todas: Reserva[] = await rA.json();
-        setPendientes(todas.filter(r => r.estadoNombre?.toLowerCase() === "pendiente"));
+        const data: Reserva[] = await rA.json();
+        setPendientes(data.filter(r => r.estadoNombre?.toLowerCase() === "pendiente"));
       }
 
-      // Endpoint historial (todas)
+      // Historial completo
       const rH = await fetch(
         `http://localhost:8080/api/v1/reservas/usuario/${cleanId}/historial`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -145,33 +153,17 @@ export default function MisReservas() {
       if (rH.ok) {
         const todas: Reserva[] = await rH.json();
 
-        // ✅ Auto-expirar en backend: si está CONFIRMADA y fecha ya pasó → marcar COMPLETADA
-        const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-        const porExpirar = todas.filter(r =>
-          r.estadoNombre?.toLowerCase() === "confirmada" && estaExpirada(r.fechaReserva)
-        );
-        // Actualizar estado en backend silenciosamente
-        for (const r of porExpirar) {
-          fetch(`http://localhost:8080/api/v1/reservas/${r.idReserva}/estado`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ estado: "COMPLETADA" }),
-          }).catch(() => {});
-          r.estadoNombre = "COMPLETADA"; // actualizar localmente
-        }
-
-        // ✅ CONFIRMADAS: pagadas cuya fecha AÚN NO ha pasado → pestaña Confirmadas
+        // ✅ CONFIRMADAS: todas las que tienen estado CONFIRMADA
+        // Se quedan aquí hasta que el backend las marque COMPLETADA (pasa la fecha)
         setConfirmadas(
-          todas.filter(r => r.estadoNombre?.toLowerCase() === "confirmada" && !estaExpirada(r.fechaReserva))
+          todas.filter(r => r.estadoNombre?.toLowerCase() === "confirmada")
         );
 
-        // ✅ HISTORIAL: completadas + canceladas + confirmadas cuya fecha YA pasó
-        // Las confirmadas expiradas se muestran como COMPLETADA visualmente
+        // ✅ HISTORIAL: solo COMPLETADA y CANCELADA
         setHistorial(
           todas.filter(r => {
             const e = r.estadoNombre?.toLowerCase();
-            return e === "completada" || e === "cancelada" ||
-              (e === "confirmada" && estaExpirada(r.fechaReserva));
+            return e === "completada" || e === "cancelada";
           })
         );
       }
@@ -213,7 +205,9 @@ export default function MisReservas() {
   }, [searchParams]); // eslint-disable-line
 
   // ── Pagar ───────────────────────────────────────────────────────────────────
-  const handlePagar = (r: Reserva) => { setPayReserva(r); setPayAllMode(false); setPayModalOpen(true); };
+  const handlePagar = (r: Reserva) => {
+    setPayReserva(r); setPayAllMode(false); setPayModalOpen(true);
+  };
   const handlePagarTodo = () => {
     if (pendientes.length === 0) return;
     setPayReserva({
@@ -229,15 +223,20 @@ export default function MisReservas() {
   };
 
   // ── Cancelar ────────────────────────────────────────────────────────────────
-  const abrirCancelModal = (r: Reserva) => { setCancelReserva(r); setCancelModalId(r.idReserva); };
   const confirmarCancelacion = async () => {
     if (!cancelReserva) return;
+
+    // ✅ Validar en el momento de confirmar si aún se puede cancelar
+    if (!puedeCancel(cancelReserva.fechaReserva)) {
+      alert("No se puede cancelar esta reserva porque ya ha llegado el día de entrada.");
+      setCancelReserva(null);
+      return;
+    }
+
     setCancelling(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
-
-      // 1. Cambiar estado a CANCELADA
       const res = await fetch(
         `http://localhost:8080/api/v1/reservas/${cancelReserva.idReserva}/estado`,
         {
@@ -246,10 +245,8 @@ export default function MisReservas() {
           body: JSON.stringify({ estado: "CANCELADA" }),
         }
       );
-      if (!res.ok) throw new Error("No se pudo cancelar la reserva");
-
+      if (!res.ok) throw new Error("No se pudo cancelar");
       setPagoToast("🔄 Reserva cancelada. El reembolso se procesará en 3-5 días hábiles.");
-      setCancelModalId(null);
       setCancelReserva(null);
       await cargarReservas();
       setTab("historial");
@@ -261,7 +258,7 @@ export default function MisReservas() {
     }
   };
 
-  // ── Eliminar (PENDIENTE) ────────────────────────────────────────────────────
+  // ── Eliminar (solo PENDIENTE) ───────────────────────────────────────────────
   const handleEliminar = async (idReserva: number) => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
@@ -276,13 +273,15 @@ export default function MisReservas() {
   };
 
   // ── Repetir ─────────────────────────────────────────────────────────────────
-  const handleRepetir = (r: Reserva) => { setRepeatReserva(r); setRepeatSuccess(false); setRepeatModalOpen(true); };
+  const handleRepetir = (r: Reserva) => {
+    setRepeatReserva(r); setRepeatSuccess(false); setRepeatModalOpen(true);
+  };
   const confirmarRepeticion = async () => {
     if (!repeatReserva || repeating) return;
     setRepeating(true);
     try {
-      const token   = localStorage.getItem("token");
-      const rawId   = localStorage.getItem("idUsuario");
+      const token = localStorage.getItem("token");
+      const rawId = localStorage.getItem("idUsuario");
       if (!token || !rawId) { navigate("/login"); return; }
       const tipoServicio = getTipoServicio(repeatReserva.tipoReservaNombre);
       const body = {
@@ -340,16 +339,13 @@ export default function MisReservas() {
   );
 
   // ── Card ────────────────────────────────────────────────────────────────────
-  const ReservaCard = ({
-    r, tab: cardTab,
-  }: { r: Reserva; tab: Tab }) => {
+  const ReservaCard = ({ r, cardTab }: { r: Reserva; cardTab: Tab }) => {
     const [confirmElim, setConfirmElim] = useState(false);
-    const puedeCancelar = puedeCancel(r.fechaReserva);
+    const cancelable = puedeCancel(r.fechaReserva);
 
     return (
       <div className="bg-white/75 backdrop-blur border border-white/60 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
         <div className="p-5 flex items-start gap-4">
-
           <div className="shrink-0 w-12 h-12 rounded-2xl bg-teal-900/10 flex items-center justify-center text-teal-900">
             {getTipoIcon(r.tipoReservaNombre)}
           </div>
@@ -378,15 +374,13 @@ export default function MisReservas() {
               <p className="text-teal-600/60 text-[10px] font-bold mt-0.5 uppercase tracking-wider">total</p>
             </div>
 
-            {/* ── PESTAÑA PENDIENTES ── */}
+            {/* PENDIENTES */}
             {cardTab === "pendientes" && (
               <>
                 <button onClick={() => handlePagar(r)}
                   className="flex items-center gap-1.5 text-[10px] font-black px-3 py-2 rounded-xl bg-teal-900 text-white hover:bg-teal-700 transition-all shadow-md">
                   <CreditCard size={12}/> Pagar
                 </button>
-
-                {/* Eliminar con confirmación */}
                 {confirmElim ? (
                   <div className="flex items-center gap-1">
                     <button onClick={() => setConfirmElim(false)}
@@ -395,7 +389,7 @@ export default function MisReservas() {
                     </button>
                     <button onClick={() => handleEliminar(r.idReserva)}
                       className="text-[10px] font-bold px-2 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all">
-                      Sí, eliminar
+                      Sí
                     </button>
                   </div>
                 ) : (
@@ -407,28 +401,22 @@ export default function MisReservas() {
               </>
             )}
 
-            {/* ── PESTAÑA CONFIRMADAS ── */}
+            {/* CONFIRMADAS */}
             {cardTab === "confirmadas" && (
               <>
                 <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
                   <BadgeCheck size={12}/> Pagada
                 </span>
-
-                {/* Cancelar: solo si falta más de 1 día */}
-                {puedeCancelar ? (
-                  <button onClick={() => abrirCancelModal(r)}
-                    className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 border border-red-100 transition-all">
-                    <Ban size={11}/> Cancelar
-                  </button>
-                ) : (
-                  <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-xl bg-gray-50 text-gray-400 border border-gray-100">
-                    <AlertTriangle size={11}/> Sin cancelación
-                  </span>
-                )}
+                {/* ✅ Botón cancelar siempre visible */}
+                {/* Al pulsar comprueba si se puede cancelar */}
+                <button onClick={() => setCancelReserva(r)}
+                  className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 border border-red-100 transition-all">
+                  <Ban size={11}/> Cancelar
+                </button>
               </>
             )}
 
-            {/* ── PESTAÑA HISTORIAL ── */}
+            {/* HISTORIAL */}
             {cardTab === "historial" && (
               <button onClick={() => handleRepetir(r)}
                 className="flex items-center gap-1.5 text-[10px] font-black px-3 py-2 rounded-xl bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 transition-all">
@@ -446,9 +434,8 @@ export default function MisReservas() {
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* Toast */}
       {pagoToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[300] bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm max-w-sm text-center animate-in fade-in">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[300] bg-teal-900 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm max-w-sm text-center">
           {pagoToast}
         </div>
       )}
@@ -456,7 +443,6 @@ export default function MisReservas() {
       <div className="min-h-screen flex flex-col font-sans"
         style={{ background: "linear-gradient(135deg,#1cb5b0 0%,#e9fc9e 50%,#1cb5b0 100%)" }}>
 
-        {/* Header */}
         <header className="sticky top-0 z-20 px-4 pt-4 pb-2">
           <div className="max-w-3xl mx-auto bg-white/70 backdrop-blur-md border border-white/50 rounded-2xl px-4 py-3 flex items-center justify-between shadow-lg">
             <Link to="/" className="flex items-center gap-2 text-teal-900 font-black text-sm hover:text-teal-600 transition-colors">
@@ -473,10 +459,8 @@ export default function MisReservas() {
         <main className="flex-grow px-4 py-6">
           <div className="max-w-3xl mx-auto space-y-4">
 
-            {/* ── 3 PESTAÑAS ── */}
+            {/* 3 PESTAÑAS */}
             <div className="flex gap-1.5 bg-white/40 backdrop-blur p-1.5 rounded-2xl border border-white/50">
-
-              {/* Pendientes */}
               <button onClick={() => setTab("pendientes")}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   tab === "pendientes" ? "bg-amber-500 text-white shadow-lg" : "text-teal-800 hover:bg-white/60"
@@ -491,7 +475,6 @@ export default function MisReservas() {
                 )}
               </button>
 
-              {/* Confirmadas */}
               <button onClick={() => setTab("confirmadas")}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   tab === "confirmadas" ? "bg-emerald-600 text-white shadow-lg" : "text-teal-800 hover:bg-white/60"
@@ -506,7 +489,6 @@ export default function MisReservas() {
                 )}
               </button>
 
-              {/* Historial */}
               <button onClick={() => setTab("historial")}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   tab === "historial" ? "bg-teal-900 text-white shadow-lg" : "text-teal-800 hover:bg-white/60"
@@ -521,110 +503,101 @@ export default function MisReservas() {
               </button>
             </div>
 
-            {/* ── TAB PENDIENTES ── */}
+            {/* TAB PENDIENTES */}
             {tab === "pendientes" && (
-              <>
-                {pendientes.length === 0 ? (
-                  <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
-                    <PackageOpen size={52} className="text-teal-900/30"/>
-                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas pendientes</p>
-                    <Link to="/" className="bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all">
-                      Explorar destinos
-                    </Link>
-                  </div>
-                ) : (
-                  <>
-                    <div className="space-y-4">
-                      {pendientes.map(r => <ReservaCard key={r.idReserva} r={r} tab="pendientes"/>)}
-                    </div>
-
-                    {/* Panel pagar todo */}
-                    <div className="bg-white/80 backdrop-blur border border-white/60 rounded-3xl shadow-lg p-5">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <div>
-                          <p className="text-teal-900/50 text-[10px] font-black uppercase tracking-widest">
-                            {pendientes.length} reserva{pendientes.length !== 1 ? "s" : ""} pendiente{pendientes.length !== 1 ? "s" : ""}
-                          </p>
-                          <p className="text-teal-900 font-black text-3xl mt-0.5">{totalPendiente.toFixed(2)} €</p>
-                          <p className="text-teal-600/50 text-[9px] font-bold uppercase tracking-widest mt-1">
-                            Paga una a una o todas a la vez
-                          </p>
-                        </div>
-                        <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
-                          <span className="text-2xl">💳</span>
-                        </div>
-                      </div>
-                      <button onClick={handlePagarTodo}
-                        className="w-full bg-teal-900 hover:bg-teal-800 text-white rounded-2xl py-4 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
-                        <CreditCard size={18}/>
-                        Pagar todo — {totalPendiente.toFixed(2)} €
-                      </button>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-
-            {/* ── TAB CONFIRMADAS ── */}
-            {tab === "confirmadas" && (
-              <>
-                {confirmadas.length === 0 ? (
-                  <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
-                    <CheckCircle2 size={52} className="text-teal-900/30"/>
-                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas confirmadas</p>
-                    <p className="text-teal-900/40 text-xs font-bold text-center">
-                      Cuando pagues una reserva aparecerá aquí.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="bg-teal-50/60 border border-teal-100 rounded-2xl px-4 py-3 flex items-center gap-2">
-                      <AlertTriangle size={14} className="text-amber-500 shrink-0"/>
-                      <p className="text-teal-700 text-[10px] font-bold">
-                        Puedes cancelar una reserva siempre que falte <strong>más de 1 día</strong> para la fecha de entrada.
-                        El reembolso se procesa en 3-5 días hábiles.
-                      </p>
-                    </div>
-                    <div className="space-y-4">
-                      {confirmadas.map(r => <ReservaCard key={r.idReserva} r={r} tab="confirmadas"/>)}
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-
-            {/* ── TAB HISTORIAL ── */}
-            {tab === "historial" && (
-              <>
-                {historial.length === 0 ? (
-                  <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
-                    <History size={52} className="text-teal-900/30"/>
-                    <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">Aún no tienes historial</p>
-                    <p className="text-teal-900/40 text-xs font-bold text-center">
-                      Las reservas completadas y canceladas aparecerán aquí.
-                    </p>
-                  </div>
-                ) : (
+              pendientes.length === 0 ? (
+                <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
+                  <PackageOpen size={52} className="text-teal-900/30"/>
+                  <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas pendientes</p>
+                  <Link to="/" className="bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all">
+                    Explorar destinos
+                  </Link>
+                </div>
+              ) : (
+                <>
                   <div className="space-y-4">
-                    {historial.map(r => <ReservaCard key={r.idReserva} r={r} tab="historial"/>)}
+                    {pendientes.map(r => <ReservaCard key={r.idReserva} r={r} cardTab="pendientes"/>)}
                   </div>
-                )}
-              </>
+                  <div className="bg-white/80 backdrop-blur border border-white/60 rounded-3xl shadow-lg p-5">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <p className="text-teal-900/50 text-[10px] font-black uppercase tracking-widest">
+                          {pendientes.length} reserva{pendientes.length !== 1 ? "s" : ""} pendiente{pendientes.length !== 1 ? "s" : ""}
+                        </p>
+                        <p className="text-teal-900 font-black text-3xl mt-0.5">{totalPendiente.toFixed(2)} €</p>
+                        <p className="text-teal-600/50 text-[9px] font-bold uppercase tracking-widest mt-1">
+                          Paga una a una o todas a la vez
+                        </p>
+                      </div>
+                      <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
+                        <span className="text-2xl">💳</span>
+                      </div>
+                    </div>
+                    <button onClick={handlePagarTodo}
+                      className="w-full bg-teal-900 hover:bg-teal-800 text-white rounded-2xl py-4 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
+                      <CreditCard size={18}/>
+                      Pagar todo — {totalPendiente.toFixed(2)} €
+                    </button>
+                  </div>
+                </>
+              )
+            )}
+
+            {/* TAB CONFIRMADAS */}
+            {tab === "confirmadas" && (
+              confirmadas.length === 0 ? (
+                <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
+                  <CheckCircle2 size={52} className="text-teal-900/30"/>
+                  <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas confirmadas</p>
+                  <p className="text-teal-900/40 text-xs font-bold text-center">
+                    Cuando pagues una reserva aparecerá aquí hasta el día de entrada.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="bg-teal-50/60 border border-teal-100 rounded-2xl px-4 py-3 flex items-center gap-2">
+                    <AlertTriangle size={14} className="text-amber-500 shrink-0"/>
+                    <p className="text-teal-700 text-[10px] font-bold">
+                      Puedes cancelar hasta las <strong>00:00 del día de la reserva</strong>.
+                      Después ya no es posible cancelar. El reembolso tarda 3-5 días hábiles.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    {confirmadas.map(r => <ReservaCard key={r.idReserva} r={r} cardTab="confirmadas"/>)}
+                  </div>
+                </>
+              )
+            )}
+
+            {/* TAB HISTORIAL */}
+            {tab === "historial" && (
+              historial.length === 0 ? (
+                <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
+                  <History size={52} className="text-teal-900/30"/>
+                  <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">Aún no tienes historial</p>
+                  <p className="text-teal-900/40 text-xs font-bold text-center">
+                    Las reservas completadas y canceladas aparecerán aquí.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {historial.map(r => <ReservaCard key={r.idReserva} r={r} cardTab="historial"/>)}
+                </div>
+              )
             )}
 
           </div>
         </main>
       </div>
 
-      {/* ── Modal CANCELAR ── */}
-      {cancelModalId && cancelReserva && (
+      {/* Modal CANCELAR */}
+      {cancelReserva && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-teal-950/70 backdrop-blur-md p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-8 relative">
-            <button onClick={() => { setCancelModalId(null); setCancelReserva(null); }}
+            <button onClick={() => setCancelReserva(null)}
               className="absolute top-6 right-6 text-teal-900/40 hover:text-teal-900">
               <X size={24}/>
             </button>
-
             <div className="text-center mb-6">
               <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Ban size={28} className="text-red-500"/>
@@ -632,8 +605,7 @@ export default function MisReservas() {
               <h2 className="text-2xl font-black text-teal-900 uppercase tracking-tight">Cancelar reserva</h2>
               <p className="text-teal-900/50 text-sm mt-1 font-bold">{cancelReserva.servicioNombre}</p>
             </div>
-
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-6 space-y-2">
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-4 space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="font-black text-red-400 uppercase tracking-widest">Reserva</span>
                 <span className="font-black text-teal-900">#{cancelReserva.idReserva}</span>
@@ -647,16 +619,23 @@ export default function MisReservas() {
                 <span className="font-black text-emerald-600">{Number(cancelReserva.precioTotal).toFixed(2)} €</span>
               </div>
             </div>
-
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-6">
-              <p className="text-amber-700 text-xs font-semibold">
-                ⚠️ El reembolso de <strong>{Number(cancelReserva.precioTotal).toFixed(2)} €</strong> se procesará
-                en <strong>3-5 días hábiles</strong> por el mismo método de pago utilizado.
-              </p>
-            </div>
-
+            {puedeCancel(cancelReserva.fechaReserva) ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-6">
+                <p className="text-amber-700 text-xs font-semibold">
+                  ⚠️ El reembolso de <strong>{Number(cancelReserva.precioTotal).toFixed(2)} €</strong> se procesará
+                  en <strong>3-5 días hábiles</strong> por el mismo método de pago.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 mb-6">
+                <p className="text-red-700 text-xs font-semibold">
+                  ❌ <strong>No se puede cancelar.</strong> Hoy es el día de la reserva o ya pasó.
+                  El período de cancelación ha expirado.
+                </p>
+              </div>
+            )}
             <div className="flex gap-3">
-              <button onClick={() => { setCancelModalId(null); setCancelReserva(null); }}
+              <button onClick={() => setCancelReserva(null)}
                 className="flex-1 py-4 text-gray-400 font-bold text-[11px] uppercase tracking-widest">
                 Volver
               </button>
@@ -669,7 +648,7 @@ export default function MisReservas() {
         </div>
       )}
 
-      {/* ── Modal REPETIR ── */}
+      {/* Modal REPETIR */}
       {repeatModalOpen && repeatReserva && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-teal-950/70 backdrop-blur-md p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-8 relative">
@@ -677,7 +656,6 @@ export default function MisReservas() {
               className="absolute top-6 right-6 text-teal-900/40 hover:text-teal-900">
               <X size={24}/>
             </button>
-
             {repeatSuccess ? (
               <div className="text-center py-4">
                 <CheckCircle2 size={52} className="text-teal-500 mx-auto mb-4"/>
@@ -693,23 +671,23 @@ export default function MisReservas() {
                   <h2 className="text-2xl font-black text-teal-900 uppercase tracking-tight">Repetir reserva</h2>
                   <p className="text-teal-900/50 text-sm mt-1 font-bold">Se creará una nueva reserva idéntica</p>
                 </div>
-                <div className="bg-teal-50 rounded-2xl p-5 mb-6 space-y-2">
-                  <div className="flex justify-between items-center">
+                <div className="bg-teal-50 rounded-2xl p-5 mb-4 space-y-2">
+                  <div className="flex justify-between">
                     <span className="text-[10px] font-black text-teal-500 uppercase tracking-widest">Servicio</span>
-                    <span className="text-sm font-black text-teal-900 text-right max-w-[200px] truncate">{repeatReserva.servicioNombre}</span>
+                    <span className="text-sm font-black text-teal-900 truncate max-w-[200px]">{repeatReserva.servicioNombre}</span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between">
                     <span className="text-[10px] font-black text-teal-500 uppercase tracking-widest">Tipo</span>
                     <span className="text-xs font-bold text-teal-700">{repeatReserva.tipoReservaNombre}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-teal-100 pt-2">
+                  <div className="flex justify-between border-t border-teal-100 pt-2">
                     <span className="text-[10px] font-black text-teal-500 uppercase tracking-widest">Precio</span>
                     <span className="text-xl font-black text-teal-900">{Number(repeatReserva.precioTotal).toFixed(2)} €</span>
                   </div>
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-6">
                   <p className="text-amber-700 text-xs font-semibold">
-                    ⚠️ La nueva reserva quedará en <strong>PENDIENTE</strong>. Podrás pagarla desde la pestaña Pendientes.
+                    ⚠️ La nueva reserva quedará en <strong>PENDIENTE</strong>. Podrás pagarla desde Pendientes.
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -728,7 +706,7 @@ export default function MisReservas() {
         </div>
       )}
 
-      {/* Modal de pago */}
+      {/* Modal PAGO */}
       {payReserva && (
         <PaymentModal
           isOpen={payModalOpen}

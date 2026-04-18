@@ -39,10 +39,7 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired private ReservaRepository reservaRepository;
     @Autowired private UsuarioRepository usuarioRepository;
 
-    // ── Convierte una fila Object[] de SQL nativo a ReservaListDTO ───────────
-    // Columnas: 0=idReserva, 1=servicioNombre, 2=precioTotal, 3=estadoNombre,
-    //           4=tipoReservaNombre, 5=fechaReserva, 6=idServicio,
-    //           7=idTipoReserva, 8=precioBase
+    // ── Convierte Object[] de SQL nativo a ReservaListDTO ────────────────────
     private ReservaListDTO mapRow(Object[] row) {
         ReservaListDTO dto = new ReservaListDTO();
         dto.setIdReserva(row[0] != null ? ((Number) row[0]).intValue() : null);
@@ -50,7 +47,6 @@ public class ReservaServiceImpl implements ReservaService {
         dto.setPrecioTotal(row[2] != null ? new BigDecimal(row[2].toString()) : null);
         dto.setEstadoNombre(row[3] != null ? row[3].toString() : null);
         dto.setTipoReservaNombre(row[4] != null ? row[4].toString() : null);
-        // fecha_reserva viene como java.sql.Date desde JDBC
         if (row[5] != null) {
             dto.setFechaReserva(((java.sql.Date) row[5]).toLocalDate());
         }
@@ -76,7 +72,7 @@ public class ReservaServiceImpl implements ReservaService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getIdUsuario()));
 
         TipoReservaEntity tipo = tipoReservaRepository.findById(dto.getIdTipoReserva())
-                .orElseThrow(() -> new RuntimeException("Tipo de reserva no encontrado: " + dto.getIdTipoReserva()));
+                .orElseThrow(() -> new RuntimeException("Tipo no encontrado: " + dto.getIdTipoReserva()));
 
         EstadoEntity estado = estadoRepository.findById(dto.getIdEstado())
                 .orElseThrow(() -> new RuntimeException("Estado no encontrado: " + dto.getIdEstado()));
@@ -151,7 +147,7 @@ public class ReservaServiceImpl implements ReservaService {
                 yield trenRepository.save(t);
             }
 
-            default -> throw new RuntimeException("Tipo de servicio no reconocido: " + s.getTipo());
+            default -> throw new RuntimeException("Tipo no reconocido: " + s.getTipo());
         };
 
         if (s.getLatitud() != null && s.getLongitud() != null) {
@@ -170,7 +166,14 @@ public class ReservaServiceImpl implements ReservaService {
         reserva.setTipoReserva(tipo);
         reserva.setEstado(estado);
         reserva.setPrecioTotal(dto.getPrecioTotal());
-        reserva.setFechaReserva(LocalDate.now());
+
+        // ✅ CLAVE: usar la fecha del servicio si viene, si no usar hoy como fallback
+        // fechaReserva = fecha de INICIO del servicio (check-in, salida, etc.)
+        // Esta es la fecha que se usa para la lógica de cancelación en el frontend
+        LocalDate fechaAGuardar = dto.getFechaServicio() != null
+                ? dto.getFechaServicio()
+                : LocalDate.now();
+        reserva.setFechaReserva(fechaAGuardar);
 
         return reservaRepository.save(reserva);
     }

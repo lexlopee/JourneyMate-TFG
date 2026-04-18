@@ -65,11 +65,13 @@ export const ActivityDetailsModal = ({
         idTipoReserva: 7,
         idEstado: 1,
         precioTotal: precio,
+        fechaServicio: searchData?.startDate ?? null,
         servicio: {
           tipo: 'ACTIVIDAD',
           nombre: nombre,
           precioBase: precio,
-          descripcion: details?.shortDescription || "Actividad turística"
+          descripcion: details?.shortDescription || "Actividad turística",
+          fechaSalida: searchData?.startDate ?? null,
         },
       };
 

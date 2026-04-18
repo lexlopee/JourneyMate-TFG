@@ -153,13 +153,27 @@ export default function MisReservas() {
       if (rH.ok) {
         const todas: Reserva[] = await rH.json();
 
-        // ✅ CONFIRMADAS: todas las que tienen estado CONFIRMADA
-        // Se quedan aquí hasta que el backend las marque COMPLETADA (pasa la fecha)
+        // Auto-mover al historial: CONFIRMADA con fecha ya pasada → marcar COMPLETADA en backend
+        const porCompletar = todas.filter(r =>
+          r.estadoNombre?.toLowerCase() === "confirmada" && estaExpirada(r.fechaReserva)
+        );
+        for (const r of porCompletar) {
+          fetch(`http://localhost:8080/api/v1/reservas/${r.idReserva}/estado`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ estado: "COMPLETADA" }),
+          }).catch(() => {});
+          r.estadoNombre = "COMPLETADA"; // actualizar localmente sin recargar
+        }
+
+        // ✅ CONFIRMADAS: pagadas cuya fecha AÚN NO ha llegado
         setConfirmadas(
-          todas.filter(r => r.estadoNombre?.toLowerCase() === "confirmada")
+          todas.filter(r =>
+            r.estadoNombre?.toLowerCase() === "confirmada" && !estaExpirada(r.fechaReserva)
+          )
         );
 
-        // ✅ HISTORIAL: solo COMPLETADA y CANCELADA
+        // ✅ HISTORIAL: COMPLETADA + CANCELADA + CONFIRMADAS con fecha pasada
         setHistorial(
           todas.filter(r => {
             const e = r.estadoNombre?.toLowerCase();

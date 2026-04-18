@@ -69,12 +69,15 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
       const body = {
         idUsuario: Number(idUsuario), idTipoReserva: 1, idEstado: 1,
         precioTotal: hotelBasicData.precio,
+        // ✅ Fecha de inicio del servicio (check-in seleccionado)
+        fechaServicio: searchData?.startDate ?? null,
         servicio: {
           tipo: 'HOTEL', nombre: hotelBasicData.nombre ?? 'Hotel sin nombre',
           precioBase: hotelBasicData.precio, descripcion: hotelBasicData.reviewWord ?? null,
           estrellas: hotelBasicData.propertyClass >= 1 ? hotelBasicData.propertyClass : null,
           latitud: hotelBasicData.latitud ?? null, longitud: hotelBasicData.longitud ?? null,
           descripcion_direccion: hotelData?.address ?? hotelBasicData?.direccion ?? null,
+          fechaSalida: searchData?.startDate ?? null,
         },
       };
       const response = await fetch('http://localhost:8080/api/v1/reservas/completa', {

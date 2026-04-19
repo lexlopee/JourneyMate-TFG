@@ -93,7 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
           </Link>
 
           {/* TABS DESKTOP */}
-          <div className="hidden lg:flex items-center gap-0.5 bg-teal-900/5 p-1 rounded-2xl border border-teal-900/5 flex-1 mx-3 xl:mx-6">
+          <div className="hidden lg:flex items-center gap-0.5 bg-teal-900/5 p-1 rounded-2xl border border-teal-900/5 mx-2">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => goTab(tab.id)}
                 className={`relative flex items-center gap-1.5 px-2.5 xl:px-3 py-2 rounded-xl
@@ -107,7 +107,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
           </div>
 
           {/* TABS TABLET */}
-          <div className="hidden md:flex lg:hidden items-center gap-1 flex-1 justify-center mx-2">
+          <div className="hidden md:flex lg:hidden items-center gap-1 mx-2">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => goTab(tab.id)} title={tab.label}
                 className={`relative p-2 rounded-xl transition-all duration-200

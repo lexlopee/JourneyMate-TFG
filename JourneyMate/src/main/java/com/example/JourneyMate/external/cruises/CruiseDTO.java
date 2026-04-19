@@ -41,7 +41,10 @@ public class CruiseDTO {
     // Tipos de cabinas (Interior, Balcón, etc.)
     private List<CabinaDTO> cabinas;
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ItinerarioDTO {
         private Integer dia;
         private String puerto;
@@ -51,7 +54,10 @@ public class CruiseDTO {
         private String tipo; // "PORT" o "CRUISING"
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CabinaDTO {
         private String tipo; // Interior, Balcony, etc.
         private String descripcion;

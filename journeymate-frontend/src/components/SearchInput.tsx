@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Flatpickr from "react-flatpickr";
 import { Spanish } from "flatpickr/dist/l10n/es";
-import { X } from "lucide-react"; // Importamos el icono para borrar
+import { X } from "lucide-react";
 
 export const SearchInput = ({
   label,
@@ -9,9 +9,27 @@ export const SearchInput = ({
   placeholder,
   val,
   type = "text",
-  onChange
+  onChange,
+  fieldName,
+  min,
+  onEnter, // ✅ NUEVO: callback cuando se termina de escribir (para auto-avance)
 }: any) => {
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Auto-avance al siguiente campo cuando el usuario deja de escribir ──
+  const handleTextChange = (value: string) => {
+    const clean = value.replace(/_/g, " ");
+    onChange(clean);
+
+    // Si hay callback de "enter" (auto-avance), dispararlo con debounce
+    if (onEnter && clean.length >= 2) {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        onEnter();
+      }, 700); // 700ms tras dejar de escribir
+    }
+  };
 
   const fetchSuggestions = async (text: string) => {
     if (label !== "Destino" || text.length < 2) {
@@ -28,7 +46,15 @@ export const SearchInput = ({
   };
 
   return (
-    <div className="relative search-input-field bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all group shadow-sm hover:shadow-md">
+    <div
+      className={[
+        // ✅ SIN shadow-sm ni hover:shadow-md para evitar la sombra interior bug
+        "relative search-input-field",
+        "bg-white/90 rounded-2xl p-3 text-left",
+        "border border-teal-100/50",
+        "hover:bg-white transition-all group",
+      ].join(" ")}
+    >
       <span className="text-[9px] font-black text-teal-800/40 block mb-1 uppercase tracking-widest">
         {label}
       </span>
@@ -46,31 +72,30 @@ export const SearchInput = ({
                 dateFormat: "Y-m-d",
                 altInput: true,
                 altFormat: "d/m/Y",
-                minDate: "today",
+                minDate: min || "today",
                 locale: Spanish,
-                allowInput: true, // Permite borrar con el teclado
+                allowInput: true,
                 monthSelectorType: "static",
               }}
               placeholder={placeholder}
               onChange={(dates) => {
                 if (dates.length > 0) {
-                  const localDate = dates[0].toLocaleDateString('en-CA');
+                  const localDate = dates[0].toLocaleDateString("en-CA");
                   onChange(localDate);
                 } else {
                   onChange("");
                 }
               }}
               className="bg-transparent border-none outline-none w-full text-[11px] font-bold cursor-pointer"
+              data-field={fieldName}
             />
-            
-            {/* BOTÓN "X" PARA BORRAR LA FECHA */}
             {val && (
               <button
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  onChange(""); // Limpiamos el valor
+                  onChange("");
                 }}
                 className="ml-1 p-1 hover:bg-teal-100 rounded-full text-teal-400 hover:text-teal-600 transition-colors z-10"
               >
@@ -83,9 +108,8 @@ export const SearchInput = ({
             type="text"
             value={val}
             onChange={(e) => {
-              const value = e.target.value.replace(/_/g, " ");
-              onChange(value);
-              fetchSuggestions(value);
+              handleTextChange(e.target.value);
+              fetchSuggestions(e.target.value);
             }}
             placeholder={placeholder}
             className="bg-transparent border-none outline-none w-full text-[11px] font-bold placeholder:text-teal-900/20"
@@ -93,7 +117,7 @@ export const SearchInput = ({
         )}
       </div>
 
-      {/* SUGERENCIAS (AUTOCOMPLETE) */}
+      {/* Sugerencias autocomplete */}
       {suggestions.length > 0 && (
         <div className="absolute top-full left-0 w-full bg-white rounded-xl shadow-xl mt-2 z-50 overflow-hidden border border-teal-50">
           {suggestions.map((s, i) => (

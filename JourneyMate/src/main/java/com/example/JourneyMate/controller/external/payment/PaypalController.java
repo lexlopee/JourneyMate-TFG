@@ -5,7 +5,6 @@ import com.example.JourneyMate.dao.booking.ReservaRepository;
 import com.example.JourneyMate.dao.payment.MetodoRepository;
 import com.example.JourneyMate.dao.payment.PagoRepository;
 import com.example.JourneyMate.dto.pago.PagoRequestDTO;
-import com.example.JourneyMate.entity.booking.EstadoEntity;
 import com.example.JourneyMate.entity.booking.ReservaEntity;
 import com.example.JourneyMate.entity.payment.MetodoEntity;
 import com.example.JourneyMate.entity.payment.PagoEntity;
@@ -23,7 +22,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -47,8 +49,8 @@ public class PaypalController {
     /**
      * Crea el pago PayPal.
      * Acepta:
-     *   - { "idReserva": 5 }          → pago individual
-     *   - { "reservaIds": [5, 6, 7] } → pago múltiple (suma todos)
+     * - { "idReserva": 5 }          → pago individual
+     * - { "reservaIds": [5, 6, 7] } → pago múltiple (suma todos)
      */
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody PagoRequestDTO request) {
@@ -139,7 +141,7 @@ public class PaypalController {
     @GetMapping("/success")
     public ResponseEntity<Void> success(
             @RequestParam("paymentId") String paymentId,
-            @RequestParam("PayerID")   String payerId,
+            @RequestParam("PayerID") String payerId,
             @RequestParam("reservaId") Integer reservaId) {
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -164,8 +166,8 @@ public class PaypalController {
      */
     @GetMapping("/success-multiple")
     public ResponseEntity<Void> successMultiple(
-            @RequestParam("paymentId")  String paymentId,
-            @RequestParam("PayerID")    String payerId,
+            @RequestParam("paymentId") String paymentId,
+            @RequestParam("PayerID") String payerId,
             @RequestParam("reservaIds") String reservaIds) {
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -175,8 +177,10 @@ public class PaypalController {
                 return new ResponseEntity<>(headers, HttpStatus.FOUND);
             }
             for (String idStr : reservaIds.split(",")) {
-                try { procesarPago(Integer.parseInt(idStr.trim())); }
-                catch (Exception ignored) {}
+                try {
+                    procesarPago(Integer.parseInt(idStr.trim()));
+                } catch (Exception ignored) {
+                }
             }
             String primerIdStr = reservaIds.split(",")[0].trim();
             headers.add("Location",
@@ -223,7 +227,9 @@ public class PaypalController {
                         reserva.getUsuario().getEmail(),
                         reserva.getUsuario().getNombre(),
                         reserva.getIdReserva(),
-                        reserva.getPrecioTotal().doubleValue()
+                        reserva.getPrecioTotal().doubleValue(),
+                        reserva.getTipoReserva().getNombre(),
+                        reserva.getServicio().getNombre()
                 );
             } catch (Exception e) {
                 System.err.println("Email error reserva " + idReserva + ": " + e.getMessage());

@@ -200,13 +200,13 @@ function App() {
       
       <Navbar activeTab={activeSection} onTabChange={setActiveSection} />
 
-      <main className="relative z-10 pt-24 sm:pt-28 pb-20 px-4 sm:px-6 flex flex-col items-center flex-grow">
+      <main className="relative z-10 pt-24 sm:pt-28 pb-40 px-4 sm:px-6 flex flex-col items-center flex-grow">
         
         {/* ICONO SECCIÓN */}
         <div ref={iconRef} className="mb-8 bg-white/20 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/40 shadow-2xl">
           {activeSection === 'alojamiento' && <Hotel size={70} className="text-teal-900" />}
           {activeSection === 'vuelos' && <Plane size={70} className="text-teal-900" />}
-          {activeSection === 'coches' && <Car3D carType={searchData.carType} height={180} interactive={true} showLabel={true} className="w-44" />}
+          {activeSection === 'coches' && <Car3D carType={searchData.carType} height={100} interactive={true} showLabel={false} className="w-24" />}
           {activeSection === 'actividades' && <Ticket size={70} className="text-teal-900" />}
           {activeSection === 'cruceros' && <Ship size={70} className="text-teal-900" />}
           {activeSection === 'trenes' && <Train size={70} className="text-teal-900" />}
@@ -250,7 +250,7 @@ function App() {
         )}
 
         {/* LISTADO DE RESULTADOS */}
-        <div ref={resultsRef} className="w-full mt-12 max-w-7xl">
+        <div ref={resultsRef} className="w-full mt-16 max-w-7xl mb-16">
           <ResultsList 
             results={results} 
             activeSection={activeSection} 

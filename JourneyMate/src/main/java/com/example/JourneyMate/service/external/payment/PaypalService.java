@@ -59,8 +59,8 @@ public class PaypalService {
      * El precio es la suma de todas. Los IDs se pasan en el returnUrl
      * para que el controller los confirme todos.
      *
-     * @param reservaVirtual  entidad con el precio total sumado (no persistida)
-     * @param reservaIdsStr   IDs separados por coma, ej: "5,6,7"
+     * @param reservaVirtual entidad con el precio total sumado (no persistida)
+     * @param reservaIdsStr  IDs separados por coma, ej: "5,6,7"
      */
     public Payment createPaymentMultiple(ReservaEntity reservaVirtual, String reservaIdsStr)
             throws PayPalRESTException {

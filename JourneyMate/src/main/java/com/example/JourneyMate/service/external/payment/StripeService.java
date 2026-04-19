@@ -50,8 +50,8 @@ public class StripeService {
      * El precio es la suma de todas. Los IDs se pasan en el successUrl
      * para que el controller los procese todos al volver.
      *
-     * @param reservaVirtual  entidad con el precio total sumado (no persistida)
-     * @param reservaIdsStr   IDs separados por coma, ej: "5,6,7"
+     * @param reservaVirtual entidad con el precio total sumado (no persistida)
+     * @param reservaIdsStr  IDs separados por coma, ej: "5,6,7"
      */
     public String createCheckoutSessionMultiple(ReservaEntity reservaVirtual, String reservaIdsStr) throws Exception {
         long amountInCents = reservaVirtual.getPrecioTotal().multiply(new BigDecimal(100)).longValue();

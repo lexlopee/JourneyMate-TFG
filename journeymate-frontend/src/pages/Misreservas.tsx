@@ -459,7 +459,7 @@ export default function MisReservas() {
 
         <header className="sticky top-0 z-20 px-4 pt-4 pb-2">
           <div className="max-w-3xl mx-auto bg-white/70 backdrop-blur-md border border-white/50 rounded-2xl px-4 py-3 flex items-center justify-between shadow-lg">
-            <Link to="/" className="flex items-center gap-2 text-teal-900 font-black text-sm hover:text-teal-600 transition-colors">
+            <Link to="/buscar" className="flex items-center gap-2 text-teal-900 font-black text-sm hover:text-teal-600 transition-colors">
               <ArrowLeft size={18}/> Volver
             </Link>
             <div className="text-center">
@@ -523,7 +523,7 @@ export default function MisReservas() {
                 <div className="bg-white/60 backdrop-blur rounded-3xl p-10 flex flex-col items-center gap-4 shadow-xl">
                   <PackageOpen size={52} className="text-teal-900/30"/>
                   <p className="text-teal-900/60 font-black uppercase tracking-widest text-sm text-center">No tienes reservas pendientes</p>
-                  <Link to="/" className="bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all">
+                  <Link to="/buscar" className="bg-teal-900 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-teal-800 transition-all">
                     Explorar destinos
                   </Link>
                 </div>

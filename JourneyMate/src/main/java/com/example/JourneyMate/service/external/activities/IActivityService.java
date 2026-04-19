@@ -5,7 +5,6 @@ import com.example.JourneyMate.external.activities.ActivityDetailsDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IActivityService {
 

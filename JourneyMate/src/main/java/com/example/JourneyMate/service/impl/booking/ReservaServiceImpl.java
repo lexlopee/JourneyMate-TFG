@@ -27,17 +27,28 @@ import java.util.stream.Collectors;
 @Service
 public class ReservaServiceImpl implements ReservaService {
 
-    @Autowired private EstadoRepository estadoRepository;
-    @Autowired private TipoReservaRepository tipoReservaRepository;
-    @Autowired private DireccionRepository direccionRepository;
-    @Autowired private HotelRepository hotelRepository;
-    @Autowired private ActividadRepository actividadRepository;
-    @Autowired private CruceroRepository cruceroRepository;
-    @Autowired private VTCRepository vtcRepository;
-    @Autowired private VueloRepository vueloRepository;
-    @Autowired private TrenRepository trenRepository;
-    @Autowired private ReservaRepository reservaRepository;
-    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired
+    private EstadoRepository estadoRepository;
+    @Autowired
+    private TipoReservaRepository tipoReservaRepository;
+    @Autowired
+    private DireccionRepository direccionRepository;
+    @Autowired
+    private HotelRepository hotelRepository;
+    @Autowired
+    private ActividadRepository actividadRepository;
+    @Autowired
+    private CruceroRepository cruceroRepository;
+    @Autowired
+    private VTCRepository vtcRepository;
+    @Autowired
+    private VueloRepository vueloRepository;
+    @Autowired
+    private TrenRepository trenRepository;
+    @Autowired
+    private ReservaRepository reservaRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     // ── Convierte Object[] de SQL nativo a ReservaListDTO ────────────────────
     private ReservaListDTO mapRow(Object[] row) {
@@ -57,7 +68,9 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    public List<ReservaEntity> findAll() { return reservaRepository.findAll(); }
+    public List<ReservaEntity> findAll() {
+        return reservaRepository.findAll();
+    }
 
     @Override
     public Optional<ReservaEntity> findById(Integer idReserva) {

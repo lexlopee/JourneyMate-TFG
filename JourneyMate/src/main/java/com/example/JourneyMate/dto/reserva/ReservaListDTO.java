@@ -12,10 +12,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ReservaListDTO {
     private Integer idReserva;
-    private String  servicioNombre;
+    private String servicioNombre;
     private BigDecimal precioTotal;
-    private String  estadoNombre;
-    private String  tipoReservaNombre;
+    private String estadoNombre;
+    private String tipoReservaNombre;
     private LocalDate fechaReserva;
     // ✅ NUEVOS: necesarios para el botón "Repetir reserva"
     private Integer idServicio;      // id del servicio original en BBDD

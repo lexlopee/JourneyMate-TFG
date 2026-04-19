@@ -83,7 +83,9 @@ public class StripeController {
                         reserva.getUsuario().getEmail(),
                         reserva.getUsuario().getNombre(),
                         reserva.getIdReserva(),
-                        reserva.getPrecioTotal().doubleValue()
+                        reserva.getPrecioTotal().doubleValue(),
+                        reserva.getTipoReserva().getNombre(),
+                        reserva.getServicio().getNombre()
                 );
             } catch (Exception e) {
                 System.err.println("Email error: " + e.getMessage());

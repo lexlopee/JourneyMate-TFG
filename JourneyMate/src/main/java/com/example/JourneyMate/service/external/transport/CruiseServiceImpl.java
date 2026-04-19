@@ -52,7 +52,7 @@ public class CruiseServiceImpl extends BaseExternalService implements ICruiseSer
                 .queryParam("departure_port", departurePort);
 
         if (currency != null && !currency.isEmpty()) builder.queryParam("currency", currency);
-        if (country  != null && !country.isEmpty())  builder.queryParam("country", country);
+        if (country != null && !country.isEmpty()) builder.queryParam("country", country);
 
         JsonNode body = executeGetRequest(builder.toUriString(), apiKey, apiHost);
         List<CruiseDTO> cruiseList = new ArrayList<>();

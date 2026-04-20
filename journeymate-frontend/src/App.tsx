@@ -90,6 +90,23 @@ function App() {
   const iconRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  // --- LEER QUERY PARAMS AL MONTAR (desde Home) ---
+  useEffect(() => {
+    const tab     = searchParams.get('tab') as Section | null;
+    const toId    = searchParams.get('toId');
+    const destText = searchParams.get('destText');
+
+    if (tab) setActiveSection(tab);
+
+    if (toId || destText) {
+      setSearchData(prev => ({
+        ...prev,
+        ...(toId     ? { toId }                              : {}),
+        ...(destText ? { destinationText: destText, destination: destText } : {}),
+      }));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // --- ANIMACIÓN DE ICONO ---
   useEffect(() => {
     if (iconRef.current) {

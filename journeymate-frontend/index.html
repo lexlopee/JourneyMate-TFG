@@ -8,6 +8,30 @@
     <link rel="apple-touch-icon" sizes="180x180"  href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JourneyMate</title>
+
+    <!--
+      ✅ Google Maps JavaScript API
+      IMPORTANTE: la clave se lee desde la variable de entorno de Vite.
+      En tu .env pon: VITE_GOOGLE_MAPS_KEY=AIza...tuClave...
+      El script se carga de forma diferida (loading=async) para no bloquear el render.
+    -->
+    <script>
+      // Exponemos la clave inyectada por Vite en tiempo de build
+      // para que HotelMap.tsx la pueda usar sin hardcodearla.
+      window.__GMAPS_KEY__ = "%VITE_GOOGLE_MAPS_KEY%";
+    </script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=%VITE_GOOGLE_MAPS_KEY%&libraries=marker&loading=async&callback=__gmapsReady__"
+      async
+      defer
+    ></script>
+    <script>
+      // Callback que Google Maps llama cuando termina de cargar.
+      // HotelMap.tsx escucha el evento 'gmaps:ready' para renderizar.
+      window.__gmapsReady__ = function () {
+        window.dispatchEvent(new Event('gmaps:ready'));
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>

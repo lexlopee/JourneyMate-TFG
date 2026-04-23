@@ -62,7 +62,7 @@ export const ActivityDetailsModal = ({
       // Estructura que requiere tu BBDD según el esquema que pasaste
       const body = {
         idUsuario: Number(idUsuario),
-        idTipoReserva: 7,
+        idTipoReserva: 6,
         idEstado: 1,
         precioTotal: precio,
         fechaServicio: searchData?.startDate ?? null,

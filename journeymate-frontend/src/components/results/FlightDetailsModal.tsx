@@ -48,7 +48,7 @@ export const FlightDetailsModal = ({ isOpen, onClose, details }: any) => {
       if (!fechaSalida || (isRoundTrip && !fechaReg)) { setLoginError('Error en las fechas del itinerario.'); return; }
 
       const body = {
-        idUsuario: Number(idUsuario), idTipoReserva: 4, idEstado: 1, precioTotal,
+        idUsuario: Number(idUsuario), idTipoReserva: 3, idEstado: 1, precioTotal,
         servicio: {
           tipo: 'VUELO',
           nombre: `${aerolinea} · ${primerSeg.departureAirport.code} ${isRoundTrip?'⇄':'→'} ${primerSeg.arrivalAirport.code}`,

@@ -1,15 +1,15 @@
 package com.example.JourneyMate.dto.mapper.service_type;
 
-import com.example.JourneyMate.dto.vtc.VTCRequestDTO;
-import com.example.JourneyMate.dto.vtc.VTCResponseDTO;
-import com.example.JourneyMate.entity.service_type.VTCEntity;
+import com.example.JourneyMate.dto.coche.CocheRequestDTO;
+import com.example.JourneyMate.dto.coche.CocheResponseDTO;
+import com.example.JourneyMate.entity.service_type.CocheEntity;
 
-public class VTCMapper {
+public class CocheMapper {
 
-    public static VTCEntity toEntity(VTCRequestDTO dto) {
+    public static CocheEntity toEntity(CocheRequestDTO dto) {
         if (dto == null) return null;
 
-        VTCEntity entity = new VTCEntity();
+        CocheEntity entity = new CocheEntity();
 
         // Ahora estos métodos transportan LocalDateTime
         entity.setHoraSalida(dto.getHoraSalida());
@@ -23,10 +23,10 @@ public class VTCMapper {
         return entity;
     }
 
-    public static VTCResponseDTO toDTO(VTCEntity entity) {
+    public static CocheResponseDTO toDTO(CocheEntity entity) {
         if (entity == null) return null;
 
-        VTCResponseDTO dto = new VTCResponseDTO();
+        CocheResponseDTO dto = new CocheResponseDTO();
         dto.setIdServicio(entity.getIdServicio());
 
         // Ahora estos métodos transportan LocalDateTime

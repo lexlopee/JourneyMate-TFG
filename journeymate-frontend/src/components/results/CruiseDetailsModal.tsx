@@ -67,7 +67,7 @@ export const CruiseDetailsModal = ({ isOpen, onClose, cruise, searchData }: any)
 
             const body = {
                 idUsuario: Number(localStorage.getItem('idUsuario')),
-                idTipoReserva: 3,
+                idTipoReserva: 2,
                 idEstado: 1,
     fechaServicio: fecha ?? null,
                 precioTotal: precioTotalCalculado,

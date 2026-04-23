@@ -1,4 +1,4 @@
-package com.example.JourneyMate.dto.vtc;
+package com.example.JourneyMate.dto.coche;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -7,9 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class VTCResponseDTO {
-    private Integer idServicio;
-
+public class CocheRequestDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime horaSalida;
 

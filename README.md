@@ -39,7 +39,8 @@ A continuación se muestra la arquitectura general del sistema:
 
 ## Modelo de datos
 Este es el modelo de datos utilizado por JourneyMate:
-<img width="2571" height="2314" alt="Diagrama_Estructura_TFG drawio" src="https://github.com/user-attachments/assets/fe67c080-e17b-47cf-b9e2-ae23e49c2625" />
+<img width="1391" height="1564" alt="Diagrama_Estructura_TFG drawio" src="https://github.com/user-attachments/assets/d1e0a2a1-dc55-438d-9949-c2508d8a3abe" />
+
 
 ### Entidades principales
 - Usuario

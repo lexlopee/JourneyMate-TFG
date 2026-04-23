@@ -22,8 +22,7 @@ public class ServicioTuristicoEntity {
     @Column(name = "precio_base")
     private BigDecimal precioBase;
 
-    // ELIMINADOS: tipo, descripcion, estrellas
-    // No existen en la tabla servicio_turistico del SQL.
-    // descripcion y estrellas viven en hotel/apartamento.
-    // tipo no existe en ninguna tabla.
+    // ✅ ELIMINADOS: tipo, descripcion, estrellas
+    // No existen en la tabla servicio_turistico del DDL.
+    // descripcion y estrellas son columnas de las tablas hijas (actividad, hotel).
 }

@@ -1,10 +1,9 @@
 INSERT INTO journeymate.tipo_reserva (nombre) VALUES
 ('HOTEL'),
-('COCHE'),
 ('CRUCERO'),
 ('VUELO'),
 ('TREN'),
-('VTC'),
+('COCHE'),
 ('ACTIVIDAD');
 INSERT INTO journeymate.estado (nombre) values
 ('PENDIENTE'),

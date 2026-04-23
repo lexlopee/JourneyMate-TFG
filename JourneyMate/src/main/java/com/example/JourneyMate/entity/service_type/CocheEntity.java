@@ -1,10 +1,7 @@
 package com.example.JourneyMate.entity.service_type;
 
 import com.example.JourneyMate.entity.service.ServicioTuristicoEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,23 +9,26 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "vtc", schema = "journeymate")
+@Table(name = "coche", schema = "journeymate")  // ✅ tabla renombrada de vtc a coche
 @PrimaryKeyJoinColumn(name = "id_servicio")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class VTCEntity extends ServicioTuristicoEntity {
+public class CocheEntity extends ServicioTuristicoEntity {
 
-    @Column(name = "hora_salida", columnDefinition = "DATETIME")
+    // ✅ TIMESTAMP en BD → LocalDateTime en Java
+    @Column(name = "hora_salida")
     private LocalDateTime horaSalida;
 
-    @Column(name = "hora_llegada", columnDefinition = "DATETIME")
+    @Column(name = "hora_llegada")
     private LocalDateTime horaLlegada;
 
+    // ✅ NUMERIC(10,2) → BigDecimal
     @Column(name = "precio")
     private BigDecimal precio;
 
+    // ✅ NUMERIC(6,2) → BigDecimal
     @Column(name = "distancia")
-    private BigDecimal distancia; // Coincide con NUMERIC(6,2)
+    private BigDecimal distancia;
 
     @Column(name = "marca")
     private String marca;

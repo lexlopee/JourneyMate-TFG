@@ -40,7 +40,7 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired
     private CruceroRepository cruceroRepository;
     @Autowired
-    private VTCRepository vtcRepository;
+    private CocheRepository cocheRepository;
     @Autowired
     private VueloRepository vueloRepository;
     @Autowired
@@ -125,15 +125,15 @@ public class ReservaServiceImpl implements ReservaService {
                 yield cruceroRepository.save(c);
             }
 
-            case "VTC" -> {
-                VTCEntity v = new VTCEntity();
+            case "VTC", "COCHE", "Coche", "coche" -> {
+                CocheEntity v = new CocheEntity();
                 v.setNombre(s.getNombre());
                 v.setPrecioBase(s.getPrecioBase());
                 v.setMarca(s.getMarca());
                 v.setModelo(s.getModelo());
                 v.setDistancia(s.getDistancia());
                 v.setPrecio(s.getPrecioBase());
-                yield vtcRepository.save(v);
+                yield cocheRepository.save(v);
             }
 
             case "VUELO" -> {

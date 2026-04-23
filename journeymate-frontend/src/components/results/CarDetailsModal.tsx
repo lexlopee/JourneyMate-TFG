@@ -57,11 +57,11 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
       const dropoffTimeStr = formatTimeForBackend(searchData?.dropoffTime, searchData?.dropOffTime);
 
       const body = {
-        idUsuario: Number(idUsuario), idTipoReserva: 6, idEstado: 1, precioTotal: car.price,
+        idUsuario: Number(idUsuario), idTipoReserva: 5, idEstado: 1, precioTotal: car.price,
         // ✅ Fecha de inicio del servicio (recogida del coche)
         fechaServicio: searchData?.startDate ?? null,
         servicio: {
-          tipo: 'VTC', nombre: car.carName ?? 'Coche de alquiler', precioBase: car.price,
+          tipo: 'COCHE', nombre: car.carName ?? 'Coche de alquiler', precioBase: car.price,
           descripcion: `${car.vendorName??''} · ${car.transmission??''} · ${car.seats??5} plazas`,
           marca: car.vendorName??null, modelo: car.carName??null,
           horaSalida:  `${searchData?.startDate} ${pickupTimeStr}`,

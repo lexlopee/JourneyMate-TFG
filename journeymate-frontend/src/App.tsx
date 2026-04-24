@@ -131,8 +131,8 @@ function App() {
 
   const handleSearch = async () => {
     if (activeSection === 'vuelos') {
-      if (!searchData.fromId || !searchData.toId) {
-        alert("Por favor, selecciona origen y destino.");
+      if (!searchData.toId) {
+        alert("Por favor, selecciona al menos un destino.");
         return;
       }
     } else if (activeSection !== 'coches' && !searchData.destinationText && !searchData.destination) {

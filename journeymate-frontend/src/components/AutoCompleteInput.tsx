@@ -98,7 +98,7 @@ export const AutocompleteInput = ({ label, placeholder, icon, value, onSelect }:
         <div className="absolute top-full left-0 min-w-75 md:w-full bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-teal-100 z-9999 max-h-72 overflow-y-auto p-2 mt-2 animate-in fade-in zoom-in-95 duration-200">
           {suggestions.map((item: any) => (
             <button
-              key={item.id}
+              key={item.id ?? item.placeId ?? item.place_id ?? item.name ?? Math.random()}
               type="button"
               onClick={() => {
                 setQuery(item.name);

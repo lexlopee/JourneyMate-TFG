@@ -124,7 +124,7 @@ export const ResultsList = ({
         {activeSection === 'alojamiento' &&
           sortedResults.map((item, index) => (
             <HotelCard
-              key={item.hotelId || index}
+              key={`hotel-${item.hotelId ?? index}`}
               hotel={item}
               onViewDetails={() => onViewDetails(item)}
               destination={destination?.replace(/_/g, ' ')}
@@ -135,7 +135,7 @@ export const ResultsList = ({
         {activeSection === 'vuelos' &&
           sortedResults.map((item, index) => (
             <FlightCard
-              key={item.token || index}
+              key={`flight-${item.token ?? index}`}
               flight={item}
               onViewDetails={() => onViewDetails(item)}
             />
@@ -157,7 +157,7 @@ export const ResultsList = ({
         {activeSection === 'actividades' &&
           sortedResults.map((item, index) => (
             <ActivityCard
-              key={item.idActividad || index}
+              key={`act-${item.idActividad ?? index}`}
               activity={item}
               onViewDetails={() => onBookActivity(item)}
             />
@@ -167,7 +167,7 @@ export const ResultsList = ({
         {activeSection === 'cruceros' &&
           sortedResults.map((item, index) => (
             <CruiseCard
-              key={index}
+              key={`cruise-${index}`}
               cruise={item}
               onViewDetails={() => onViewDetails(item)}
             />

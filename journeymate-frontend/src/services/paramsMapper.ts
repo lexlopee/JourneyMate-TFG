@@ -46,7 +46,9 @@ export const paramsMapper = {
       pageNo: 1
     };
 
-    if (data.endDate && data.endDate.trim() !== "") {
+    // Solo mandar returnDate si es explícitamente diferente a departDate
+    // (evita mandar ida-y-vuelta cuando el usuario solo quiere un vuelo de ida)
+    if (data.endDate && data.endDate.trim() !== "" && data.endDate !== data.startDate) {
       params.returnDate = data.endDate;
     }
 

@@ -32,17 +32,24 @@ export const ResultsList = ({
 
   const parseDurationToMinutes = (durationStr: string) => {
     if (!durationStr) return 0;
-    const hours   = durationStr.match(/(\d+)h/);
+    const hours = durationStr.match(/(\d+)h/);
     const minutes = durationStr.match(/(\d+)min/);
     return (hours ? parseInt(hours[1]) * 60 : 0) + (minutes ? parseInt(minutes[1]) : 0);
   };
 
   const sortedResults = useMemo(() => {
-    if (!results) return [];
+    if (!results || results.length === 0) return [];
     const copy = [...results];
+
     switch (sortBy) {
       case 'price_asc':
-        return copy.sort((a, b) => (a.precio || a.price || 0) - (b.precio || b.price || 0));
+        return copy.sort((a, b) => {
+          // CORRECCIÓN CLAVE: Usamos los nombres de tu CruiseCard
+          // precioDesde para cruceros, precio para hoteles/actividades, price para coches/vuelos
+          const priceA = parseFloat(a.precioDesde || a.price_from || a.precio || a.price || 0);
+          const priceB = parseFloat(b.precioDesde || b.price_from || b.precio || b.price || 0);
+          return priceA - priceB;
+        });
       case 'rating_desc':
         return copy.sort((a, b) => (b.calificacion || 0) - (a.calificacion || 0));
       case 'duration_asc':
@@ -53,10 +60,15 @@ export const ResultsList = ({
   }, [results, sortBy]);
 
   const sortOptions = [
-    { id: 'default',      label: 'Recomendados',    icon: <SlidersHorizontal size={14} /> },
-    { id: 'price_asc',    label: 'Más Barato',       icon: <ArrowUpNarrowWide size={14} /> },
-    { id: 'duration_asc', label: 'Más Rápido',       icon: <Clock size={14} />, showOnly: 'vuelos' },
-    { id: 'rating_desc',  label: 'Mejor Valorados',  icon: <Star  size={14} />, showOnly: 'alojamiento' },
+    { id: 'default', label: 'Recomendados', icon: <SlidersHorizontal size={14} /> },
+    { 
+      id: 'price_asc', 
+      label: 'Más Barato', 
+      icon: <ArrowUpNarrowWide size={14} />, 
+      showIn: ['alojamiento', 'vuelos', 'coches', 'actividades', 'cruceros'] 
+    },
+    { id: 'duration_asc', label: 'Más Rápido', icon: <Clock size={14} />, showOnly: 'vuelos' },
+    { id: 'rating_desc', label: 'Mejor Valorados', icon: <Star size={14} />, showOnly: 'alojamiento' },
   ];
 
   if (!results || results.length === 0) return null;
@@ -67,21 +79,19 @@ export const ResultsList = ({
     if (activeSection === 'vuelos')      return `Vuelos a ${place || 'tu destino'}`;
     if (activeSection === 'coches')      return `Coches disponibles`;
     if (activeSection === 'actividades') return `Experiencias en ${place || 'tu destino'}`;
-    if (activeSection === 'cruceros') return `Cruceros disponibles`;
+    if (activeSection === 'cruceros')    return `Cruceros disponibles`;
     return `Resultados para ${activeSection}`;
   };
 
   const HeaderIcon = 
-  activeSection === 'vuelos' ? Plane : 
-  activeSection === 'coches' ? Car : 
-  activeSection === 'actividades' ? Ticket :
-  activeSection === 'cruceros' ? Ship :
-  HotelIcon;
+    activeSection === 'vuelos' ? Plane : 
+    activeSection === 'coches' ? Car : 
+    activeSection === 'actividades' ? Ticket :
+    activeSection === 'cruceros' ? Ship :
+    HotelIcon;
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-20 animate-fade-in pb-20">
-
-      {/* CABECERA */}
       <div className="flex flex-col gap-8 mb-12 px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -101,7 +111,12 @@ export const ResultsList = ({
         <div className="flex flex-wrap items-center gap-3 bg-white/50 p-2 rounded-[2rem] border border-teal-100 w-fit backdrop-blur-sm">
           <span className="text-[9px] font-black uppercase tracking-widest text-teal-900/40 ml-4 mr-2">Ordenar por:</span>
           {sortOptions.map((option) => {
-            if (option.showOnly && option.showOnly !== activeSection) return null;
+            const isVisible = option.showIn 
+              ? option.showIn.includes(activeSection)
+              : (!option.showOnly || option.showOnly === activeSection);
+
+            if (!isVisible) return null;
+
             return (
               <button
                 key={option.id}
@@ -118,62 +133,42 @@ export const ResultsList = ({
         </div>
       </div>
 
-      {/* GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-6">
-
         {activeSection === 'alojamiento' &&
           sortedResults.map((item, index) => (
-            <HotelCard
-              key={`hotel-${item.hotelId ?? index}`}
-              hotel={item}
-              onViewDetails={() => onViewDetails(item)}
-              destination={destination?.replace(/_/g, ' ')}
-            />
+            <HotelCard key={`hotel-${item.hotelId ?? index}`} hotel={item} onViewDetails={() => onViewDetails(item)} destination={destination?.replace(/_/g, ' ')} />
           ))
         }
 
         {activeSection === 'vuelos' &&
           sortedResults.map((item, index) => (
-            <FlightCard
-              key={`flight-${item.token ?? index}`}
-              flight={item}
-              onViewDetails={() => onViewDetails(item)}
-            />
+            <FlightCard key={`flight-${item.token ?? index}`} flight={item} onViewDetails={() => onViewDetails(item)} />
           ))
         }
 
         {activeSection === 'coches' &&
           sortedResults.map((item, index) => (
-            <div key={index} className="md:col-span-2 lg:col-span-3">
-              <CarCard
-                car={item}
-                searchData={searchData}
-                onRent={() => onRentCar?.(item)}
-              />
+            <div key={`car-${index}`} className="md:col-span-2 lg:col-span-3">
+              <CarCard car={item} searchData={searchData} onRent={() => onRentCar?.(item)} />
             </div>
           ))
         }
 
         {activeSection === 'actividades' &&
           sortedResults.map((item, index) => (
-            <ActivityCard
-              key={`act-${item.idActividad ?? index}`}
-              activity={item}
-              onViewDetails={() => onBookActivity(item)}
-            />
+            <ActivityCard key={`act-${item.idActividad ?? index}`} activity={item} onViewDetails={() => onBookActivity(item)} />
           ))
         }
 
         {activeSection === 'cruceros' &&
           sortedResults.map((item, index) => (
             <CruiseCard
-              key={`cruise-${index}`}
+              key={`cruise-${index}-${sortBy}`} // Añadir sortBy a la key ayuda a React a refrescar el orden
               cruise={item}
               onViewDetails={() => onViewDetails(item)}
             />
           ))
         }
-
       </div>
     </div>
   );

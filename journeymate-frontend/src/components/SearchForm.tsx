@@ -181,7 +181,7 @@ export const SearchForm = ({ activeSection, searchData, handleChange, minDate }:
         <>
           <div className="md:col-span-2">
             <ActivityAutocomplete
-              label="Ciudad o Atracción" placeholder="Ej: Madrid, París, Roma..."
+              label="Ciudad" placeholder="Ej: Madrid, París, Roma..."
               value={searchData.destinationText}
               onSelect={(loc: any) => {
                 handleChange('destination', loc.id);

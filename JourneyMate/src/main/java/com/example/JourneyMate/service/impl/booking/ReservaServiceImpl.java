@@ -133,6 +133,8 @@ public class ReservaServiceImpl implements ReservaService {
                 v.setModelo(s.getModelo());
                 v.setDistancia(s.getDistancia());
                 v.setPrecio(s.getPrecioBase());
+                v.setHoraSalida(s.getHoraSalida());
+                v.setHoraLlegada(s.getHoraLlegada());
                 yield cocheRepository.save(v);
             }
 

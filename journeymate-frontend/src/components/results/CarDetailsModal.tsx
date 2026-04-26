@@ -55,6 +55,7 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
 
       const pickupTimeStr  = formatTimeForBackend(searchData?.pickupTime,  searchData?.pickUpTime);
       const dropoffTimeStr = formatTimeForBackend(searchData?.dropoffTime, searchData?.dropOffTime);
+      const formatWithSeconds = (timeStr: string) => timeStr.length === 5 ? `${timeStr}:00` : timeStr;
 
       const body = {
         idUsuario: Number(idUsuario), idTipoReserva: 5, idEstado: 1, precioTotal: car.price,
@@ -64,8 +65,8 @@ export const CarDetailsModal = ({ isOpen, onClose, car, searchData }: CarDetails
           tipo: 'COCHE', nombre: car.carName ?? 'Coche de alquiler', precioBase: car.price,
           descripcion: `${car.vendorName??''} · ${car.transmission??''} · ${car.seats??5} plazas`,
           marca: car.vendorName??null, modelo: car.carName??null,
-          horaSalida:  `${searchData?.startDate} ${pickupTimeStr}`,
-          horaLlegada: `${searchData?.endDate} ${dropoffTimeStr}`,
+          horaSalida:  `${searchData?.startDate} ${formatWithSeconds(pickupTimeStr)}`,
+          horaLlegada: `${searchData?.endDate} ${formatWithSeconds(dropoffTimeStr)}`,
           fechaSalida: searchData?.startDate ?? null,
           distancia: 0, latitud: null, longitud: null,
         },

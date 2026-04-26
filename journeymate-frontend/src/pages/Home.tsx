@@ -41,10 +41,10 @@ const CATEGORIES = [
 
 // ── Destinos con foto e IATA ──────────────────────────────
 const DESTINOS = [
-  { nombre: 'Tokio',      tag: 'Tendencia', iata: 'TYO', destText: 'Tokio',       img: imgTokio },
-  { nombre: 'Roma',       tag: 'Cultura',   iata: 'ROM', destText: 'Roma',        img: imgRoma },
+  { nombre: 'Tokio',      tag: 'Tendencia', iata: 'TYO', destText: 'Tokyo',       img: imgTokio },
+  { nombre: 'Roma',       tag: 'Cultura',   iata: 'ROM', destText: 'Rome',        img: imgRoma },
   { nombre: 'Bali',       tag: 'Relax',     iata: 'DPS', destText: 'Bali',        img: imgBali },
-  { nombre: 'Nueva York', tag: 'Urbano',    iata: 'NYC', destText: 'Nueva York',  img: imgNuevaYork },
+  { nombre: 'Nueva York', tag: 'Urbano',    iata: 'NYC', destText: 'New York',  img: imgNuevaYork },
   { nombre: 'Dubái',      tag: 'Lujo',      iata: 'DXB', destText: 'Dubái',       img: imgDubai },
   { nombre: 'París',      tag: 'Romántico', iata: 'PAR', destText: 'París',       img: imgParis },
 ];

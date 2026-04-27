@@ -1,12 +1,27 @@
 import { useEffect, useRef } from "react";
 import anime from "animejs/lib/anime.es.js";
 import {
-  Instagram, Twitter, Facebook,
-  MapPin, Phone, Mail, Send,
+  MapPin, Phone, Mail,
   Shield, FileText, MessageCircle,
-  Plane, Hotel, Car, Ship, Ticket,
   ArrowUpRight
 } from "lucide-react";
+
+// Iconos de RRSS como SVG inline — compatibles con cualquier versión de lucide-react
+const InstagramIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+  </svg>
+);
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4l16 16M20 4L4 20"/>
+  </svg>
+);
+const FacebookIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+  </svg>
+);
 
 export default function Footer() {
   const footerRef = useRef<HTMLDivElement>(null);
@@ -84,9 +99,9 @@ export default function Footer() {
           </p>
           <div className="flex gap-3 pt-2">
             {[
-              { icon: <Instagram size={16} />, href: "#" },
-              { icon: <Twitter size={16} />, href: "#" },
-              { icon: <Facebook size={16} />, href: "#" },
+              { icon: <InstagramIcon />, href: "#" },
+              { icon: <XIcon />, href: "#" },
+              { icon: <FacebookIcon />, href: "#" },
             ].map(({ icon, href }, i) => (
               <a
                 key={i}

@@ -232,7 +232,7 @@ export const AITravelAssistant = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Presupuesto"
+                  placeholder="Presupuesto (ej. Bajo)"
                   className="flex-1 bg-teal-50 rounded-xl px-4 py-3 text-xs outline-none border border-teal-100 focus:border-teal-300 transition-colors"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}

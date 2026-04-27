@@ -88,7 +88,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
             </span>
             <span className="hidden sm:block leading-none ml-2">
               <span className="block font-black text-lg sm:text-xl text-teal-900 tracking-tighter uppercase">JourneyMate</span>
-              <span className="block text-[7px] sm:text-[8px] font-bold text-teal-600 tracking-[0.3em]">TRAVEL SMART</span>
+              <span className="block text-[7px] sm:text-[8px] font-bold text-teal-600 tracking-[0.3em]">TU COMPAÑERO DE VIAJE</span>
             </span>
           </Link>
 

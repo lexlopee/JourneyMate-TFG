@@ -5,8 +5,8 @@ import {
   Calendar, Info, ChevronRight, Image as ImageIcon,
   ShieldCheck, Languages, Smartphone
 } from 'lucide-react';
-import { LoadingVideo } from '../LoadingVideo';
-import { PostBookingModal } from '../payment/PostBookingModal';
+import { LoadingVideo } from '../../LoadingVideo';
+import { PostBookingModal } from '../../payment/PostBookingModal';
 
 export const ActivityDetailsModal = ({ 
   isOpen, onClose, activityBasicData, details, loading, searchData 

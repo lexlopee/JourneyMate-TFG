@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import api from '../services/api';
+import api from '../../services/api';
 import { Plane, MapPin, Loader2 } from 'lucide-react';
 
 interface FlightLocation {

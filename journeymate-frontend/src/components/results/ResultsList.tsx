@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
-import { HotelCard } from './HotelCard';
-import { FlightCard } from './FlightCard';
-import { CarCard } from './CarCard';
-import { ActivityCard } from './ActivityCard';
-import { CruiseCard } from './CruiseCard';
+import { HotelCard } from './hotel/HotelCard';
+import { FlightCard } from './flight/FlightCard';
+import { CarCard } from './car/CarCard';
+import { ActivityCard } from './activity/ActivityCard';
+import { CruiseCard } from './cruise/CruiseCard';
 import {
   Sparkles, ArrowUpNarrowWide, Star, SlidersHorizontal,
   Plane, Clock, Hotel as HotelIcon, Car, Ticket, Ship

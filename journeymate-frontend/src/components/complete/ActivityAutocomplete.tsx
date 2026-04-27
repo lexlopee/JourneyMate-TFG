@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import api from '../services/api';
+import api from '../../services/api';
 import { MapPin, Loader2, Search } from 'lucide-react';
 
 // Ajustamos la interfaz para mapear lo que viene de Booking (vía tu Java)

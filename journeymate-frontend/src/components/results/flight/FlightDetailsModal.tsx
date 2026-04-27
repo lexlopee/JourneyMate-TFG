@@ -3,8 +3,8 @@ import {
   X, Clock, Plane, ShieldCheck, ArrowRight,
   Briefcase, Leaf, Ticket, Calendar, ArrowLeftRight, Users, CheckCircle2
 } from 'lucide-react';
-import { formatCurrency } from '../../utils/dateUtils';
-import { PostBookingModal } from '../payment/PostBookingModal';
+import { formatCurrency } from '../../../utils/dateUtils';
+import { PostBookingModal } from '../../payment/PostBookingModal';
 
 export const FlightDetailsModal = ({ isOpen, onClose, details }: any) => {
   const [loginError,    setLoginError]    = useState('');

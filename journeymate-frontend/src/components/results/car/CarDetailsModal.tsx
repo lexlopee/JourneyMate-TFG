@@ -1,8 +1,8 @@
 // src/components/results/CarDetailsModal.tsx
 import { useState, useEffect } from 'react';
 import { X, Car, Users, Briefcase, Settings2, ShieldCheck, Fuel, Calendar, CheckCircle2, Building2, Clock } from 'lucide-react';
-import { formatTimeForBackend } from '../../utils/dateUtils';
-import { PostBookingModal } from '../payment/PostBookingModal';
+import { formatTimeForBackend } from '../../../utils/dateUtils';
+import { PostBookingModal } from '../../payment/PostBookingModal';
 
 interface CarDetailsModalProps {
   isOpen: boolean;

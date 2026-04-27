@@ -4,11 +4,11 @@ import {
 } from 'lucide-react';
 import { SearchInput } from "./SearchInput";
 import { SearchCounter } from "./SearchCounter";
-import { AutocompleteInput } from "./AutoCompleteInput";
+import { AutocompleteInput } from "../complete/AutoCompleteInput";
 import { SearchSelect } from "./SearchSelect";
-import { CarLocationInput } from './CarLocationInput';
-import { ActivityAutocomplete } from './ActivityAutocomplete';
-import { CruiseSearchSelects } from './CruiseSearchSelects';
+import { CarLocationInput } from '../complete/CarLocationInput';
+import { ActivityAutocomplete } from '../complete/ActivityAutocomplete';
+import { CruiseSearchSelects } from '../complete/CruiseSearchSelects';
 
 export const SearchForm = ({ activeSection, searchData, handleChange, minDate }: any) => {
 

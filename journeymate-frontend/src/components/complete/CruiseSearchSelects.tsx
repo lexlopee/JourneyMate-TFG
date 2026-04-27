@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Globe, Ship } from 'lucide-react';
-import api from '../services/api';
+import api from '../../services/api';
 
 interface CruiseSearchSelectsProps {
   destinationValue: string;

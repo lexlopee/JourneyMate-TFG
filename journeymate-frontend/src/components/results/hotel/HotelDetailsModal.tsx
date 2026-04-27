@@ -3,8 +3,8 @@ import {
   X, MapPin, Check, Coffee, Luggage, Info, ChevronLeft, ChevronRight,
   MessageSquare, Calendar, Users, Star, Building2, BedDouble, Map as MapIcon
 } from 'lucide-react';
-import { HotelMap } from '../HotelMap';
-import { PostBookingModal } from '../payment/PostBookingModal';
+import { HotelMap } from '../../HotelMap';
+import { PostBookingModal } from '../../payment/PostBookingModal';
 
 export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchData, hotelBasicData }: any) => {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);

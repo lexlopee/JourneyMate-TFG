@@ -4,17 +4,17 @@ import anime from "animejs/lib/anime.es.js";
 // Componentes y Servicios
 import Navbar, { type Section } from './components/navbar';
 import Footer from "./components/Footer/Footer";
-import { SearchForm } from './components/SearchForm';
+import { SearchForm } from './components/search/SearchForm';
 import { ResultsList } from './components/results/ResultsList';
-import { HotelDetailsModal } from './components/results/HotelDetailsModal';
-import { FlightDetailsModal } from './components/results/FlightDetailsModal'; 
-import { ActivityDetailsModal } from './components/results/ActivityDetailsModal'; 
-import { CarDetailsModal } from './components/results/CarDetailsModal';
+import { HotelDetailsModal } from './components/results/hotel/HotelDetailsModal';
+import { FlightDetailsModal } from './components/results/flight/FlightDetailsModal'; 
+import { ActivityDetailsModal } from './components/results/activity/ActivityDetailsModal'; 
+import { CarDetailsModal } from './components/results/car/CarDetailsModal';
 import { AITravelAssistant } from './components/AITravelAssistant';
 import { LoadingVideo } from './components/LoadingVideo';
 import { Car3D } from './components/Car3D';
 import { useSearchParams } from 'react-router-dom';
-import { CruiseDetailsModal } from './components/results/CruiseDetailsModal';
+import { CruiseDetailsModal } from './components/results/cruise/CruiseDetailsModal';
 
 
 // Servicios

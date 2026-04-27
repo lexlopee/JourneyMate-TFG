@@ -1,6 +1,6 @@
 import { useState } from 'react'; // Importamos useState
 import { PlaneTakeoff, PlaneLanding, MoveRight, Ticket, Clock, ArrowLeftRight, Loader2 } from 'lucide-react'; // Añadimos Loader2
-import { formatCurrency } from '../../utils/dateUtils';
+import { formatCurrency } from '../../../utils/dateUtils';
 
 interface FlightCardProps {
   flight: any;

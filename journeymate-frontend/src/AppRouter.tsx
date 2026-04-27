@@ -4,8 +4,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MisReservas from './pages/Misreservas';
-import PaymentSuccess from './pages/PaymentSuccess';
-import PaymentCancelled from './pages/PaymentCancelled';
+import PaymentSuccess from './pages/payments/PaymentSuccess';
+import PaymentCancelled from './pages/payments/PaymentCancelled';
 
 const AppRouter = () => {
   return (

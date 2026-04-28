@@ -27,7 +27,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nombre, _primerApellido, _segundoApellido, _telefono, _email, _pass]) c.dispose();
+    for (final c in [_nombre, _primerApellido, _segundoApellido, _telefono, _email, _pass]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -90,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(40),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 40, offset: const Offset(0, 16))],
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 40, offset: Offset(0, 16))],
       ),
       padding: const EdgeInsets.all(40),
       child: Column(

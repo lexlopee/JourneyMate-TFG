@@ -189,10 +189,10 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           if (_loading)
             Container(
               color: const Color(0xCC042F2E),
-              child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const LoadingVideo(size: 180),
-                const SizedBox(height: 16),
-                const Text('BUSCANDO LAS MEJORES OPCIONES...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 3)),
+              child: const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+                LoadingVideo(size: 180),
+                SizedBox(height: 16),
+                Text('BUSCANDO LAS MEJORES OPCIONES...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 3)),
               ])),
             ),
 

@@ -214,8 +214,8 @@ class CarCard extends StatelessWidget {
           Text(car['vendorName'] ?? '', style: const TextStyle(fontSize: 11, color: AppColors.teal600, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Row(children: [
-            Icon(LucideIcons.users, size: 12, color: AppColors.teal500), const SizedBox(width: 3), Text('${car['seats'] ?? 5}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.teal900)), const SizedBox(width: 8),
-            Icon(LucideIcons.briefcase, size: 12, color: AppColors.teal500), const SizedBox(width: 3), Text('${car['bags'] ?? 2}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.teal900)),
+            const Icon(LucideIcons.users, size: 12, color: AppColors.teal500), const SizedBox(width: 3), Text('${car['seats'] ?? 5}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.teal900)), const SizedBox(width: 8),
+            const Icon(LucideIcons.briefcase, size: 12, color: AppColors.teal500), const SizedBox(width: 3), Text('${car['bags'] ?? 2}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.teal900)),
           ]),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

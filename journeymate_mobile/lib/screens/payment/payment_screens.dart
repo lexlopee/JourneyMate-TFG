@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../core/app_colors.dart';
+import '../../core/app_colors.dart';
 
 // ── PaymentSuccess ────────────────────────────────────────────────────────────
 class PaymentSuccessScreen extends StatelessWidget {
@@ -31,7 +31,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   children: [
                     Container(
                       width: 96, height: 96,
-                      decoration: BoxDecoration(color: AppColors.teal50, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(color: AppColors.teal50, shape: BoxShape.circle),
                       child: const Icon(LucideIcons.checkCircle, size: 56, color: AppColors.teal500),
                     ),
                     const SizedBox(height: 24),

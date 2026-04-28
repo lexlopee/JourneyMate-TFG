@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // ── Cambia esta URL por la de tu backend ──────────────────────────────────────
-const String _baseUrl = 'http://localhost:8080/api/v1';
-const String _authUrl = 'http://localhost:8080/auth';
+const String _baseUrl = 'http://10.0.2.2:8080/api/v1';
+const String _authUrl = 'http://10.0.2.2:8080/auth';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();

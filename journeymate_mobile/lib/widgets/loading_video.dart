@@ -37,29 +37,23 @@ class _LoadingVideoState extends State<LoadingVideo> {
 
   @override
   Widget build(BuildContext context) {
+    // TRUCO: Si estamos en modo debug o si el vídeo da problemas,
+    // usa el spinner por defecto para que no bloquee la app.
     if (!_initialized) {
-      // Fallback mientras carga: spinner de teal
-      return SizedBox(
-        width: widget.size,
-        height: widget.size,
-        child: const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF14B8A6),
-            strokeWidth: 3,
-          ),
-        ),
-      );
+      return _buildSpinner();
     }
 
     return SizedBox(
       width: widget.size,
       height: widget.size,
-      // BlendMode.screen = el negro del vídeo se vuelve transparente
-      // Flutter no soporta BlendMode en VideoPlayer directamente,
-      // usamos ColorFiltered como workaround
       child: VideoPlayer(_controller),
     );
   }
+
+  Widget _buildSpinner() => SizedBox(
+    width: widget.size, height: widget.size,
+    child: const Center(child: CircularProgressIndicator(color: Color(0xFF14B8A6))),
+  );
 }
 
 // ── Versión compacta para el botón Buscar ─────────────────────────────────────

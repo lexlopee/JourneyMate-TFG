@@ -33,7 +33,7 @@ class AppColors {
   );
 
   static const gradientHome = LinearGradient(
-    begin: Alignment(−0.5, −1.0),
+    begin: Alignment(-0.5, -1.0),
     end: Alignment(0.5, 1.0),
     stops: [0.0, 0.4, 0.75, 1.0],
     colors: [

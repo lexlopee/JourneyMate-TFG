@@ -43,7 +43,11 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
 
   void _toggle() {
     setState(() => _isOpen = !_isOpen);
-    if (_isOpen) _animCtrl.forward(); else _animCtrl.reverse();
+    if (_isOpen) {
+      _animCtrl.forward();
+    } else {
+      _animCtrl.reverse();
+    }
   }
 
   Future<void> _submit() async {
@@ -134,7 +138,7 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
           ]))
               : _result.isEmpty
               ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(LucideIcons.bot, size: 40, color: AppColors.teal200),
+            const Icon(LucideIcons.bot, size: 40, color: AppColors.teal200),
             const SizedBox(height: 8),
             Text(_mode == 'recommend' ? '¿A dónde quieres ir hoy?' : 'Cuéntame y te haré un plan', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1, color: AppColors.teal300)),
           ]))

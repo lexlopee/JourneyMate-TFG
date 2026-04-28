@@ -148,7 +148,7 @@ class FlightCard extends StatelessWidget {
           decoration: BoxDecoration(color: AppColors.teal50.withOpacity(0.5), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.teal100.withOpacity(0.3))),
           child: Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [const Icon(LucideIcons.planeTakeoff, size: 12, color: AppColors.teal400), const SizedBox(width: 4), const Text('SALIDA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5))]),
+              const Row(children: [Icon(LucideIcons.planeTakeoff, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('SALIDA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5))]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaSalida']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
               Text((flight['origenCode'] ?? flight['origen'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
@@ -166,7 +166,7 @@ class FlightCard extends StatelessWidget {
             ])),
 
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [const Text('LLEGADA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5)), const SizedBox(width: 4), const Icon(LucideIcons.planeLanding, size: 12, color: AppColors.teal400)]),
+              const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('LLEGADA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5)), SizedBox(width: 4), Icon(LucideIcons.planeLanding, size: 12, color: AppColors.teal400)]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaLlegada']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
               Text((flight['destinoCode'] ?? flight['destino'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),

@@ -28,7 +28,7 @@ dependencies:
   video_player: ^2.9.1                # LoadingVideo (.mp4) → video_player
 
   # ── Iconos ────────────────────────────────────────────────────
-  lucide_icons: ^1.0.0                # lucide-react → lucide_icons
+  lucide_icons: ^0.257.0           # lucide-react → lucide_icons
 
   # ── Mapas (HotelMap) ─────────────────────────────────────────
   google_maps_flutter: ^2.9.0         # Google Maps → google_maps_flutter

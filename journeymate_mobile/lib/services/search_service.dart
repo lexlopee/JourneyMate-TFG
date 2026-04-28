@@ -138,8 +138,9 @@ class SearchService {
         if (locData is Map) {
           final dests = locData['destinations'] as List?;
           final prods = locData['products'] as List?;
-          if (dests != null && dests.isNotEmpty) ufi = dests[0]['id']?.toString();
-          else if (prods != null && prods.isNotEmpty) ufi = prods[0]['id']?.toString();
+          if (dests != null && dests.isNotEmpty) {
+            ufi = dests[0]['id']?.toString();
+          } else if (prods != null && prods.isNotEmpty) ufi = prods[0]['id']?.toString();
         }
         if (ufi == null) return [];
         final params = _clean(ParamsMapper.actividades(searchData, ufi));

@@ -3,7 +3,8 @@
 call "%~dp0start_docker.bat"
 timeout /t 3 >nul
 
-call "%~dp0start_backend.bat"
+REM ARRANCAR BACKEND EN TERMINAL SEPARADA (Igual que en la web)
+start "" cmd /k "%~dp0start_backend.bat"
 
 cd /d "%~dp0..\..\..\..\JourneyMate"
 docker compose up -d >nul 2>&1
@@ -22,5 +23,9 @@ start "" emulator.exe -avd %AVD%
 "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" wait-for-device
 
 cd /d "%~dp0..\..\..\..\journeymate_mobile"
-flutter run -d emulator-5554 >nul 2>&1 &
+
+REM Arrancar Flutter en una nueva ventana. Así podrás ver los logs de la app, 
+REM recargar (Hot Reload con 'r') y saber si hay errores.
+start "" cmd /k "flutter run -d emulator-5554"
+
 exit

@@ -51,14 +51,34 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
   }
 
   Future<void> _submit() async {
-    setState(() { _isLoading = true; _result = ''; });
+    // 1. Validar según el modo activo[cite: 5, 7]
+    if (_mode == 'recommend' && (_prefCtrl.text.isEmpty || _budgetCtrl.text.isEmpty)) return;
+    if (_mode == 'plan' && _queryCtrl.text.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+      _result = ''; // Limpiamos el resultado anterior como en React
+    });
+
     try {
-      final res = _mode == 'recommend'
-          ? await SearchService.askAI(_prefCtrl.text, _budgetCtrl.text)
-          : await SearchService.getItinerary(_queryCtrl.text);
-      setState(() => _result = res);
+      final String response;
+      if (_mode == 'recommend') {
+        response = await SearchService.askAI(_prefCtrl.text, _budgetCtrl.text);
+      } else {
+        response = await SearchService.getItinerary(_queryCtrl.text);
+      }
+
+      setState(() {
+        _result = response;
+        // Opcional: Limpiar los controladores tras el éxito[cite: 5]
+        _prefCtrl.clear();
+        _budgetCtrl.clear();
+        _queryCtrl.clear();
+      });
+    } catch (e) {
+      setState(() => _result = 'Error de conexión con el asistente.');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -248,6 +268,36 @@ class _BoldText extends StatelessWidget {
             return TextSpan(text: p.substring(2, p.length - 2), style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.teal800, backgroundColor: Color(0x1A0D9488)));
           }
           return TextSpan(text: p);
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// Widget para renderizar negritas dinámicas[cite: 5, 7]
+class _BoldTextParser extends StatelessWidget {
+  final String text;
+  const _BoldTextParser({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    // Expresión regular para encontrar contenido entre asteriscos **[cite: 5]
+    final parts = text.split(RegExp(r'(\*\*.*?\*\*)'));
+
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(fontSize: 13, color: Color(0xFF134E4A), height: 1.5),
+        children: parts.map((part) {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return TextSpan(
+              text: part.substring(2, part.length - 2),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  backgroundColor: Color(0x222DD4BF)
+              ),
+            );
+          }
+          return TextSpan(text: part);
         }).toList(),
       ),
     );

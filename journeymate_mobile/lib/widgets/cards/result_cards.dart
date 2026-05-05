@@ -4,7 +4,7 @@ import '../../core/app_colors.dart';
 import '../../utils/date_utils.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
-// HOTEL CARD — equivalente a HotelCard.tsx
+// HOTEL CARD
 // ══════════════════════════════════════════════════════════════════════════════
 class HotelCard extends StatelessWidget {
   final Map<String, dynamic> hotel;
@@ -25,6 +25,7 @@ class HotelCard extends StatelessWidget {
     final hasDiscount = precioOrig != null && (precioOrig as num) > (precio as num? ?? 0);
 
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(40),
@@ -32,7 +33,6 @@ class HotelCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Imagen
         SizedBox(
           height: 200,
           child: Stack(children: [
@@ -40,7 +40,6 @@ class HotelCard extends StatelessWidget {
               Positioned.fill(child: Image.network(image, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholder()))
             else
               Positioned.fill(child: _placeholder()),
-            // Rating badge
             Positioned(top: 12, right: 12, child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(color: AppColors.teal900.withOpacity(0.8), borderRadius: BorderRadius.circular(20)),
@@ -56,10 +55,8 @@ class HotelCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Estrellas
             if (stars > 0) Row(children: List.generate(stars, (_) => const Icon(LucideIcons.star, size: 12, color: Color(0xFFF59E0B), fill: 1.0))),
             if (stars > 0) const SizedBox(height: 6),
-
             Text(name.toString().toUpperCase(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.3), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 6),
             Row(children: [
@@ -72,11 +69,15 @@ class HotelCard extends StatelessWidget {
             const SizedBox(height: 12),
 
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('PRECIO ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
-                if (hasDiscount) Text(formatCurrency(precioOrig, moneda), style: const TextStyle(fontSize: 12, decoration: TextDecoration.lineThrough, color: Colors.red, fontWeight: FontWeight.w600)),
-                Text(formatCurrency(precio ?? 0, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5)),
-              ]),
+              // CORRECCIÓN: Expanded evita que el precio empuje al botón fuera de la pantalla
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('PRECIO ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
+                  if (hasDiscount) Text(formatCurrency(precioOrig, moneda), style: const TextStyle(fontSize: 12, decoration: TextDecoration.lineThrough, color: Colors.red, fontWeight: FontWeight.w600)),
+                  Text(formatCurrency(precio ?? 0, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5), overflow: TextOverflow.ellipsis),
+                ]),
+              ),
+              const SizedBox(width: 12),
               GestureDetector(
                 onTap: onViewDetails,
                 child: Container(
@@ -96,7 +97,7 @@ class HotelCard extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// FLIGHT CARD — equivalente a FlightCard.tsx
+// FLIGHT CARD
 // ══════════════════════════════════════════════════════════════════════════════
 class FlightCard extends StatelessWidget {
   final Map<String, dynamic> flight;
@@ -105,11 +106,13 @@ class FlightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stops     = (flight['stops'] ?? 0) as int;
-    final isDirect  = stops == 0;
-    final moneda    = flight['moneda'] ?? 'EUR';
+    final stops = int.tryParse(flight['stops']?.toString() ?? '0') ?? 0;
+    final isDirect = stops == 0;
+    final moneda = (flight['moneda'] ?? 'EUR').toString();
+    final aerolinea = (flight['aerolinea'] ?? flight['airline'] ?? 'AEROLÍNEA').toString();
 
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
@@ -118,7 +121,6 @@ class FlightCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Badge clase + Aerolínea
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: [
             Container(
@@ -131,7 +133,7 @@ class FlightCard extends StatelessWidget {
             const SizedBox(width: 10),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Text('AEROLÍNEA', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 2)),
-              Text((flight['aerolinea'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.2)),
+              Text(aerolinea.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.2)),
             ]),
           ]),
           Container(
@@ -142,7 +144,6 @@ class FlightCard extends StatelessWidget {
         ]),
         const SizedBox(height: 20),
 
-        // Trayecto
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(color: AppColors.teal50.withOpacity(0.5), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.teal100.withOpacity(0.3))),
@@ -151,9 +152,8 @@ class FlightCard extends StatelessWidget {
               const Row(children: [Icon(LucideIcons.planeTakeoff, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('SALIDA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5))]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaSalida']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
-              Text((flight['origenCode'] ?? flight['origen'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
+              Text((flight['origenCode'] ?? flight['origen'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700), overflow: TextOverflow.ellipsis),
             ])),
-
             Expanded(child: Column(children: [
               const Divider(color: AppColors.teal200),
               Container(
@@ -164,28 +164,32 @@ class FlightCard extends StatelessWidget {
               const Divider(color: AppColors.teal200),
               Text(isDirect ? 'DIRECTO' : '$stops ESCALA${stops > 1 ? 'S' : ''}', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: isDirect ? AppColors.teal400 : const Color(0xFFF59E0B))),
             ])),
-
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('LLEGADA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5)), SizedBox(width: 4), Icon(LucideIcons.planeLanding, size: 12, color: AppColors.teal400)]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaLlegada']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
-              Text((flight['destinoCode'] ?? flight['destino'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
+              Text((flight['destinoCode'] ?? flight['destino'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700), overflow: TextOverflow.ellipsis),
             ])),
           ]),
         ),
         const SizedBox(height: 20),
 
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('TOTAL ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
-            Text(formatCurrency(flight['precio'], moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.5)),
-          ]),
+          // CORRECCIÓN: Expanded para el precio
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('TOTAL ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
+              Text(formatCurrency(flight['precio'], moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.5), overflow: TextOverflow.ellipsis),
+            ]),
+          ),
+          const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: onViewDetails,
             icon: const Icon(LucideIcons.moveRight, size: 14),
             label: const Text('DETALLES', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 10)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.teal900, foregroundColor: Colors.white,
+              backgroundColor: AppColors.teal900,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
@@ -197,7 +201,7 @@ class FlightCard extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// ACTIVITY CARD — equivalente a ActivityCard.tsx
+// ACTIVITY CARD
 // ══════════════════════════════════════════════════════════════════════════════
 class ActivityCard extends StatelessWidget {
   final Map<String, dynamic> activity;
@@ -212,6 +216,7 @@ class ActivityCard extends StatelessWidget {
     final calificacion = activity['calificacion'] ?? 0;
 
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
@@ -251,7 +256,15 @@ class ActivityCard extends StatelessWidget {
           const Divider(color: AppColors.teal50, height: 1),
           const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Row(children: [Icon(LucideIcons.clock, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('Ver disponibilidad', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.teal400))]),
+            // CORRECCIÓN: Expanded para la fila de disponibilidad
+            Expanded(
+              child: Row(children: [
+                const Icon(LucideIcons.clock, size: 12, color: AppColors.teal400),
+                const SizedBox(width: 4),
+                Expanded(child: Text('Ver disponibilidad', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.teal400), overflow: TextOverflow.ellipsis))
+              ]),
+            ),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: onViewDetails,
               child: Container(
@@ -270,7 +283,7 @@ class ActivityCard extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// CRUISE CARD — equivalente a CruiseCard.tsx
+// CRUISE CARD
 // ══════════════════════════════════════════════════════════════════════════════
 class CruiseCard extends StatelessWidget {
   final Map<String, dynamic> cruise;
@@ -288,6 +301,7 @@ class CruiseCard extends StatelessWidget {
     final moneda  = cruise['moneda'] ?? cruise['currency'] ?? 'USD';
 
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(40),
@@ -318,22 +332,26 @@ class CruiseCard extends StatelessWidget {
           Row(children: [
             const Icon(LucideIcons.anchor, size: 10, color: AppColors.teal500),
             const SizedBox(width: 4),
-            Text(barco.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5)),
+            Expanded(child: Text(barco.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5), overflow: TextOverflow.ellipsis)),
           ]),
           const SizedBox(height: 8),
           Row(children: [
             const Icon(LucideIcons.mapPin, size: 12, color: AppColors.teal500),
             const SizedBox(width: 4),
-            Text(puerto.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5)),
+            Expanded(child: Text(puerto.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5), overflow: TextOverflow.ellipsis)),
           ]),
           const SizedBox(height: 12),
           const Divider(color: AppColors.teal100, height: 1),
           const SizedBox(height: 12),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('DESDE', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
-              Text(formatCurrency(precio, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5)),
-            ]),
+            // CORRECCIÓN: Expanded para el precio
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('DESDE', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
+                Text(formatCurrency(precio, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5), overflow: TextOverflow.ellipsis),
+              ]),
+            ),
+            const SizedBox(width: 12),
             GestureDetector(
               onTap: onViewDetails,
               child: Container(

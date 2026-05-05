@@ -1,47 +1,55 @@
 import 'api_service.dart';
 
-// ── Equivalente a paramsMapper.ts ────────────────────────────────────────────
+// ── EQUIVALENTE A paramsMapper.ts ────────────────────────────────────────────
 class ParamsMapper {
+  static String _normalize(String? text) {
+    if (text == null || text.isEmpty) return "";
+    return text.trim().replaceAll(RegExp(r'\s+'), "_");
+  }
+
   static Map<String, dynamic> alojamiento(Map<String, dynamic> data, String destId) => {
     'destId': destId,
     'searchType': 'CITY',
     'checkinDate': data['startDate'],
     'checkoutDate': data['endDate'],
-    'adults': (data['adults'] ?? 2).toString(),
-    'roomQty': (data['roomQty'] ?? 1).toString(),
+    'adults': data['adults'] ?? 2,
+    'roomQty': data['roomQty'] ?? 1,
     'currencyCode': 'EUR',
-    'pageNo': '1',
+    'pageNo': 1,
   };
 
   static Map<String, dynamic> hotelDetails(String hotelId, Map<String, dynamic> data) => {
     'hotelId': hotelId,
     'arrivalDate': data['startDate'],
     'departureDate': data['endDate'],
-    'adults': (data['adults'] ?? 1).toString(),
-    'roomQty': (data['roomQty'] ?? 1).toString(),
-    if (data['childrenAge'] != null) 'childrenAge': data['childrenAge'].toString(),
+    'adults': data['adults'] ?? 1,
+    'roomQty': data['roomQty'] ?? 1,
+    if (data['childrenAge'] != null) 'childrenAge': data['childrenAge'],
     'currencyCode': 'EUR',
   };
 
   static Map<String, dynamic> vuelos(Map<String, dynamic> data) {
     final params = <String, dynamic>{
-      'fromId': data['fromId'],
-      'toId': data['toId'],
+      'fromId': data['fromId'] ?? '',  // Token base64 completo del autocomplete
+      'toId': data['toId'] ?? '',      // Token base64 completo del autocomplete
       'departDate': data['startDate'],
-      'adults': (data['adults'] ?? 1).toString(),
+      'adults': data['adults'] ?? 1,
+      'childrenAge': data['childrenAge'],
       'cabinClass': data['cabinClass'] ?? 'ECONOMY',
       'currencyCode': data['currencyCode'] ?? 'EUR',
       'sort': data['sort'] ?? 'BEST',
-      'pageNo': '1',
+      'pageNo': 1,
     };
-    final end = data['endDate'] as String?;
-    if (end != null && end.isNotEmpty && end != data['startDate']) {
+
+    final String? end = data['endDate'];
+    if (end != null && end.trim().isNotEmpty && end != data['startDate']) {
       params['returnDate'] = end;
     }
     return params;
   }
 
   static Map<String, dynamic> coches(Map<String, dynamic> data) {
+    // Aquí data['fromId'] debe ser el token del autocomplete (ej: eyJsYXR...)
     final params = <String, dynamic>{
       'pickUpId': data['fromId'],
       'dropOffId': data['toId'] ?? data['fromId'],
@@ -49,13 +57,12 @@ class ParamsMapper {
       'pickUpTime': data['pickupTime'] ?? '10:00',
       'dropOffDate': data['endDate'],
       'dropOffTime': data['dropoffTime'] ?? '10:00',
-      'driverAge': '30',
+      'driverAge': 30,
       'currencyCode': 'EUR',
       'units': 'metric',
     };
-    final carType = data['carType'] as String?;
-    if (carType != null && carType != 'all') {
-      params['carType'] = 'carCategory::$carType';
+    if (data['carType'] != null && data['carType'] != 'all') {
+      params['carType'] = 'carCategory::${data['carType']}';
     }
     return params;
   }
@@ -64,30 +71,26 @@ class ParamsMapper {
     'id': ufi,
     'startDate': data['startDate'],
     'endDate': data['endDate'],
-    'sortBy': 'trending',
-    'page': '1',
+    'sortBy': data['sort'] ?? 'trending',
+    'page': 1,
     'currencyCode': 'EUR',
   };
 
   static Map<String, dynamic> cruceros(Map<String, dynamic> data) => {
     'startDate': data['startDate'],
     'endDate': data['endDate'],
-    'destination': (data['destination'] ?? '').replaceAll(' ', '_'),
-    'departurePort': (data['origin'] ?? '').replaceAll(' ', '_'),
+    'destination': _normalize(data['destination']),
+    'departurePort': _normalize(data['origin']),
     'currency': 'EUR',
   };
 }
 
-// ── Equivalente a searchService.ts ───────────────────────────────────────────
+// ── EQUIVALENTE A searchService.ts ───────────────────────────────────────────
 class SearchService {
-  // Filtra null/vacíos del mapa de params
   static Map<String, dynamic> _clean(Map<String, dynamic> p) =>
       Map.fromEntries(p.entries.where((e) => e.value != null && e.value.toString().isNotEmpty));
 
-  static Future<List<dynamic>> performSearch(
-      String section,
-      Map<String, dynamic> searchData,
-      ) async {
+  static Future<List<dynamic>> performSearch(String section, Map<String, dynamic> searchData) async {
     final query = (searchData['destinationText'] ?? searchData['destination'] ?? '') as String;
 
     switch (section) {
@@ -102,7 +105,7 @@ class SearchService {
       case 'vuelos': {
         final params = _clean(ParamsMapper.vuelos(searchData));
         final res = await api.get('/flights/search', params: params);
-        if (res is Map) return _toList(res['data']?['flightOffers'] ?? res['result'] ?? res['data']);
+        // El backend Java devuelve un array plano de FlightDTO directamente
         return _toList(res);
       }
 
@@ -111,6 +114,7 @@ class SearchService {
         final res = await api.get('/external/cars/search', params: params);
         var cars = _toList(res);
 
+        // Lógica de filtrado de coches por categoría
         const carTypeMap = <String, List<String>>{
           'small':    ['mini', 'economy', 'small', 'compact'],
           'medium':   ['medium', 'intermediate', 'standard'],
@@ -137,10 +141,7 @@ class SearchService {
         String? ufi;
         if (locData is Map) {
           final dests = locData['destinations'] as List?;
-          final prods = locData['products'] as List?;
-          if (dests != null && dests.isNotEmpty) {
-            ufi = dests[0]['id']?.toString();
-          } else if (prods != null && prods.isNotEmpty) ufi = prods[0]['id']?.toString();
+          if (dests != null && dests.isNotEmpty) ufi = dests[0]['id']?.toString();
         }
         if (ufi == null) return [];
         final params = _clean(ParamsMapper.actividades(searchData, ufi));
@@ -159,49 +160,32 @@ class SearchService {
     }
   }
 
+  // --- Detalles, IA e Itinerarios ---
   static Future<dynamic> getHotelDetails(String hotelId, Map<String, dynamic> searchData) async {
-    final params = _clean({
-      ...ParamsMapper.hotelDetails(hotelId, searchData),
-      '_t': DateTime.now().millisecondsSinceEpoch.toString(),
-    });
+    final params = _clean({...ParamsMapper.hotelDetails(hotelId, searchData), '_t': DateTime.now().millisecondsSinceEpoch});
     return api.get('/hotels/details', params: params);
   }
 
   static Future<dynamic> getFlightDetails(String token, {String currency = 'EUR'}) async {
-    return api.get('/flights/details', params: {
-      'token': token,
-      'currencyCode': currency,
-      '_t': DateTime.now().millisecondsSinceEpoch.toString(),
-    });
+    return api.get('/flights/details', params: {'token': token, 'currencyCode': currency, '_t': DateTime.now().millisecondsSinceEpoch});
   }
 
   static Future<dynamic> getActivityDetails(String slug) async {
-    return api.get('/activities/details', params: {
-      'slug': slug,
-      'currencyCode': 'EUR',
-      '_t': DateTime.now().millisecondsSinceEpoch.toString(),
-    });
+    return api.get('/activities/details', params: {'slug': slug, 'currencyCode': 'EUR', '_t': DateTime.now().millisecondsSinceEpoch});
   }
 
   static Future<String> askAI(String pref, String budget) async {
     try {
-      final res = await api.get('/ai/recommend', params: {
-        'pref': pref,
-        'budget': budget,
-      });
+      final res = await api.get('/ai/recommend', params: {'pref': pref, 'budget': budget});
       return res?.toString() ?? 'Sin respuesta';
-    } catch (_) {
-      return 'La IA está descansando ahora mismo, prueba en un momento.';
-    }
+    } catch (_) { return 'La IA está descansando.'; }
   }
 
   static Future<String> getItinerary(String query) async {
     try {
       final res = await api.get('/ai/itinerary', params: {'query': query});
       return res?.toString() ?? 'Sin respuesta';
-    } catch (_) {
-      return 'Se me ha perdido el mapa... Inténtalo de nuevo.';
-    }
+    } catch (_) { return 'Se me ha perdido el mapa.'; }
   }
 
   static List<dynamic> _toList(dynamic data) {

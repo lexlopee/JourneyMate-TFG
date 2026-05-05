@@ -13,6 +13,9 @@ class AppColors {
   static const teal100 = Color(0xFFCCFBF1);
   static const teal50  = Color(0xFFF0FDFA);
   static const lime    = Color(0xFFE9FC9E);
+  static const orange500 = Color(0xFFF97316);
+  static const orange600 = Color(0xFFEA580C);
+  static const orange400 = Color(0xFFFB923C);
 
   static const white70 = Color(0xB3FFFFFF);
   static const white40 = Color(0x66FFFFFF);

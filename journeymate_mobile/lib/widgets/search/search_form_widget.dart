@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/app_colors.dart';
 import '../../utils/date_utils.dart';
 import '../../screens/search_screen.dart';
+import 'autocomplete_inputs.dart';
 
 // Equivalente a SearchForm.tsx + SearchInput.tsx + SearchSelect.tsx + SearchCounter.tsx
 
@@ -41,9 +42,27 @@ class _VuelosForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Origen', icon: LucideIcons.planeTakeoff, hint: 'Ej: Madrid', value: data['originText'] ?? '', onChanged: (v) { onChange('originText', v); onChange('fromId', v); }),
+    AutocompleteInput(
+      label: 'Origen',
+      placeholder: 'Ej: Madrid',
+      icon: LucideIcons.planeTakeoff,
+      value: data['originText'] ?? '',
+      onSelect: (item) {
+        onChange('originText', item.name);
+        onChange('fromId', item.id); // ID completo que espera el backend, no el code IATA
+      },
+    ),
     const SizedBox(height: 8),
-    _TextSearchField(label: 'Destino', icon: LucideIcons.planeLanding, hint: 'Ej: Barcelona', value: data['destinationText'] ?? '', onChanged: (v) { onChange('destinationText', v); onChange('toId', v); }),
+    AutocompleteInput(
+      label: 'Destino',
+      placeholder: 'Ej: Barcelona',
+      icon: LucideIcons.planeLanding,
+      value: data['destinationText'] ?? '',
+      onSelect: (item) {
+        onChange('destinationText', item.name);
+        onChange('toId', item.id); // ID completo que espera el backend, no el code IATA
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Salida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -100,7 +119,15 @@ class _CochesForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Lugar de recogida', icon: LucideIcons.car, hint: 'Ciudad o aeropuerto', value: data['originText'] ?? '', onChanged: (v) { onChange('originText', v); onChange('fromId', v); }),
+    CarLocationInput(
+      label: 'Lugar de recogida',
+      placeholder: 'Ciudad o aeropuerto',
+      value: data['originText'] ?? '',
+      onSelect: (item) {
+        onChange('originText', item.name);
+        onChange('fromId', item.id); // ID técnico que espera pickUpId en el backend
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Recogida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -108,7 +135,7 @@ class _CochesForm extends StatelessWidget {
       Expanded(child: _SelectField(
         label: 'Hora recogida', icon: LucideIcons.clock,
         value: data['pickupTime'] ?? '10:00',
-        options: halfHourOptions.map((h) => (h, h)).toList(),
+        options: halfHourOptions.map((h) => (h, h)).toList(), // Asegúrate de tener halfHourOptions definido
         onChanged: (v) => onChange('pickupTime', v),
       )),
     ]),
@@ -143,7 +170,15 @@ class _ActividadesForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Ciudad', icon: LucideIcons.mapPin, hint: 'Ej: Madrid, París, Roma...', value: data['destinationText'] ?? '', onChanged: (v) { onChange('destinationText', v); onChange('destination', v); }),
+    ActivityAutocomplete(
+      label: 'Ciudad',
+      placeholder: 'Ej: Madrid, París, Roma...',
+      value: data['destinationText'] ?? '',
+      onSelect: (item) {
+        onChange('destinationText', item.nombre);
+        onChange('destination', item.id); // Guardamos el ID de la actividad/destino
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Fecha desde', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -163,9 +198,20 @@ class _CrucerosForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Zona / Destino', icon: LucideIcons.globe, hint: 'Ej: Mediterráneo', value: data['cruiseDestination'] ?? '', onChanged: (v) { onChange('cruiseDestination', v); onChange('destination', v); onChange('destinationText', v); }),
-    const SizedBox(height: 8),
-    _TextSearchField(label: 'Puerto de salida', icon: LucideIcons.ship, hint: 'Ej: Barcelona', value: data['cruisePort'] ?? '', onChanged: (v) { onChange('cruisePort', v); onChange('origin', v); onChange('originText', v); }),
+    CruiseSearchSelects(
+      destinationValue: data['cruiseDestination'] ?? '',
+      portValue: data['cruisePort'] ?? '',
+      onDestinationChange: (code, label) {
+        onChange('cruiseDestination', code);
+        onChange('destination', code);
+        onChange('destinationText', label);
+      },
+      onPortChange: (code, label) {
+        onChange('cruisePort', code);
+        onChange('origin', code);
+        onChange('originText', label);
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Salida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),

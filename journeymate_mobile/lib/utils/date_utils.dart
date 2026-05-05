@@ -50,13 +50,25 @@ String get today => DateFormat('yyyy-MM-dd').format(DateTime.now());
 /// Formatea un ISO datetime a "HH:mm"
 String formatTime(String? isoDateTime) {
   if (isoDateTime == null || isoDateTime.isEmpty) return '--:--';
+
+  // Si ya es un formato corto HH:mm o HH:mm:ss
+  if (isoDateTime.length >= 5 && isoDateTime.contains(':') && !isoDateTime.contains('-')) {
+    return isoDateTime.substring(0, 5);
+  }
+
   try {
     final d = DateTime.parse(isoDateTime);
     return DateFormat('HH:mm').format(d);
   } catch (_) {
-    // Si ya viene como "HH:mm", lo devolvemos tal cual
-    if (RegExp(r'^\d{2}:\d{2}').hasMatch(isoDateTime)) return isoDateTime.substring(0, 5);
-    return isoDateTime;
+    // Si falla el parseo pero tiene una 'T' (formato ISO), cortamos el tiempo manualmente
+    if (isoDateTime.contains('T')) {
+      try {
+        return isoDateTime.split('T')[1].substring(0, 5);
+      } catch (e) {
+        return "--:--";
+      }
+    }
+    return '--:--';
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../core/app_colors.dart';
 import '../services/search_service.dart';
+import '../services/api_service.dart'; // para ApiException
 import '../services/auth_service.dart';
 import '../utils/date_utils.dart';
 import '../widgets/loading_video.dart';
@@ -109,32 +110,51 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   }
 
   Future<void> _handleSearch() async {
-    // Validaciones
-    if (_section == Section.vuelos && (_searchData['toId'] ?? '').isEmpty) {
-      _showAlert('Por favor, selecciona al menos un destino.');
-      return;
+    if (_section == Section.vuelos) {
+      if ((_searchData['fromId'] ?? '').isEmpty || (_searchData['toId'] ?? '').isEmpty) {
+        _showAlert('Selecciona origen y destino de la lista sugerida.');
+        return;
+      }
     }
-    if (_section != Section.coches &&
-        (_searchData['destinationText'] ?? '').isEmpty &&
-        (_searchData['destination'] ?? '').isEmpty) {
-      _showAlert('Por favor, introduce un destino.');
-      return;
+
+    // Validar Coches: requiere punto de recogida (ID)
+    if (_section == Section.coches) {
+      if ((_searchData['fromId'] ?? '').isEmpty) {
+        _showAlert('Selecciona un punto de recogida de la lista.');
+        return;
+      }
     }
+
+    // DEBUG: muestra los params exactos que se van a mandar
+    debugPrint('▶ BUSCAR [${_section.name}] fromId=${_searchData["fromId"]} toId=${_searchData["toId"]}');
 
     setState(() { _loading = true; _results = []; });
     try {
       final results = await SearchService.performSearch(_section.name, _searchData);
+      debugPrint('✅ Resultados recibidos: ${results.length}');
       setState(() => _results = results);
-      if (results.isNotEmpty) {
-        await Future.delayed(const Duration(milliseconds: 400));
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.easeInOut,
-        );
+      if (results.isEmpty) {
+        _showAlert('No se encontraron resultados. Prueba con otras fechas o destino.');
+      } else {
+        // Esperar a que Flutter rebuilde el árbol con las tarjetas y recalcule
+        // el scroll extent antes de intentar bajar
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
       }
-    } catch (e) {
-      _showAlert('Error de conexión. Reintenta en unos segundos.');
+    } on ApiException catch (e) {
+      debugPrint('❌ ApiException ${e.statusCode}: ${e.message}');
+      _showAlert('Error del servidor (${e.statusCode}): ${e.message}');
+    } catch (e, stack) {
+      debugPrint('❌ Error inesperado: $e\n$stack');
+      _showAlert('Error inesperado: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _loading = false);
     }

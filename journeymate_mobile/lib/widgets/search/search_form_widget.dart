@@ -49,7 +49,7 @@ class _VuelosForm extends StatelessWidget {
       value: data['originText'] ?? '',
       onSelect: (item) {
         onChange('originText', item.name);
-        onChange('fromId', item.id); // ID completo que espera el backend, no el code IATA
+        onChange('fromId', item.id); // Token base64 completo — NO el code IATA
       },
     ),
     const SizedBox(height: 8),
@@ -60,7 +60,7 @@ class _VuelosForm extends StatelessWidget {
       value: data['destinationText'] ?? '',
       onSelect: (item) {
         onChange('destinationText', item.name);
-        onChange('toId', item.id); // ID completo que espera el backend, no el code IATA
+        onChange('toId', item.id); // Token base64 completo — NO el code IATA
       },
     ),
     const SizedBox(height: 8),
@@ -125,7 +125,7 @@ class _CochesForm extends StatelessWidget {
       value: data['originText'] ?? '',
       onSelect: (item) {
         onChange('originText', item.name);
-        onChange('fromId', item.id); // ID técnico que espera pickUpId en el backend
+        onChange('fromId', item.id); // ID técnico para pickUpId en el backend
       },
     ),
     const SizedBox(height: 8),
@@ -176,7 +176,8 @@ class _ActividadesForm extends StatelessWidget {
       value: data['destinationText'] ?? '',
       onSelect: (item) {
         onChange('destinationText', item.nombre);
-        onChange('destination', item.id); // Guardamos el ID de la actividad/destino
+        onChange('destination', item.nombre);
+        onChange('activityUfi', item.id); // Token UFI: eyJ1ZmkiOi0yMDkyMTc0fQ== — se usa directamente en la búsqueda
       },
     ),
     const SizedBox(height: 8),
@@ -299,7 +300,7 @@ class _DateField extends StatelessWidget {
 class _SelectField extends StatelessWidget {
   final String label, value;
   final IconData icon;
-  final List<(String, String)> options; // (label, value)
+  final List<(String, String)> options;
   final ValueChanged<String> onChanged;
   const _SelectField({required this.label, required this.icon, required this.value, required this.options, required this.onChanged});
 
@@ -313,6 +314,7 @@ class _SelectField extends StatelessWidget {
         child: DropdownButton<String>(
           value: options.any((o) => o.$2 == value) ? value : options.first.$2,
           isDense: true,
+          isExpanded: true,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.teal900),
           icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.teal400),
           items: options.map((o) => DropdownMenuItem(value: o.$2, child: Text(o.$1))).toList(),

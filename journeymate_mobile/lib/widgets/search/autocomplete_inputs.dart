@@ -116,9 +116,14 @@ class _AutocompleteInputState extends State<AutocompleteInput> {
     _removeOverlay();
     if (_suggestions.isEmpty) return;
     final renderBox = context.findRenderObject() as RenderBox?;
-    final size = renderBox?.size ?? Size.zero;
+    if (renderBox == null || !renderBox.hasSize) return;  // ← guard
+    final size = renderBox.size;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final overlayWidth = size.width > 0 ? size.width : screenWidth - 48;
+
     _overlay = OverlayEntry(builder: (_) => Positioned(
-        width: size.width,
+        width: overlayWidth,
         child: CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,
@@ -247,9 +252,14 @@ class _ActivityAutocompleteState extends State<ActivityAutocomplete> {
     _removeOverlay();
     if (_suggestions.isEmpty) return;
     final renderBox = context.findRenderObject() as RenderBox?;
-    final size = renderBox?.size ?? Size.zero;
+    if (renderBox == null || !renderBox.hasSize) return;  // ← guard
+    final size = renderBox.size;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final overlayWidth = size.width > 0 ? size.width : screenWidth - 48;
+
     _overlay = OverlayEntry(builder: (_) => Positioned(
-        width: size.width,
+        width: overlayWidth,
         child: CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,
@@ -283,9 +293,19 @@ class _ActivityAutocompleteState extends State<ActivityAutocomplete> {
         final res = await _client!.get(uri);
         if (res.statusCode == 200) {
           final body = jsonDecode(res.body);
+          final dests = (body['destinations'] as List? ?? []);
+          final prods = (body['products'] as List? ?? []);
           final results = [
-            ...(body['destinations'] as List).map((d) => ActivityLocation(id: d['id'].toString(), nombre: d['cityName'] ?? d['name'], descripcion: d['display_name'] ?? 'Ciudad')),
-            ...(body['products'] as List).map((p) => ActivityLocation(id: p['id'].toString(), nombre: p['name'], descripcion: 'Actividad'))
+            ...dests.map((d) => ActivityLocation(
+              id: (d['id'] ?? d['cityUfi'] ?? '').toString(),
+              nombre: d['cityName'] ?? d['name'] ?? '',
+              descripcion: d['display_name'] ?? d['address']?['country'] ?? 'Ciudad',
+            )),
+            ...prods.map((p) => ActivityLocation(
+              id: (p['id'] ?? p['cityUfi'] ?? '').toString(),
+              nombre: p['name'] ?? '',
+              descripcion: 'Actividad específica',
+            )),
           ];
           _activityCache[key] = results;
           if (mounted) { setState(() => _suggestions = results); _showOverlay(); }
@@ -399,9 +419,14 @@ class _CarLocationInputState extends State<CarLocationInput> {
     _removeOverlay();
     if (_suggestions.isEmpty) return;
     final renderBox = context.findRenderObject() as RenderBox?;
-    final size = renderBox?.size ?? Size.zero;
+    if (renderBox == null || !renderBox.hasSize) return;
+    final size = renderBox.size;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final overlayWidth = size.width > 0 ? size.width : screenWidth - 48;
+
     _overlay = OverlayEntry(builder: (_) => Positioned(
-        width: size.width,
+        width: overlayWidth,
         child: CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,

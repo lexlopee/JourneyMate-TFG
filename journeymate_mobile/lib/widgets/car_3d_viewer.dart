@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 
-// Equivalente a Car3D.tsx
-// Los .glb deben estar en: assets/animations/car-*.glb
-
+// Configuración de modelos
 const _config = {
   'small':    _CarCfg('assets/animations/car-small.glb',  'Pequeño',        1.0),
   'medium':   _CarCfg('assets/animations/car-medium.glb', 'Mediano',         1.0),
@@ -23,7 +21,7 @@ class _CarCfg {
 }
 
 class Car3DViewer extends StatefulWidget {
-  final String carType;    // 'all' | 'small' | 'medium' etc.
+  final String carType;
   final double height;
   final bool interactive;
   final bool showLabel;
@@ -87,25 +85,32 @@ class _Car3DViewerState extends State<Car3DViewer> with SingleTickerProviderStat
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // CORRECCIÓN AQUÍ: Añadido "child:" y cerrando correctamente el paréntesis
         FadeTransition(
           opacity: _fadeAnim,
-          child: SizedBox(
-            height: widget.height,
-            width: double.infinity,
-            child: ModelViewer(
-              src: cfg.model,
-              alt: cfg.label,
-              autoRotate: true,
-              autoRotateDelay: 0,
-              rotationPerSecond: '30deg',
-              cameraControls: widget.interactive,
-              disableZoom: true,
-              disablePan: true,
-              backgroundColor: Colors.transparent,
-              shadowIntensity: 0.15,
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SizedBox(
+                height: widget.height,
+                // Si el ancho es infinito, tomamos el ancho de la pantalla
+                width: constraints.maxWidth.isFinite ? constraints.maxWidth : MediaQuery.of(context).size.width,
+                child: ModelViewer(
+                  src: cfg.model,
+                  alt: cfg.label,
+                  autoRotate: true,
+                  autoRotateDelay: 0,
+                  rotationPerSecond: '30deg',
+                  cameraControls: widget.interactive,
+                  disableZoom: true,
+                  disablePan: true,
+                  backgroundColor: Colors.transparent,
+                  shadowIntensity: 0.15,
+                ),
+              );
+            },
           ),
-        ),
+        ), // Cierre correcto de FadeTransition
+
         if (widget.showLabel)
           FadeTransition(
             opacity: _fadeAnim,
@@ -114,8 +119,10 @@ class _Car3DViewerState extends State<Car3DViewer> with SingleTickerProviderStat
               child: Text(
                 cfg.label.toUpperCase(),
                 style: const TextStyle(
-                  fontSize: 9, fontWeight: FontWeight.w900,
-                  letterSpacing: 3, color: Color(0x660F3D3A),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 3,
+                  color: Color(0x660F3D3A),
                 ),
               ),
             ),

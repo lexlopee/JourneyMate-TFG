@@ -4,6 +4,9 @@ import '../../core/app_colors.dart';
 import '../../screens/search_screen.dart';
 import '../cards/result_cards.dart';
 import '../../utils/date_utils.dart';
+import 'hotel_details_modal.dart';
+import '../../services/search_service.dart';
+import '../common_widgets.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // WIDGET PRINCIPAL DE LISTA DE RESULTADOS
@@ -53,7 +56,7 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.results.isEmpty) {
-      return const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("Buscando ofertas...")));
+      return const Center(child: Padding(padding: EdgeInsets.all(40)));
     }
 
     return Padding(
@@ -65,7 +68,6 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
           const SizedBox(height: 12),
           _buildSortFilters(),
           const SizedBox(height: 16),
-          // Aquí se generan las tarjetas sin filtros restrictivos
           ..._sorted.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: _buildCard(item),
@@ -136,11 +138,15 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
     );
   }
 
-  // MÉTODO CORREGIDO: Llama a las clases de tarjetas externas correctamente[cite: 18, 19]
-  Widget _buildCard(Map<String, dynamic> item) {
+  Widget _buildCard(dynamic rawItem) {
+    final item = (rawItem is Map<String, dynamic>) ? rawItem : Map<String, dynamic>.from(rawItem as Map);
     switch (widget.section) {
       case Section.alojamiento:
-        return HotelCard(hotel: item, destination: widget.destination, onViewDetails: () => _showHotelDetail(item));
+        return HotelCard(
+            hotel: item,
+            destination: widget.destination,
+            onViewDetails: () => _showHotelDetail(item)
+        );
       case Section.vuelos:
         return FlightCard(flight: item, onViewDetails: () => _showFlightDetail(item));
       case Section.actividades:
@@ -148,16 +154,43 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
       case Section.cruceros:
         return CruiseCard(cruise: item, onViewDetails: () => _showCruiseDetail(item));
       case Section.coches:
-      // Se llama a la clase CarCard definida abajo
         return CarCardWidget(car: item, searchData: widget.searchData, onRent: () => _showCarDetail(item));
       default:
         return const SizedBox.shrink();
     }
   }
 
-  // ── MODALES DE DETALLE ────────────────────────────────────────────────────
   void _showHotelDetail(Map<String, dynamic> item) {
-    showModalBottomSheet(context: context, isScrollControlled: true, useSafeArea: true, backgroundColor: Colors.transparent, builder: (_) => _DetailSheet(title: item['nombre'] ?? 'Hotel', child: _HotelDetailContent(hotel: item, searchData: widget.searchData)));
+    // Obtenemos el ID de forma segura según la estructura de tu API[cite: 12]
+    final String hotelId = (item['hotelId'] ?? item['id'] ?? '').toString();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      builder: (context) => FutureBuilder(
+        future: SearchService.getHotelDetails(hotelId, widget.searchData),
+        builder: (context, snapshot) {
+          // 1. ESTADO: CARGANDO
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingModal();
+          }
+
+          // 2. ESTADO: ERROR (API caída o ID inválido)
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const ErrorModal(message: "No pudimos obtener los detalles del hotel en este momento.");
+          }
+
+          return HotelDetailsModal(
+            details: snapshot.data as Map<String, dynamic>, // Pasa el mapa directo
+            basicData: item,
+            searchData: widget.searchData,
+          );
+        },
+      ),
+    );
   }
 
   void _showFlightDetail(Map<String, dynamic> item) {
@@ -178,7 +211,7 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// CAR CARD WIDGET — Definido como clase independiente para evitar errores de tipo
+// CAR CARD WIDGET
 // ══════════════════════════════════════════════════════════════════════════════
 class CarCardWidget extends StatelessWidget {
   final Map<String, dynamic> car;
@@ -190,45 +223,89 @@ class CarCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final days = daysBetween(searchData['startDate'], searchData['endDate']);
     final price = car['price'] ?? car['precio'] ?? 0;
+    final currency = car['currency'] ?? 'EUR';
+    final transmission = (car['transmission'] ?? '').toString();
+    final isAutomatic = transmission.toLowerCase().contains('auto');
 
     return Container(
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.92), borderRadius: BorderRadius.circular(40), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20)]),
-      padding: const EdgeInsets.all(20),
-      child: Row(children: [
-        if (car['imageUrl'] != null)
-          ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(car['imageUrl'], width: 120, height: 80, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(LucideIcons.car, size: 48, color: AppColors.teal300)))
-        else
-          const Icon(LucideIcons.car, size: 48, color: AppColors.teal300),
-        const SizedBox(width: 16),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text((car['carName'] ?? 'Coche').toString().toUpperCase(), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.3)),
-          Text(car['vendorName'] ?? 'Proveedor', style: const TextStyle(fontSize: 11, color: AppColors.teal600, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          Row(children: [
-            const Icon(LucideIcons.users, size: 12, color: AppColors.teal500), const SizedBox(width: 3), Text('${car['seats'] ?? 5}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.teal900)), const SizedBox(width: 8),
-            const Icon(LucideIcons.briefcase, size: 12, color: AppColors.teal500), const SizedBox(width: 3), Text('${car['bags'] ?? 2}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.teal900)),
-          ]),
-          const SizedBox(height: 8),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('$days día${days == 1 ? '' : 's'}', style: const TextStyle(fontSize: 9, color: AppColors.teal400, fontWeight: FontWeight.w700)),
-              Text(formatCurrency(price, car['currency'] ?? 'EUR'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5)),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4))],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Container(
+            width: MediaQuery.of(context).size.width * 0.38,
+            color: const Color(0xFFF9FAFB),
+            child: Stack(children: [
+              Positioned.fill(child: Container(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0x0D14B8A6), Colors.transparent])))),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: car['imageUrl'] != null
+                      ? Image.network(car['imageUrl'], fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(LucideIcons.car, size: 56, color: AppColors.teal300))
+                      : const Icon(LucideIcons.car, size: 56, color: AppColors.teal300),
+                ),
+              ),
+              Positioned(top: 10, left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE5E7EB))),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(LucideIcons.building2, size: 10, color: AppColors.teal600),
+                    const SizedBox(width: 4),
+                    Text((car['vendorName'] ?? 'Proveedor').toString().toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: 1)),
+                  ]),
+                ),
+              ),
             ]),
-            ElevatedButton(
-              onPressed: onRent,
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.teal900, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-              child: const Text('ALQUILAR', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 10)),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text((car['carName'] ?? 'Coche').toString().toUpperCase(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.5, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 12),
+                Wrap(spacing: 12, runSpacing: 8, children: [
+                  _spec(LucideIcons.users, '${car['seats'] ?? 5} plazas'),
+                  _spec(LucideIcons.briefcase, '${car['bags'] ?? 2} maletas'),
+                  _spec(LucideIcons.settings2, isAutomatic ? 'Automático' : 'Manual'),
+                  _spec(LucideIcons.fuel, 'Lleno'),
+                ]),
+                const Divider(color: Color(0xFFF3F4F6), height: 32),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('$days ${days == 1 ? 'día' : 'días'} · Tasas incl.', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Color(0xFF9CA3AF), letterSpacing: 1)),
+                    Text(formatCurrency(price, currency), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600)),
+                  ]),
+                  GestureDetector(
+                    onTap: onRent,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(color: AppColors.teal900, borderRadius: BorderRadius.circular(20)),
+                      child: const Text('ALQUILAR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 9, letterSpacing: 1.5)),
+                    ),
+                  ),
+                ]),
+              ]),
             ),
-          ]),
-        ])),
-      ]),
+          ),
+        ]),
+      ),
     );
   }
+
+  Widget _spec(IconData icon, String label) => Row(mainAxisSize: MainAxisSize.min, children: [
+    Icon(icon, size: 13, color: AppColors.teal500),
+    const SizedBox(width: 4),
+    Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.teal900)),
+  ]);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// COMPONENTES DE DETALLE (MODALES)
-// ══════════════════════════════════════════════════════════════════════════════
+// ── COMPONENTES DE SOPORTE PARA OTROS DETALLES ──────────────────────────────
 
 class _DetailSheet extends StatelessWidget {
   final String title;
@@ -250,24 +327,6 @@ class _DetailSheet extends StatelessWidget {
       ]),
     ),
   );
-}
-
-class _HotelDetailContent extends StatelessWidget {
-  final Map<String, dynamic> hotel;
-  final Map<String, dynamic> searchData;
-  const _HotelDetailContent({required this.hotel, required this.searchData});
-
-  @override
-  Widget build(BuildContext context) {
-    final nights = daysBetween(searchData['startDate'], searchData['endDate']);
-    return Column(children: [
-      if (hotel['urlFoto'] != null) ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network(hotel['urlFoto'], height: 200, width: double.infinity, fit: BoxFit.cover)),
-      const SizedBox(height: 16),
-      Text((hotel['nombre'] ?? 'Hotel').toString().toUpperCase(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal900)),
-      const SizedBox(height: 20),
-      _reserveBtn(context, formatCurrency(hotel['precio'] ?? 0, hotel['moneda'] ?? 'EUR')),
-    ]);
-  }
 }
 
 class _FlightDetailContent extends StatelessWidget {

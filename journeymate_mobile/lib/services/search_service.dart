@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 
 // ── EQUIVALENTE A paramsMapper.ts ────────────────────────────────────────────
@@ -67,14 +68,20 @@ class ParamsMapper {
     return params;
   }
 
-  static Map<String, dynamic> actividades(Map<String, dynamic> data, String ufi) => {
-    'id': ufi,
-    'startDate': data['startDate'],
-    'endDate': data['endDate'],
-    'sortBy': data['sort'] ?? 'trending',
-    'page': 1,
-    'currencyCode': 'EUR',
-  };
+  // En ParamsMapper (source 3)
+  static Map<String, dynamic> actividades(Map<String, dynamic> data, String ufi) {
+    String sortValue = data['sort'] ?? 'trending';
+    if (sortValue == 'BEST') sortValue = 'trending';
+
+    return {
+      'id': ufi,
+      'startDate': data['startDate'],
+      'endDate': data['endDate'],
+      'sortBy': sortValue,
+      'page': 1,
+      'currencyCode': 'EUR',
+    };
+  }
 
   static Map<String, dynamic> cruceros(Map<String, dynamic> data) => {
     'startDate': data['startDate'],
@@ -137,13 +144,32 @@ class SearchService {
       }
 
       case 'actividades': {
-        final locData = await api.get('/activities/location', params: {'query': query});
-        String? ufi;
-        if (locData is Map) {
-          final dests = locData['destinations'] as List?;
-          if (dests != null && dests.isNotEmpty) ufi = dests[0]['id']?.toString();
+        // Si el autocomplete ya nos dio el UFI directamente, usarlo sin llamada extra
+        String? ufi = (searchData['activityUfi'] as String?)?.isNotEmpty == true
+            ? searchData['activityUfi'] as String
+            : null;
+
+        if (ufi == null) {
+          // Fallback: resolver por nombre (cuando se escribe manualmente sin autocompletar)
+          if (query.isEmpty) return [];
+          final locData = await api.get('/activities/location', params: {'query': query});
+          if (locData is Map) {
+            final dests = (locData['destinations'] as List? ?? []);
+            final prods = (locData['products']     as List? ?? []);
+            if (dests.isNotEmpty) {
+              ufi = (dests[0]['id'] ?? dests[0]['cityUfi'] ?? '').toString();
+            } else if (prods.isNotEmpty) {
+              ufi = (prods[0]['id'] ?? prods[0]['cityUfi'] ?? '').toString();
+            }
+          }
         }
-        if (ufi == null) return [];
+
+        if (ufi == null || ufi.isEmpty) {
+          debugPrint('⚠️ Actividades: no se encontró UFI para query="$query"');
+          return [];
+        }
+
+        debugPrint('▶ Actividades UFI=$ufi');
         final params = _clean(ParamsMapper.actividades(searchData, ufi));
         final res = await api.get('/activities/search', params: params);
         return _toList(res);
@@ -163,7 +189,11 @@ class SearchService {
   // --- Detalles, IA e Itinerarios ---
   static Future<dynamic> getHotelDetails(String hotelId, Map<String, dynamic> searchData) async {
     final params = _clean({...ParamsMapper.hotelDetails(hotelId, searchData), '_t': DateTime.now().millisecondsSinceEpoch});
-    return api.get('/hotels/details', params: params);
+    final cleanParams = Map.fromEntries(
+        params.entries.where((e) => e.value != null)
+    );
+
+    return await api.get('/hotels/details', params: cleanParams);
   }
 
   static Future<dynamic> getFlightDetails(String token, {String currency = 'EUR'}) async {

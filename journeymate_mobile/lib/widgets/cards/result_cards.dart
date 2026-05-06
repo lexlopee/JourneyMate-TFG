@@ -4,100 +4,210 @@ import '../../core/app_colors.dart';
 import '../../utils/date_utils.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
-// HOTEL CARD
+// HOTEL CARD — equivalente a HotelCard.tsx
 // ══════════════════════════════════════════════════════════════════════════════
 class HotelCard extends StatelessWidget {
   final Map<String, dynamic> hotel;
   final VoidCallback onViewDetails;
   final String destination;
-  const HotelCard({super.key, required this.hotel, required this.onViewDetails, required this.destination});
+
+  const HotelCard({
+    super.key,
+    required this.hotel,
+    required this.onViewDetails,
+    required this.destination
+  });
 
   @override
   Widget build(BuildContext context) {
-    final name        = hotel['nombre'] ?? 'Alojamiento JourneyMate';
-    final rating      = (hotel['calificacion'] ?? 0) > 0 ? hotel['calificacion'].toString() : 'Nuevo';
-    final image       = hotel['urlFoto'] as String?;
-    final reviewWord  = hotel['reviewWord'] ?? '';
-    final stars       = (hotel['propertyClass'] ?? 0) as int;
-    final precio      = hotel['precio'];
-    final precioOrig  = hotel['precioOriginal'];
-    final moneda      = hotel['moneda'] ?? 'EUR';
-    final hasDiscount = precioOrig != null && (precioOrig as num) > (precio as num? ?? 0);
+    // Extracción segura de datos
+    final name = (hotel['nombre'] ?? 'Alojamiento JourneyMate').toString();
+    final rating = hotel['calificacion']?.toString() ?? 'Nuevo';
+    final image = hotel['urlFoto'] as String?;
+    final reviewWord = hotel['reviewWord'] ?? '';
+    final stars = (hotel['propertyClass'] ?? 0) as int;
+
+    // Gestión de precios y descuentos
+    final precio = hotel['precio'] ?? 0;
+    final precioOrig = hotel['precioOriginal'];
+    final moneda = hotel['moneda'] ?? 'EUR';
+    final hasDiscount = precioOrig != null && (precioOrig as num) > (precio as num);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(40),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8)
+          )
+        ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SizedBox(
-          height: 200,
-          child: Stack(children: [
-            if (image != null)
-              Positioned.fill(child: Image.network(image, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholder()))
-            else
-              Positioned.fill(child: _placeholder()),
-            Positioned(top: 12, right: 12, child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(color: AppColors.teal900.withOpacity(0.8), borderRadius: BorderRadius.circular(20)),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(LucideIcons.star, size: 10, color: Color(0xFFFBBF24)),
-                const SizedBox(width: 4),
-                Text('$rating${reviewWord.isNotEmpty ? ' ($reviewWord)' : ''}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
-              ]),
-            )),
-          ]),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (stars > 0) Row(children: List.generate(stars, (_) => const Icon(LucideIcons.star, size: 12, color: Color(0xFFF59E0B), fill: 1.0))),
-            if (stars > 0) const SizedBox(height: 6),
-            Text(name.toString().toUpperCase(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.3), maxLines: 2, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 6),
-            Row(children: [
-              const Icon(LucideIcons.mapPin, size: 12, color: AppColors.teal500),
-              const SizedBox(width: 4),
-              Expanded(child: Text(destination, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5), overflow: TextOverflow.ellipsis)),
-            ]),
-            const SizedBox(height: 12),
-            const Divider(color: AppColors.teal100, height: 1),
-            const SizedBox(height: 12),
-
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              // CORRECCIÓN: Expanded evita que el precio empuje al botón fuera de la pantalla
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('PRECIO ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
-                  if (hasDiscount) Text(formatCurrency(precioOrig, moneda), style: const TextStyle(fontSize: 12, decoration: TextDecoration.lineThrough, color: Colors.red, fontWeight: FontWeight.w600)),
-                  Text(formatCurrency(precio ?? 0, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5), overflow: TextOverflow.ellipsis),
-                ]),
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: onViewDetails,
-                child: Container(
-                  width: 48, height: 48,
-                  decoration: BoxDecoration(color: AppColors.teal900, borderRadius: BorderRadius.circular(16)),
-                  child: const Icon(LucideIcons.building2, color: Colors.white, size: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // IMAGEN Y BADGE DE RATING
+          SizedBox(
+            height: 200,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: image != null && image.isNotEmpty
+                      ? Image.network(image, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholder())
+                      : _placeholder(),
                 ),
-              ),
-            ]),
-          ]),
-        ),
-      ]),
+                Positioned(
+                    top: 12,
+                    right: 12,
+                    child: _buildRatingBadge(rating, reviewWord)
+                ),
+              ],
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (stars > 0) _buildStars(stars),
+
+                Text(
+                    name.toUpperCase(),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.teal900,
+                        letterSpacing: -0.3
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis
+                ),
+
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    const Icon(LucideIcons.mapPin, size: 12, color: AppColors.teal500),
+                    const SizedBox(width: 4),
+                    Expanded(
+                        child: Text(
+                            destination.toUpperCase(),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.teal600,
+                                letterSpacing: 1.2
+                            ),
+                            overflow: TextOverflow.ellipsis
+                        )
+                    ),
+                  ],
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: AppColors.teal100, height: 1),
+                ),
+
+                // SECCIÓN DE PRECIO Y BOTÓN DE ACCIÓN
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildPriceSection(precio, precioOrig, moneda, hasDiscount),
+
+                    // Botón para ver detalles
+                    InkWell(
+                      onTap: onViewDetails,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                            color: AppColors.teal900,
+                            borderRadius: BorderRadius.circular(16)
+                        ),
+                        child: const Icon(LucideIcons.building2, color: Colors.white, size: 24),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _placeholder() => Container(color: AppColors.teal50, child: const Center(child: Icon(LucideIcons.hotel, size: 48, color: AppColors.teal300)));
+  // --- Widgets Auxiliares ---
+
+  Widget _buildRatingBadge(String rating, String word) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+          color: AppColors.teal900.withOpacity(0.85),
+          borderRadius: BorderRadius.circular(20)
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(LucideIcons.star, size: 10, color: Color(0xFFFBBF24)),
+          const SizedBox(width: 4),
+          Text(
+              '$rating${word.isNotEmpty ? ' ($word)' : ''}',
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStars(int count) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+          children: List.generate(
+              count,
+                  (_) => const Icon(LucideIcons.star, size: 12, color: Color(0xFFF59E0B), fill: 1.0)
+          )
+      ),
+    );
+  }
+
+  Widget _buildPriceSection(dynamic p, dynamic po, String m, bool disk) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+            'PRECIO ESTIMADO',
+            style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))
+        ),
+        if (disk)
+          Text(
+              formatCurrency(po, m),
+              style: const TextStyle(fontSize: 12, decoration: TextDecoration.lineThrough, color: Colors.red, fontWeight: FontWeight.w600)
+          ),
+        Text(
+            formatCurrency(p, m),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5)
+        ),
+      ],
+    );
+  }
+
+  Widget _placeholder() => Container(
+      color: AppColors.teal50,
+      child: const Center(child: Icon(LucideIcons.hotel, size: 48, color: AppColors.teal300))
+  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// FLIGHT CARD
+// FLIGHT CARD — equivalente a FlightCard.tsx
 // ══════════════════════════════════════════════════════════════════════════════
 class FlightCard extends StatelessWidget {
   final Map<String, dynamic> flight;
@@ -107,12 +217,13 @@ class FlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stops = int.tryParse(flight['stops']?.toString() ?? '0') ?? 0;
-    final isDirect = stops == 0;
+    final isDirect  = stops == 0;
     final moneda = (flight['moneda'] ?? 'EUR').toString();
     final aerolinea = (flight['aerolinea'] ?? flight['airline'] ?? 'AEROLÍNEA').toString();
+    final horaSalida = flight['horaSalida']?.toString() ?? '';
+    final horaLlegada = flight['horaLlegada']?.toString() ?? '';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
@@ -121,6 +232,7 @@ class FlightCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // Badge clase + Aerolínea
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: [
             Container(
@@ -133,7 +245,7 @@ class FlightCard extends StatelessWidget {
             const SizedBox(width: 10),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Text('AEROLÍNEA', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 2)),
-              Text(aerolinea.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.2)),
+              Text((flight['aerolinea'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.2)),
             ]),
           ]),
           Container(
@@ -144,6 +256,7 @@ class FlightCard extends StatelessWidget {
         ]),
         const SizedBox(height: 20),
 
+        // Trayecto
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(color: AppColors.teal50.withOpacity(0.5), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.teal100.withOpacity(0.3))),
@@ -152,8 +265,9 @@ class FlightCard extends StatelessWidget {
               const Row(children: [Icon(LucideIcons.planeTakeoff, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('SALIDA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5))]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaSalida']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
-              Text((flight['origenCode'] ?? flight['origen'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700), overflow: TextOverflow.ellipsis),
+              Text((flight['origenCode'] ?? flight['origen'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
             ])),
+
             Expanded(child: Column(children: [
               const Divider(color: AppColors.teal200),
               Container(
@@ -164,34 +278,32 @@ class FlightCard extends StatelessWidget {
               const Divider(color: AppColors.teal200),
               Text(isDirect ? 'DIRECTO' : '$stops ESCALA${stops > 1 ? 'S' : ''}', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: isDirect ? AppColors.teal400 : const Color(0xFFF59E0B))),
             ])),
+
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('LLEGADA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5)), SizedBox(width: 4), Icon(LucideIcons.planeLanding, size: 12, color: AppColors.teal400)]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaLlegada']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
-              Text((flight['destinoCode'] ?? flight['destino'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700), overflow: TextOverflow.ellipsis),
+              Text((flight['destinoCode'] ?? flight['destino'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
             ])),
           ]),
         ),
         const SizedBox(height: 20),
 
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          // CORRECCIÓN: Expanded para el precio
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('TOTAL ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
-              Text(formatCurrency(flight['precio'], moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.5), overflow: TextOverflow.ellipsis),
-            ]),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton.icon(
-            onPressed: onViewDetails,
-            icon: const Icon(LucideIcons.moveRight, size: 14),
-            label: const Text('DETALLES', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 10)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.teal900,
-              foregroundColor: Colors.white,
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('TOTAL ESTIMADO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
+            Text(formatCurrency(flight['precio'], moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.5)),
+          ]),
+          GestureDetector(
+            onTap: onViewDetails,
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: AppColors.teal900, borderRadius: BorderRadius.circular(20)),
+              child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                Text('DETALLES', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 10)),
+                SizedBox(width: 6),
+                Icon(LucideIcons.moveRight, size: 14, color: Colors.white),
+              ]),
             ),
           ),
         ]),
@@ -201,7 +313,7 @@ class FlightCard extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// ACTIVITY CARD
+// ACTIVITY CARD — equivalente a ActivityCard.tsx
 // ══════════════════════════════════════════════════════════════════════════════
 class ActivityCard extends StatelessWidget {
   final Map<String, dynamic> activity;
@@ -216,7 +328,6 @@ class ActivityCard extends StatelessWidget {
     final calificacion = activity['calificacion'] ?? 0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
@@ -256,15 +367,7 @@ class ActivityCard extends StatelessWidget {
           const Divider(color: AppColors.teal50, height: 1),
           const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            // CORRECCIÓN: Expanded para la fila de disponibilidad
-            Expanded(
-              child: Row(children: [
-                const Icon(LucideIcons.clock, size: 12, color: AppColors.teal400),
-                const SizedBox(width: 4),
-                Expanded(child: Text('Ver disponibilidad', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.teal400), overflow: TextOverflow.ellipsis))
-              ]),
-            ),
-            const SizedBox(width: 8),
+            const Row(children: [Icon(LucideIcons.clock, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('Ver disponibilidad', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.teal400))]),
             GestureDetector(
               onTap: onViewDetails,
               child: Container(
@@ -283,7 +386,7 @@ class ActivityCard extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// CRUISE CARD
+// CRUISE CARD — equivalente a CruiseCard.tsx
 // ══════════════════════════════════════════════════════════════════════════════
 class CruiseCard extends StatelessWidget {
   final Map<String, dynamic> cruise;
@@ -301,7 +404,6 @@ class CruiseCard extends StatelessWidget {
     final moneda  = cruise['moneda'] ?? cruise['currency'] ?? 'USD';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(40),
@@ -332,26 +434,22 @@ class CruiseCard extends StatelessWidget {
           Row(children: [
             const Icon(LucideIcons.anchor, size: 10, color: AppColors.teal500),
             const SizedBox(width: 4),
-            Expanded(child: Text(barco.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5), overflow: TextOverflow.ellipsis)),
+            Text(barco.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5)),
           ]),
           const SizedBox(height: 8),
           Row(children: [
             const Icon(LucideIcons.mapPin, size: 12, color: AppColors.teal500),
             const SizedBox(width: 4),
-            Expanded(child: Text(puerto.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5), overflow: TextOverflow.ellipsis)),
+            Text(puerto.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5)),
           ]),
           const SizedBox(height: 12),
           const Divider(color: AppColors.teal100, height: 1),
           const SizedBox(height: 12),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            // CORRECCIÓN: Expanded para el precio
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('DESDE', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
-                Text(formatCurrency(precio, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5), overflow: TextOverflow.ellipsis),
-              ]),
-            ),
-            const SizedBox(width: 12),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('DESDE', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFA7C4BD))),
+              Text(formatCurrency(precio, moneda), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: -0.5)),
+            ]),
             GestureDetector(
               onTap: onViewDetails,
               child: Container(

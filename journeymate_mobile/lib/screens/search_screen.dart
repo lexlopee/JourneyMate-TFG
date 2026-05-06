@@ -169,8 +169,21 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     ));
   }
 
+  // En _SearchScreenState (source 4)
   void _changeSection(Section s) {
-    setState(() { _section = s; _results = []; });
+    setState(() {
+      _section = s;
+      _results = [];
+
+      if (s == Section.actividades) {
+        _searchData['sort'] = 'trending';
+      } else if (s == Section.vuelos) {
+        _searchData['sort'] = 'BEST';
+      } else {
+        _searchData['sort'] = 'BEST'; // Valor por defecto para el resto
+      }
+    });
+
     _iconAnimCtrl.reset();
     _iconAnimCtrl.forward();
   }
@@ -209,10 +222,19 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           if (_loading)
             Container(
               color: const Color(0xCC042F2E),
-              child: const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                LoadingVideo(size: 180),
-                SizedBox(height: 16),
-                Text('BUSCANDO LAS MEJORES OPCIONES...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 3)),
+              child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+                // Usamos spinner nativo para evitar el cuadrado negro del codec H264 en emulador
+                Container(
+                  width: 100, height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(50),
+                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+                  ),
+                  child: const Center(child: CircularProgressIndicator(color: Color(0xFF14B8A6), strokeWidth: 3)),
+                ),
+                const SizedBox(height: 24),
+                const Text('BUSCANDO LAS MEJORES OPCIONES...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 3)),
               ])),
             ),
 
@@ -316,7 +338,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               border: Border.all(color: Colors.white.withOpacity(0.4)),
             ),
             child: _section == Section.coches
-                ? SizedBox(height: 120, width: 120, child: Car3DViewer(carType: _searchData['carType'] ?? 'all', height: 120, showLabel: true))
+                ? SizedBox(
+              height: 120,
+              width: 120,
+              child: Car3DViewer(carType: _searchData['carType'] ?? 'all', height: 120, showLabel: true),
+            )
                 : Icon(_section.icon, size: 64, color: AppColors.teal900),
           ),
         ),

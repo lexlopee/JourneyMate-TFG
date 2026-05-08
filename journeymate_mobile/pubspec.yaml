@@ -31,14 +31,10 @@ dependencies:
   lucide_icons: ^0.257.0           # lucide-react → lucide_icons
 
   # ── Mapas (HotelMap) ─────────────────────────────────────────
-  google_maps_flutter: ^2.9.0         # Google Maps → google_maps_flutter
+  google_maps_flutter: ^2.5.3       # Google Maps → google_maps_flutter
 
   # ── Imágenes ─────────────────────────────────────────────────
   cached_network_image: ^3.3.1        # lazy loading de imágenes
-
-  # ── PDF (AITravelAssistant) ───────────────────────────────────
-  pdf: ^3.11.1                        # html2pdf.js → pdf
-  printing: ^5.13.1                   # compartir/imprimir PDF
 
   # ── UI / Utilidades ───────────────────────────────────────────
   intl: ^0.19.0                       # Intl.NumberFormat → intl

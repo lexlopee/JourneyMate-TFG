@@ -1,17 +1,24 @@
+// lib/widgets/results/hotel/hotel_details_modal.dart
+//
+// FIXES aplicados:
+// 1. ✅ _handleReserve usa AuthService real (no const vacío)
+// 2. ✅ Llama a api.createReserva con el cuerpo correcto
+// 3. ✅ Muestra link a /login si no hay sesión
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../core/app_colors.dart';
+import '../../services/auth_service.dart';
+import '../../services/api_service.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// HOTEL DETAILS MODAL — Equivalente a HotelDetailsModal.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class HotelDetailsModal extends StatefulWidget {
-  final Map<String, dynamic> details;    // { data: {...} } del backend
-  final Map<String, dynamic> basicData;  // Datos de la tarjeta (precio, urlFoto…)
-  final Map<String, dynamic> searchData; // startDate, endDate, adults…
+  final Map<String, dynamic> details;
+  final Map<String, dynamic> basicData;
+  final Map<String, dynamic> searchData;
 
   const HotelDetailsModal({
     super.key,
@@ -25,20 +32,12 @@ class HotelDetailsModal extends StatefulWidget {
 }
 
 class _HotelDetailsModalState extends State<HotelDetailsModal> {
-  // ── Estado UI ──────────────────────────────────────────────────────────────
   int    _photoIndex  = 0;
   bool   _isReserving = false;
   bool   _isBooked    = false;
   String _error       = '';
 
-  // FIX CRÍTICO DEL CARRUSEL:
-  // El PageController DEBE declararse en initState y mantenerse en el estado.
-  // Si se crea dentro de _buildCarousel() en cada build, Flutter crea un
-  // controlador nuevo cada vez → el PageView olvida la página actual y
-  // siempre vuelve a la primera imagen.
   late final PageController _pageCtrl;
-
-  // ── Datos procesados (se calculan una sola vez en initState) ───────────────
   late final Map<String, dynamic> _hotelData;
   late final List<String>         _photos;
   late final double               _lat, _lng, _price;
@@ -60,7 +59,6 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     super.dispose();
   }
 
-  // ── Extracción de datos ────────────────────────────────────────────────────
   void _processData() {
     _hotelData = Map<String, dynamic>.from(
         (widget.details['data'] ?? {}) as Map);
@@ -86,17 +84,13 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     _facilities = (_hotelData['facilitiesBlock']?['facilities'] ??
         _hotelData['facilities_block']?['facilities'] ?? []) as List;
 
-    // Noches
     try {
       final s = DateTime.parse(widget.searchData['startDate'] ?? '');
       final e = DateTime.parse(widget.searchData['endDate']   ?? '');
       _nights = e.difference(s).inDays.clamp(1, 365);
     } catch (_) { _nights = 1; }
 
-    // ── Fotos: foto principal + room.photos[].urlMax750 (igual que el React) ─
-    // React: hotelBasicData.urlFoto + Object.values(rooms).flatMap(room => room.photos[].urlMax750)
     final seen = <String>{};
-
     final main = widget.basicData['urlFoto']?.toString() ?? '';
     if (main.isNotEmpty) seen.add(main);
 
@@ -117,48 +111,74 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     _photos = seen.toList();
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
   String _fmtPrice(double v) => '${v.toStringAsFixed(2)} $_currency';
-  int    get _adults    => (widget.searchData['adults'] ?? 1) as int;
-  bool   get _hasBreakfast {
+  int get _adults => (widget.searchData['adults'] ?? 1) is int
+      ? (widget.searchData['adults'] ?? 1) as int
+      : int.tryParse(widget.searchData['adults'].toString()) ?? 1;
+
+  bool get _hasBreakfast {
     if (_breakfast == null) return false;
     final r = _breakfast['rating'];
     return r is num && r > 0;
   }
 
-  // ── Reserva ────────────────────────────────────────────────────────────────
+  // ── FIX 1: Reserva real con AuthService ───────────────────────────────────
   Future<void> _handleReserve() async {
     if (_isReserving || _isBooked) return;
     setState(() { _isReserving = true; _error = ''; });
+
     try {
-      // TODO: leer de SharedPreferences o tu AuthProvider
-      // final prefs = await SharedPreferences.getInstance();
-      // final token = prefs.getString('token') ?? '';
-      // final idUsuario = prefs.getString('idUsuario') ?? '';
-      const token = ''; const idUsuario = '';
-
-      if (token.isEmpty || idUsuario.isEmpty) {
-        setState(() => _error = 'Debes iniciar sesión para reservar.'); return;
+      // Leer token e idUsuario de SharedPreferences via AuthService
+      final isLogged = await AuthService.isLoggedIn();
+      if (!isLogged) {
+        setState(() => _error = 'Debes iniciar sesión para reservar.');
+        return;
       }
+
+      final idUsuario = await AuthService.getIdUsuario();
+      if (idUsuario == null) {
+        setState(() => _error = 'No se pudo obtener el usuario. Inicia sesión de nuevo.');
+        return;
+      }
+
       if (_price == 0) {
-        setState(() => _error = 'No se pudo obtener el precio.'); return;
+        setState(() => _error = 'No se pudo obtener el precio.');
+        return;
       }
 
-      // TODO: api.post('/reservas/completa', body)
-      // Estructura idéntica a la del React:
-      // { idUsuario, idTipoReserva: 1, idEstado: 1, precioTotal, fechaServicio, servicio: {...} }
-      await Future.delayed(const Duration(milliseconds: 500)); // placeholder
+      final body = {
+        'idUsuario':     idUsuario,
+        'idTipoReserva': 1,
+        'idEstado':      1,
+        'precioTotal':   _price,
+        'fechaServicio': widget.searchData['startDate'] ?? '',
+        'servicio': {
+          'tipo':        'HOTEL',
+          'nombre':      _name,
+          'precioBase':  _price,
+          'descripcion': _reviewWord?.toString(),
+          'estrellas':   _stars >= 1 ? _stars : null,
+          'latitud':     _lat != 0 ? _lat : null,
+          'longitud':    _lng != 0 ? _lng : null,
+          'descripcion_direccion': _address,
+          'fechaSalida': widget.searchData['startDate'] ?? '',
+        },
+      };
+
+      await api.createReserva(body);
       setState(() => _isBooked = true);
-    } catch (_) {
+
+    } on ApiException catch (e) {
+      setState(() => _error = e.statusCode == 401
+          ? 'Sesión expirada. Vuelve a iniciar sesión.'
+          : 'Error al reservar (${e.statusCode}). Inténtalo de nuevo.');
+    } catch (e) {
       setState(() => _error = 'No se pudo conectar con el servidor.');
     } finally {
       if (mounted) setState(() => _isReserving = false);
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -193,7 +213,6 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     );
   }
 
-  // ── Carrusel ───────────────────────────────────────────────────────────────
   Widget _buildCarousel() {
     if (_photos.isEmpty) {
       return Container(height: 280, color: AppColors.teal900,
@@ -204,9 +223,8 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
 
     return SizedBox(height: 280,
       child: Stack(children: [
-        // PageView con el controlador del estado
         PageView.builder(
-          controller: _pageCtrl,         // ← controller del estado, NO un new PageController()
+          controller: _pageCtrl,
           itemCount: _photos.length,
           onPageChanged: (i) => setState(() => _photoIndex = i),
           itemBuilder: (_, i) => Image.network(
@@ -216,8 +234,6 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
                     size: 48, color: AppColors.teal200))),
           ),
         ),
-
-        // Botón cerrar
         Positioned(top: 44, right: 16,
           child: GestureDetector(
             onTap: () => Navigator.pop(context),
@@ -226,38 +242,30 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
                 child: const Icon(LucideIcons.x, color: Colors.white, size: 18)),
           ),
         ),
-
-        // Flechas
         if (_photos.length > 1) ...[
-          _arrowBtn(left: true,  onTap: () {
+          _arrowBtn(left: true, onTap: () {
             final prev = (_photoIndex - 1 + _photos.length) % _photos.length;
-            _pageCtrl.animateToPage(prev,
-                duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+            _pageCtrl.animateToPage(prev, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
           }),
           _arrowBtn(left: false, onTap: () {
             final next = (_photoIndex + 1) % _photos.length;
-            _pageCtrl.animateToPage(next,
-                duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+            _pageCtrl.animateToPage(next, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
           }),
         ],
-
-        // Contador
         Positioned(bottom: 16, left: 0, right: 0,
             child: Center(child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(20)),
                 child: Text('${_photoIndex + 1} / ${_photos.length}',
-                    style: const TextStyle(color: Colors.white, fontSize: 11,
-                        fontWeight: FontWeight.w900))))),
+                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900))))),
       ]),
     );
   }
 
   Widget _arrowBtn({required bool left, required VoidCallback onTap}) =>
       Positioned(
-        left:  left  ? 12 : null,
-        right: !left ? 12 : null,
+        left: left ? 12 : null, right: !left ? 12 : null,
         top: 0, bottom: 0,
         child: Center(child: GestureDetector(
           onTap: onTap,
@@ -268,7 +276,6 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
         )),
       );
 
-  // ── Cabecera ───────────────────────────────────────────────────────────────
   Widget _buildHeader() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     if (_stars > 0)
       Padding(padding: const EdgeInsets.only(bottom: 8),
@@ -288,33 +295,27 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: _roomsLeft < 5
                   ? const Color(0xFFFDBA74) : const Color(0xFFFDA4AF))),
-          child: Text(_roomsLeft < 5
-              ? '¡Solo quedan $_roomsLeft!'
-              : '$_roomsLeft disponibles',
+          child: Text(_roomsLeft < 5 ? '¡Solo quedan $_roomsLeft!' : '$_roomsLeft disponibles',
               style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1,
                   color: _roomsLeft < 5 ? const Color(0xFFEA580C) : const Color(0xFFE11D48)))),
     Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(color: AppColors.teal50,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.teal100)),
+          borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.teal100)),
       child: Row(children: [
         const Icon(LucideIcons.mapPin, size: 16, color: AppColors.teal500),
         const SizedBox(width: 8),
         Flexible(child: Text(_address,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                color: AppColors.teal700))),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.teal700))),
       ]),
     ),
   ]);
 
-  // ── Mapa ───────────────────────────────────────────────────────────────────
   Widget _buildMap() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     const Row(children: [
       Expanded(child: Divider(color: AppColors.teal100)),
       Padding(padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('UBICACIÓN', style: TextStyle(fontSize: 9,
-              fontWeight: FontWeight.w900, letterSpacing: 2, color: AppColors.teal500))),
+          child: Text('UBICACIÓN', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2, color: AppColors.teal500))),
       Expanded(child: Divider(color: AppColors.teal100)),
     ]),
     const SizedBox(height: 12),
@@ -326,62 +327,49 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
             markers: {Marker(markerId: const MarkerId('hotel'),
                 position: LatLng(_lat, _lng), infoWindow: InfoWindow(title: _name))},
             zoomControlsEnabled: false, mapToolbarEnabled: false, myLocationButtonEnabled: false,
-            gestureRecognizers: {
-              Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
+            gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
           )),
     ),
   ]);
 
-  // ── Valoraciones ──────────────────────────────────────────────────────────
   Widget _buildRatings() => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(color: AppColors.teal50.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.teal100)),
+        borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.teal100)),
     child: Row(children: [
       Container(width: 64, height: 64,
-          decoration: BoxDecoration(color: AppColors.teal600,
-              borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(color: AppColors.teal600, borderRadius: BorderRadius.circular(16)),
           child: Center(child: Text(_reviewScore?.toString() ?? '—',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900,
-                  color: Colors.white)))),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)))),
       const SizedBox(width: 16),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text((_reviewWord ?? 'Sin valoración').toString(),
-            style: const TextStyle(fontWeight: FontWeight.w900,
-                color: AppColors.teal900, fontSize: 14)),
+            style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.teal900, fontSize: 14)),
         Text('$_numReviews reseñas',
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
-                color: AppColors.teal400, letterSpacing: 1)),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.teal400, letterSpacing: 1)),
       ]),
     ]),
   );
 
-  // ── Desayuno ───────────────────────────────────────────────────────────────
   Widget _buildBreakfast() => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFFFFFBEB), borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFFDE68A))),
     child: Row(children: [
       Container(padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: const Color(0xFFFEF3C7),
-              borderRadius: BorderRadius.circular(14)),
+          decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(14)),
           child: const Icon(LucideIcons.coffee, size: 22, color: Color(0xFFD97706))),
       const SizedBox(width: 14),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Desayuno ${(_breakfast['reviewScoreWord'] ?? _breakfast['review_score_word'] ?? '')}',
-            style: const TextStyle(fontWeight: FontWeight.w900,
-                color: Color(0xFF78350F), fontSize: 13)),
+            style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF78350F), fontSize: 13)),
         Text('Calificación: ${_breakfast['rating']}/10',
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
-                color: Color(0xFF92400E))),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF92400E))),
       ]),
     ]),
   );
 
-  // ── Facilities ─────────────────────────────────────────────────────────────
   Widget _buildFacilities() {
     if (_facilities.isEmpty) {
       return const Text('No hay instalaciones disponibles',
@@ -389,15 +377,13 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Text('SERVICIOS E INSTALACIONES',
-          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900,
-              letterSpacing: 2, color: AppColors.teal300)),
+          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2, color: AppColors.teal300)),
       const SizedBox(height: 12),
       Wrap(spacing: 8, runSpacing: 8,
           children: _facilities.map((f) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: const Color(0xFFF3F4F6)),
+                color: Colors.white, border: Border.all(color: const Color(0xFFF3F4F6)),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 4)]),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -411,7 +397,6 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     ]);
   }
 
-  // ── Barra de reserva ───────────────────────────────────────────────────────
   Widget _buildBookingBar() => Container(
     padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
     decoration: BoxDecoration(
@@ -458,14 +443,27 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
           ),
         ),
       ]),
+
+      // FIX 2: Error con link a login si no está autenticado
       if (_error.isNotEmpty) ...[
         const SizedBox(height: 8),
         Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(color: const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(12)),
-            child: Text(_error, style: const TextStyle(color: Color(0xFFB91C1C),
-                fontSize: 11, fontWeight: FontWeight.w700), textAlign: TextAlign.center)),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(14)),
+          child: Column(children: [
+            Text(_error, style: const TextStyle(color: Color(0xFFB91C1C),
+                fontSize: 11, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
+            if (_error.contains('sesión')) ...[
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: () { Navigator.pop(context); context.go('/login'); },
+                child: const Text('→ Ir a iniciar sesión',
+                    style: TextStyle(color: Color(0xFF991B1B), fontSize: 11,
+                        fontWeight: FontWeight.w900, decoration: TextDecoration.underline)),
+              ),
+            ],
+          ]),
+        ),
       ],
       const SizedBox(height: 8),
     ])),

@@ -1,8 +1,7 @@
 // lib/screens/app_shell.dart
 //
-// AppShell — estructura principal de la app móvil.
-// Reemplaza el navbar web + footer por una BottomNavigationBar nativa.
-// Cada tab mantiene su propio NavigatorKey para que el back button funcione.
+// FIX: pasa el callback onChangeTab al HomeScreen para que las categorías
+// y destinos puedan cambiar el tab activo del Shell sin usar go_router.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +14,8 @@ import 'profile_screen.dart';
 
 class AppShell extends StatefulWidget {
   final int initialIndex;
-  const AppShell({super.key, this.initialIndex = 0});
+  final String? initialSection; // sección para pre-seleccionar en SearchScreen
+  const AppShell({super.key, this.initialIndex = 0, this.initialSection});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -23,26 +23,28 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late int _currentIndex;
-
-  // Cada tab tiene su propio GlobalKey para mantener el estado
-  final _keys = [
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-  ];
+  String? _pendingSection; // sección que SearchScreen debe pre-seleccionar
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
+    _currentIndex   = widget.initialIndex;
+    _pendingSection = widget.initialSection;
   }
 
-  // Intercepta el botón atrás del dispositivo para navegar dentro del tab
+  // FIX: callback que HomeScreen llama al pulsar categorías o destinos
+  void _changeTab(int index, {String? section}) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _currentIndex   = index;
+      _pendingSection = section;
+    });
+  }
+
+  // Intercepta el botón atrás del dispositivo
   Future<bool> _onWillPop() async {
-    final nav = _keys[_currentIndex].currentState;
-    if (nav != null && nav.canPop()) {
-      nav.pop();
+    if (_currentIndex != 0) {
+      setState(() { _currentIndex = 0; _pendingSection = null; });
       return false;
     }
     return true;
@@ -59,10 +61,17 @@ class _AppShellState extends State<AppShell> {
           child: IndexedStack(
             index: _currentIndex,
             children: [
-              _TabNavigator(navigatorKey: _keys[0], child: const HomeScreen()),
-              _TabNavigator(navigatorKey: _keys[1], child: const SearchScreen()),
-              _TabNavigator(navigatorKey: _keys[2], child: const MyBookingsScreen()),
-              _TabNavigator(navigatorKey: _keys[3], child: const ProfileScreen()),
+              // Tab 0 — Home: recibe el callback para cambiar de tab
+              HomeScreen(onChangeTab: _changeTab),
+
+              // Tab 1 — Búsqueda: recibe la sección pendiente
+              SearchScreen(initialTab: _pendingSection),
+
+              // Tab 2 — Mis Reservas
+              const MyBookingsScreen(),
+
+              // Tab 3 — Perfil
+              const ProfileScreen(),
             ],
           ),
         ),
@@ -91,10 +100,10 @@ class _AppShellState extends State<AppShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(icon: LucideIcons.home,     label: 'Inicio',    index: 0, current: _currentIndex, onTap: _onTap),
-              _NavItem(icon: LucideIcons.search,   label: 'Buscar',    index: 1, current: _currentIndex, onTap: _onTap),
-              _NavItem(icon: LucideIcons.bookOpen, label: 'Reservas',  index: 2, current: _currentIndex, onTap: _onTap),
-              _NavItem(icon: LucideIcons.user,     label: 'Perfil',    index: 3, current: _currentIndex, onTap: _onTap),
+              _NavItem(icon: LucideIcons.home,     label: 'Inicio',   index: 0, current: _currentIndex, onTap: _onTap),
+              _NavItem(icon: LucideIcons.search,   label: 'Buscar',   index: 1, current: _currentIndex, onTap: _onTap),
+              _NavItem(icon: LucideIcons.bookOpen, label: 'Reservas', index: 2, current: _currentIndex, onTap: _onTap),
+              _NavItem(icon: LucideIcons.user,     label: 'Perfil',   index: 3, current: _currentIndex, onTap: _onTap),
             ],
           ),
         ),
@@ -103,13 +112,12 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _onTap(int index) {
-    HapticFeedback.selectionClick(); // vibración táctil al cambiar tab
-    if (index == _currentIndex) {
-      // Si pulsa el tab activo, hace pop hasta la raíz
-      _keys[index].currentState?.popUntil((r) => r.isFirst);
-    } else {
-      setState(() => _currentIndex = index);
-    }
+    HapticFeedback.selectionClick();
+    if (index == _currentIndex) return; // ya estamos aquí
+    setState(() {
+      _currentIndex   = index;
+      _pendingSection = null; // limpiar sección al navegar manualmente
+    });
   }
 }
 
@@ -117,8 +125,7 @@ class _AppShellState extends State<AppShell> {
 class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final int index;
-  final int current;
+  final int index, current;
   final void Function(int) onTap;
 
   const _NavItem({
@@ -133,8 +140,8 @@ class _NavItem extends StatelessWidget {
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: active ? AppColors.teal900 : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
@@ -145,24 +152,12 @@ class _NavItem extends StatelessWidget {
             Icon(icon, size: 20, color: active ? Colors.white : AppColors.teal400),
             if (active) ...[
               const SizedBox(width: 6),
-              Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)),
+              Text(label, style: const TextStyle(color: Colors.white,
+                  fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)),
             ],
           ],
         ),
       ),
     );
   }
-}
-
-// ── Navigator por tab ────────────────────────────────────────────────────────
-class _TabNavigator extends StatelessWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-  final Widget child;
-  const _TabNavigator({required this.navigatorKey, required this.child});
-
-  @override
-  Widget build(BuildContext context) => Navigator(
-    key: navigatorKey,
-    onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => child),
-  );
 }

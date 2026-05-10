@@ -5,6 +5,7 @@ import '../../screens/search_screen.dart';
 import '../cards/result_cards.dart';
 import '../../utils/date_utils.dart';
 import 'hotel_details_modal.dart';
+import 'flight_details_modal.dart';
 import '../../services/search_service.dart';
 import '../common_widgets.dart';
 
@@ -194,7 +195,29 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
   }
 
   void _showFlightDetail(Map<String, dynamic> item) {
-    showModalBottomSheet(context: context, isScrollControlled: true, useSafeArea: true, backgroundColor: Colors.transparent, builder: (_) => _DetailSheet(title: item['aerolinea'] ?? 'Vuelo', child: _FlightDetailContent(flight: item)));
+    final String token = (item['token'] ?? '').toString();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      builder: (context) => FutureBuilder(
+        future: SearchService.getFlightDetails(token, currency: 'EUR'),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingModal();
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const ErrorModal(message: "No pudimos obtener los detalles del vuelo en este momento.");
+          }
+          return FlightDetailsModal(
+            details: snapshot.data as Map<String, dynamic>,
+            onClose: () => Navigator.pop(context),
+          );
+        },
+      ),
+    );
   }
 
   void _showActivityDetail(Map<String, dynamic> item) {

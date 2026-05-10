@@ -76,7 +76,7 @@ class _VuelosForm extends StatelessWidget {
       Expanded(child: _SelectField(
         label: 'Clase', icon: LucideIcons.briefcase,
         value: data['cabinClass'] ?? 'ECONOMY',
-        options: const [('Económica','ECONOMY'), ('Business','BUSINESS'), ('Primera Clase','FIRST')],
+        options: const [('Económica','ECONOMY'), ('Business','BUSINESS')],
         onChanged: (v) => onChange('cabinClass', v),
       )),
     ]),

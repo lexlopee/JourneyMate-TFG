@@ -29,10 +29,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUser() async {
     final loggedIn = await AuthService.isLoggedIn();
     final name     = await AuthService.getUserName();
-    if (mounted) setState(() {
+    if (mounted) {
+      setState(() {
       _isLoggedIn = loggedIn;
       _userName   = name ?? '';
     });
+    }
   }
 
   Future<void> _logout() async {

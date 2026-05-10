@@ -15,6 +15,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import 'booking_detail_screen.dart';
 
 // ── Modelo ────────────────────────────────────────────────────────────────────
 class Reserva {
@@ -48,6 +49,20 @@ class Reserva {
     idServicio:       j['idServicio']   as int?,
     idTipoReserva:    j['idTipoReserva'] as int?,
   );
+
+  // Convierte a Map para pasarlo a BookingDetailScreen
+  Map<String, dynamic> toJson() => {
+    'idReserva':         idReserva,
+    'servicioNombre':    servicioNombre,
+    'precioTotal':       precioTotal,
+    'estadoNombre':      estadoNombre,
+    'tipoReservaNombre': tipoReservaNombre,
+    'fechaServicio':     fechaReserva,
+    'servicio': {
+      'nombre':    servicioNombre,
+      'fechaSalida': fechaReserva,
+    },
+  };
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -173,7 +188,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
         }
       }
 
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _pendientes  = pend.where((r) => r.estadoNombre.toLowerCase() == 'pendiente').toList();
         _confirmadas = todas.where((r) =>
         r.estadoNombre.toLowerCase() == 'confirmada' && !_estaExpirada(r.fechaReserva)).toList();
@@ -183,6 +199,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
         }).toList();
         _loading = false;
       });
+      }
     } on ApiException catch (e) {
       if (mounted) setState(() { _error = 'Error ${e.statusCode}. Inténtalo de nuevo.'; _loading = false; });
     } catch (e) {
@@ -397,13 +414,28 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
         physics: const BouncingScrollPhysics(),
         itemCount: items.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (_, i) => _ReservaCard(
-          reserva: items[i],
-          showPay: showPay,
-          showCancel: showCancel && _puedeCancel(items[i].fechaReserva),
-          showDelete: showDelete,
-          onCancel:   () => _cancelar(items[i]),
-          onDelete:   () => _eliminar(items[i].idReserva),
+        itemBuilder: (_, i) => GestureDetector(
+          // Abre la pantalla de detalle al pulsar la card
+          onTap: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BookingDetailScreen(
+                  reserva: items[i].toJson(),
+                ),
+              ),
+            );
+            // Si se canceló desde el detalle, recargamos
+            if (result == 'cancelled') _cargarReservas();
+          },
+          child: _ReservaCard(
+            reserva: items[i],
+            showPay: showPay,
+            showCancel: showCancel && _puedeCancel(items[i].fechaReserva),
+            showDelete: showDelete,
+            onCancel:   () => _cancelar(items[i]),
+            onDelete:   () => _eliminar(items[i].idReserva),
+          ),
         ),
       ),
     );

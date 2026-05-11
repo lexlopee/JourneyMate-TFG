@@ -16,6 +16,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Servicio encargado de la autenticación y registro de usuarios.
+ *
+ * Gestiona el proceso de registro, login, generación de JWT
+ * y almacenamiento de tokens en base de datos.
+ */
 @Service
 public class AuthService {
 
@@ -37,6 +43,19 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * - Verifica que el email no esté registrado
+     * - Asigna el rol por defecto "USER"
+     * - Encripta la contraseña
+     * - Genera un token JWT
+     * - Guarda el token en base de datos
+     *
+     * @param request datos de registro del usuario
+     * @return respuesta de autenticación con token y datos básicos del usuario
+     * @throws RuntimeException si el email ya está registrado o el rol no existe
+     */
     public AuthResponse register(RegisterRequest request) {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
@@ -68,10 +87,20 @@ public class AuthService {
         tokenEntity.setFechaExpiacion(LocalDateTime.now().plusDays(7));
         tokenJWTRepository.save(tokenEntity);
 
-        // ✅ CORREGIDO: ahora incluimos el nombre en la respuesta
         return new AuthResponse(token, usuario.getIdUsuario(), usuario.getNombre());
     }
 
+    /**
+     * Autentica un usuario en el sistema.
+     *
+     * - Verifica credenciales
+     * - Genera token JWT
+     * - Guarda el token en base de datos
+     *
+     * @param request datos de login (email y contraseña)
+     * @return respuesta de autenticación con token y datos básicos del usuario
+     * @throws RuntimeException si las credenciales son inválidas
+     */
     public AuthResponse login(LoginRequest request) {
 
         UsuarioEntity usuario = usuarioRepository.findByEmail(request.getEmail())
@@ -90,7 +119,6 @@ public class AuthService {
         tokenEntity.setFechaExpiacion(LocalDateTime.now().plusDays(7));
         tokenJWTRepository.save(tokenEntity);
 
-        // ✅ CORREGIDO: ahora incluimos el nombre en la respuesta
         return new AuthResponse(token, usuario.getIdUsuario(), usuario.getNombre());
     }
 }

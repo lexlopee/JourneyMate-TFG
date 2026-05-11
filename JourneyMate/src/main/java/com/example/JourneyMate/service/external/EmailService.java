@@ -5,16 +5,38 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio encargado del envío de correos electrónicos transaccionales.
+ *
+ * Actualmente se utiliza para enviar facturas de reservas confirmadas
+ * dentro de JourneyMate.
+ */
 @Service
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
 
-    public void enviarFactura(String to, String nombreUsuario, Integer idReserva,
-                              Double total, String tipoReserva, String servicioNombre) {
+    /**
+     * Envía un correo electrónico con la factura de una reserva confirmada.
+     *
+     * El correo incluye información detallada del servicio contratado,
+     * el importe total y los datos básicos de la reserva.
+     *
+     * @param to correo electrónico del destinatario
+     * @param nombreUsuario nombre del usuario que realizó la reserva
+     * @param idReserva identificador de la reserva
+     * @param total importe total pagado
+     * @param tipoReserva tipo de servicio reservado (HOTEL, VUELO, COCHE, etc.)
+     * @param servicioNombre nombre del servicio contratado
+     */
+    public void enviarFactura(String to,
+                              String nombreUsuario,
+                              Integer idReserva,
+                              Double total,
+                              String tipoReserva,
+                              String servicioNombre) {
 
-        // Traducir el tipo de reserva a texto legible
         String tipoTexto = switch (tipoReserva != null ? tipoReserva.toUpperCase() : "") {
             case "HOTEL" -> "Hotel";
             case "VUELO" -> "Vuelo";
@@ -29,6 +51,7 @@ public class EmailService {
         message.setFrom("journeymate.info@gmail.com");
         message.setTo(to);
         message.setSubject("Factura de tu viaje en JourneyMate - Reserva #" + idReserva);
+
         message.setText(
                 "¡Hola " + nombreUsuario + "!\n\n" +
                         "Gracias por confiar en JourneyMate. Tu pago se ha procesado correctamente.\n\n" +

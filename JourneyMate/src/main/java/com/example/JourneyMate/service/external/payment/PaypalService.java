@@ -11,21 +11,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Servicio encargado de la integración con PayPal.
+ *
+ * Permite crear pagos individuales y múltiples de reservas,
+ * así como ejecutar la confirmación del pago tras la aprobación del usuario.
+ */
 @Service
 public class PaypalService {
 
     private final APIContext apiContext;
     private final String baseUrl;
 
-    public PaypalService(APIContext apiContext, @Value("${app.base-url}") String baseUrl) {
+    public PaypalService(APIContext apiContext,
+                         @Value("${app.base-url}") String baseUrl) {
         this.apiContext = apiContext;
         this.baseUrl = baseUrl;
     }
 
     /**
-     * Pago de UNA reserva (individual).
+     * Crea un pago de PayPal para una única reserva.
+     *
+     * @param reserva entidad de la reserva a pagar
+     * @return objeto {@link Payment} creado en PayPal
+     * @throws PayPalRESTException si ocurre un error en la API de PayPal
      */
     public Payment createPayment(ReservaEntity reserva) throws PayPalRESTException {
+
         Amount amount = new Amount();
         amount.setCurrency("EUR");
         amount.setTotal(String.format(Locale.US, "%.2f", reserva.getPrecioTotal()));
@@ -47,30 +59,37 @@ public class PaypalService {
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl(baseUrl + "/api/v1/payment/cancel");
-        // ⭐ returnUrl incluye reservaId (singular)
-        redirectUrls.setReturnUrl(baseUrl + "/api/v1/payment/success?reservaId=" + reserva.getIdReserva());
+        redirectUrls.setReturnUrl(
+                baseUrl + "/api/v1/payment/success?reservaId=" + reserva.getIdReserva()
+        );
+
         payment.setRedirectUrls(redirectUrls);
 
         return payment.create(apiContext);
     }
 
     /**
-     * ⭐ Pago de VARIAS reservas agrupadas.
-     * El precio es la suma de todas. Los IDs se pasan en el returnUrl
-     * para que el controller los confirme todos.
+     * Crea un pago de PayPal para múltiples reservas agrupadas.
      *
-     * @param reservaVirtual entidad con el precio total sumado (no persistida)
-     * @param reservaIdsStr  IDs separados por coma, ej: "5,6,7"
+     * El importe total corresponde a la suma de todas las reservas.
+     * Los IDs se envían en la URL de retorno para su posterior confirmación.
+     *
+     * @param reservaVirtual entidad temporal con el precio total agregado
+     * @param reservaIdsStr IDs de reservas separados por coma (ej: "5,6,7")
+     * @return objeto {@link Payment} creado en PayPal
+     * @throws PayPalRESTException si ocurre un error en la API de PayPal
      */
-    public Payment createPaymentMultiple(ReservaEntity reservaVirtual, String reservaIdsStr)
-            throws PayPalRESTException {
+    public Payment createPaymentMultiple(ReservaEntity reservaVirtual,
+                                         String reservaIdsStr) throws PayPalRESTException {
 
         Amount amount = new Amount();
         amount.setCurrency("EUR");
         amount.setTotal(String.format(Locale.US, "%.2f", reservaVirtual.getPrecioTotal()));
 
         Transaction transaction = new Transaction();
-        transaction.setDescription("JourneyMate — Pago de " + reservaIdsStr.split(",").length + " reservas");
+        transaction.setDescription(
+                "JourneyMate — Pago de " + reservaIdsStr.split(",").length + " reservas"
+        );
         transaction.setAmount(amount);
 
         List<Transaction> transactions = new ArrayList<>();
@@ -86,18 +105,32 @@ public class PaypalService {
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl(baseUrl + "/api/v1/payment/cancel");
-        // ⭐ returnUrl incluye reservaIds (plural)
-        redirectUrls.setReturnUrl(baseUrl + "/api/v1/payment/success?reservaIds=" + reservaIdsStr);
+        redirectUrls.setReturnUrl(
+                baseUrl + "/api/v1/payment/success?reservaIds=" + reservaIdsStr
+        );
+
         payment.setRedirectUrls(redirectUrls);
 
         return payment.create(apiContext);
     }
 
-    public Payment executePayment(String paymentId, String payerId) throws PayPalRESTException {
+    /**
+     * Ejecuta la confirmación de un pago tras la aprobación del usuario en PayPal.
+     *
+     * @param paymentId identificador del pago generado por PayPal
+     * @param payerId identificador del pagador en PayPal
+     * @return objeto {@link Payment} ejecutado y confirmado
+     * @throws PayPalRESTException si ocurre un error durante la ejecución del pago
+     */
+    public Payment executePayment(String paymentId, String payerId)
+            throws PayPalRESTException {
+
         Payment payment = new Payment();
         payment.setId(paymentId);
+
         PaymentExecution paymentExecute = new PaymentExecution();
         paymentExecute.setPayerId(payerId);
+
         return payment.execute(apiContext, paymentExecute);
     }
 }

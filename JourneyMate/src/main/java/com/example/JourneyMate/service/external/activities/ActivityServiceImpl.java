@@ -19,6 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Servicio encargado de consumir la API externa de actividades turísticas (Booking Attractions).
+ *
+ * Permite buscar ubicaciones, actividades y obtener detalles completos
+ * de cada actividad turística.
+ */
 @Service
 public class ActivityServiceImpl extends BaseExternalService implements IActivityService {
 
@@ -32,10 +38,17 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
         super(restTemplate);
     }
 
+    /**
+     * Busca ubicaciones turísticas en la API externa según una consulta.
+     *
+     * @param query nombre de la ciudad o destino
+     * @return nodo JSON con los resultados de ubicaciones
+     */
     @Override
     public JsonNode searchLocation(String query) {
-        // Usamos placeholders para evitar problemas con espacios o caracteres especiales en el nombre de la ciudad
-        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/attraction/searchLocation")
+
+        String url = UriComponentsBuilder.fromHttpUrl(
+                        "https://booking-com15.p.rapidapi.com/api/v1/attraction/searchLocation")
                 .queryParam("query", "{query}")
                 .queryParam("languagecode", "es")
                 .encode()
@@ -56,13 +69,26 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
         return JsonNodeFactory.instance.objectNode();
     }
 
+    /**
+     * Busca actividades turísticas en la API externa.
+     *
+     * @param id identificador de la ubicación
+     * @param startDate fecha de inicio
+     * @param endDate fecha de fin
+     * @param sortBy criterio de ordenación
+     * @param page número de página
+     * @param currencyCode moneda
+     * @param languageCode idioma
+     * @param typeFilters filtros de tipo de actividad
+     * @return lista de actividades en formato {@link ActivityDTO}
+     */
     @Override
     public List<ActivityDTO> searchActivities(String id, String startDate, String endDate,
                                               String sortBy, Integer page, String currencyCode,
                                               String languageCode, String typeFilters) {
 
-        // Construcción de URL con placeholders para evitar la doble codificación del ID (Base64)
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/attraction/searchAttractions")
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(
+                        "https://booking-com15.p.rapidapi.com/api/v1/attraction/searchAttractions")
                 .queryParam("id", "{id}")
                 .queryParam("startDate", "{startDate}")
                 .queryParam("endDate", "{endDate}")
@@ -82,11 +108,13 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
         params.put("sortBy", sortBy != null ? sortBy : "trending");
         params.put("page", page != null ? page : 1);
         params.put("currency_code", currencyCode != null ? currencyCode : "EUR");
+
         if (typeFilters != null && !typeFilters.isEmpty()) {
             params.put("typeFilters", typeFilters);
         }
 
         List<ActivityDTO> activityList = new ArrayList<>();
+
         try {
             JsonNode response = executeGetWithParams(builder.build().toUriString(), params);
 
@@ -105,9 +133,19 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
         return activityList;
     }
 
+    /**
+     * Obtiene los detalles completos de una actividad turística.
+     *
+     * @param slug identificador único de la actividad
+     * @param currencyCode moneda
+     * @param languageCode idioma
+     * @return detalles de la actividad en formato {@link ActivityDetailsDTO}
+     */
     @Override
     public ActivityDetailsDTO getActivityDetails(String slug, String currencyCode, String languageCode) {
-        String url = UriComponentsBuilder.fromHttpUrl("https://booking-com15.p.rapidapi.com/api/v1/attraction/getAttractionDetails")
+
+        String url = UriComponentsBuilder.fromHttpUrl(
+                        "https://booking-com15.p.rapidapi.com/api/v1/attraction/getAttractionDetails")
                 .queryParam("slug", "{slug}")
                 .queryParam("currency_code", "{currency_code}")
                 .queryParam("languagecode", "es")
@@ -126,28 +164,71 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
         } catch (Exception e) {
             System.err.println("Error en getActivityDetails: " + e.getMessage());
         }
+
         return null;
     }
 
-    // --- MÉTODOS DE APOYO PARA LLAMADAS API ---
-
+    /**
+     * Ejecuta una petición GET a la API externa con parámetros dinámicos.
+     *
+     * @param url URL de la petición
+     * @param uriVariables variables de la URI
+     * @return respuesta JSON de la API
+     */
     private JsonNode executeGetWithParams(String url, Map<String, ?> uriVariables) {
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-rapidapi-key", apiKey);
         headers.set("x-rapidapi-host", apiHost);
+
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        // exchange permite pasar las uriVariables que RestTemplate mapeará correctamente sin romper el Base64
         ResponseEntity<JsonNode> response = restTemplate.exchange(
                 url, HttpMethod.GET, entity, JsonNode.class, uriVariables
         );
+
         return response.getBody();
     }
 
-    // --- MAPPERS ---
+    /**
+     * Convierte un nodo JSON de actividad en un DTO simplificado.
+     *
+     * @param node nodo JSON de la API
+     * @return objeto {@link ActivityDTO}
+     */
+    private ActivityDTO mapToDTO(JsonNode node) {
+        ActivityDTO dto = new ActivityDTO();
 
+        dto.setIdActividad(node.path("id").asText());
+        dto.setSlug(node.path("slug").asText());
+        dto.setNombre(node.path("name").asText("Actividad"));
+        dto.setDescripcion(node.path("shortDescription").asText("Sin descripción"));
+
+        JsonNode priceNode = node.path("representativePrice");
+        if (!priceNode.isMissingNode()) {
+            double rawPrice = priceNode.path("publicAmount").asDouble(0.0);
+            dto.setPrecio(Math.round(rawPrice * 100.0) / 100.0);
+            dto.setMoneda(priceNode.path("currency").asText("EUR"));
+        }
+
+        dto.setUrlFoto(node.path("primaryPhoto").path("small").asText(null));
+
+        JsonNode stats = node.path("reviewsStats").path("combinedNumericStats");
+        dto.setCalificacion(stats.path("average").asDouble(0.0));
+
+        return dto;
+    }
+
+    /**
+     * Convierte un nodo JSON de detalle de actividad en DTO completo.
+     *
+     * @param data nodo JSON con detalles
+     * @return objeto {@link ActivityDetailsDTO}
+     */
     private ActivityDetailsDTO mapToDetailDTO(JsonNode data) {
+
         ActivityDetailsDTO dto = new ActivityDetailsDTO();
+
         dto.setIdActividad(data.path("id").asText());
         dto.setNombre(data.path("name").asText());
         dto.setDescripcionLarga(data.path("description").asText());
@@ -169,33 +250,13 @@ public class ActivityServiceImpl extends BaseExternalService implements IActivit
         data.path("notIncluded").forEach(node -> exclusions.add(node.asText()));
         dto.setNotIncluded(exclusions);
 
-        dto.setHasFreeCancellation(data.path("cancellationPolicy").path("hasFreeCancellation").asBoolean());
+        dto.setHasFreeCancellation(
+                data.path("cancellationPolicy").path("hasFreeCancellation").asBoolean()
+        );
 
         JsonNode stats = data.path("reviewsStats").path("combinedNumericStats");
         dto.setAverageRating(stats.path("average").asDouble(0.0));
         dto.setTotalReviews(stats.path("total").asInt(0));
-
-        return dto;
-    }
-
-    private ActivityDTO mapToDTO(JsonNode node) {
-        ActivityDTO dto = new ActivityDTO();
-        dto.setIdActividad(node.path("id").asText());
-        dto.setSlug(node.path("slug").asText());
-        dto.setNombre(node.path("name").asText("Actividad"));
-        dto.setDescripcion(node.path("shortDescription").asText("Sin descripción"));
-
-        JsonNode priceNode = node.path("representativePrice");
-        if (!priceNode.isMissingNode()) {
-            double rawPrice = priceNode.path("publicAmount").asDouble(0.0);
-            dto.setPrecio(Math.round(rawPrice * 100.0) / 100.0);
-            dto.setMoneda(priceNode.path("currency").asText("EUR"));
-        }
-
-        dto.setUrlFoto(node.path("primaryPhoto").path("small").asText(null));
-
-        JsonNode stats = node.path("reviewsStats").path("combinedNumericStats");
-        dto.setCalificacion(stats.path("average").asDouble(0.0));
 
         return dto;
     }

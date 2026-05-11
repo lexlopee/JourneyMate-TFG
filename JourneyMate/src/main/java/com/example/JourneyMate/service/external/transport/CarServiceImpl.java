@@ -12,6 +12,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio encargado de consumir la API externa de alquiler de coches (Booking Cars).
+ *
+ * Permite buscar ubicaciones de recogida y realizar búsquedas de vehículos disponibles
+ * en función de distintos parámetros de viaje.
+ */
 @Service
 public class CarServiceImpl extends BaseExternalService implements ICarService {
 
@@ -24,8 +30,19 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
         super(restTemplate);
     }
 
+    /**
+     * Busca ubicaciones disponibles para alquiler de coches.
+     *
+     * @param query texto de búsqueda (ciudad, aeropuerto, etc.)
+     * @param languageCode idioma de la respuesta (ej: es, en)
+     * @param countryFlag código de país para filtrar resultados
+     * @return lista de ubicaciones disponibles en formato {@link CarLocationDTO}
+     */
     @Override
-    public List<CarLocationDTO> searchCarLocation(String query, String languageCode, String countryFlag) {
+    public List<CarLocationDTO> searchCarLocation(String query,
+                                                  String languageCode,
+                                                  String countryFlag) {
+
         String url = UriComponentsBuilder
                 .fromHttpUrl("https://" + API_HOST + "/car/auto-complete")
                 .queryParam("query", query)
@@ -34,6 +51,7 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
                 .toUriString();
 
         JsonNode response = executeGetRequest(url, apiKey, API_HOST);
+
         List<CarLocationDTO> locations = new ArrayList<>();
 
         if (response != null && response.path("data").isArray()) {
@@ -48,19 +66,38 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
                 locations.add(loc);
             }
         }
+
         return locations;
     }
 
+    /**
+     * Busca coches de alquiler disponibles según los parámetros del viaje.
+     *
+     * @param pickUpId identificador del punto de recogida
+     * @param dropOffId identificador del punto de devolución (puede ser null)
+     * @param pDate fecha de recogida
+     * @param pTime hora de recogida
+     * @param dDate fecha de devolución
+     * @param dTime hora de devolución
+     * @param age edad del conductor
+     * @param currency moneda (ej: EUR, USD)
+     * @param carType tipo de coche (opcional)
+     * @return lista de coches disponibles en formato {@link CarDTO}
+     */
     @Override
-    public List<CarDTO> searchCars(String pickUpId, String dropOffId, String pDate, String pTime,
-                                   String dDate, String dTime, Integer age, String currency, String carType) {
+    public List<CarDTO> searchCars(String pickUpId,
+                                   String dropOffId,
+                                   String pDate,
+                                   String pTime,
+                                   String dDate,
+                                   String dTime,
+                                   Integer age,
+                                   String currency,
+                                   String carType) {
 
-        // ✅ FIX: El pickUpId es un token base64 que ya contiene '=' codificado como %3D.
-        // UriComponentsBuilder.queryParam() lo re-escapa a %253D (doble encoding), rompiendo la petición.
-        // Solución: construir la query string manualmente para estos parámetros y usar
-        // fromUri() con encode=false para que Spring no toque los valores ya codificados.
-
-        String effectiveDropOff = (dropOffId != null && !dropOffId.isEmpty()) ? dropOffId : pickUpId;
+        String effectiveDropOff = (dropOffId != null && !dropOffId.isEmpty())
+                ? dropOffId
+                : pickUpId;
 
         StringBuilder query = new StringBuilder();
         query.append("pickUpId=").append(pickUpId);
@@ -77,10 +114,10 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
             query.append("&carType=").append(carType);
         }
 
-        // URI.create() no re-escapa nada — el string llega tal cual a la API
         String url = "https://" + API_HOST + "/car/search?" + query;
 
         JsonNode response = executeGetRequest(url, apiKey, API_HOST);
+
         List<CarDTO> carList = new ArrayList<>();
 
         if (response != null && response.has("data")) {
@@ -88,7 +125,9 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
 
             if (searchResults.isArray()) {
                 for (JsonNode carNode : searchResults) {
+
                     CarDTO dto = new CarDTO();
+
                     JsonNode vInfo = carNode.path("vehicle_info");
                     dto.setCarName(vInfo.path("v_name").asText());
                     dto.setImageUrl(vInfo.path("image_url").asText());
@@ -110,6 +149,7 @@ public class CarServiceImpl extends BaseExternalService implements ICarService {
                 }
             }
         }
+
         return carList;
     }
 }

@@ -9,18 +9,40 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Servicio encargado de generar recomendaciones de viaje mediante IA (Google Gemini).
+ *
+ * Este servicio construye prompts dinámicos a partir de las preferencias del usuario
+ * y consume la API de generación de texto para devolver recomendaciones o itinerarios.
+ */
 @Service
 public class AIRecommendationService {
 
     @Value("${google.ai.key}")
     private String apiKey;
 
+    /**
+     * Genera una recomendación de viaje basada en preferencias del usuario.
+     *
+     * @param preferencia tipo de viaje (ej: aventura, relax, cultural)
+     * @param presupuesto presupuesto estimado del usuario
+     * @return recomendación generada por IA en formato texto
+     */
     public String getRecommendation(String preferencia, String presupuesto) {
         String prompt = "Actúa como experto en viajes. El usuario busca un viaje " + preferencia +
                 " con presupuesto " + presupuesto + ". Recomienda un destino y 3 actividades brevemente.";
         return callGemini(prompt);
     }
 
+    /**
+     * Genera un itinerario completo de viaje basado en una solicitud del usuario.
+     *
+     * El itinerario se devuelve estructurado por días e incluye actividades,
+     * comidas y recomendaciones de lugares reales.
+     *
+     * @param query descripción del viaje solicitado por el usuario
+     * @return itinerario detallado generado por IA en formato Markdown
+     */
     public String getItinerary(String query) {
         String prompt = "Actúa como un agente de viajes profesional y entusiasta. " +
                 "Crea un itinerario detallado paso a paso para la siguiente petición: '" + query + "'. " +
@@ -32,6 +54,12 @@ public class AIRecommendationService {
         return callGemini(prompt);
     }
 
+    /**
+     * Realiza la llamada a la API de Google Gemini para generar contenido IA.
+     *
+     * @param prompt instrucción enviada al modelo de IA
+     * @return respuesta generada por la IA en formato texto
+     */
     private String callGemini(String prompt) {
         RestTemplate restTemplate = new RestTemplate();
         String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=";
@@ -52,6 +80,7 @@ public class AIRecommendationService {
                     .path("candidates").get(0)
                     .path("content").path("parts").get(0)
                     .path("text").asText();
+
         } catch (Exception e) {
             return "Error llamando a la IA: " + e.getMessage();
         }

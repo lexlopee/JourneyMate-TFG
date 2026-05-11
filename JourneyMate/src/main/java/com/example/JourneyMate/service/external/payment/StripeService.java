@@ -8,6 +8,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+/**
+ * Servicio encargado de la integración con Stripe Checkout.
+ *
+ * Permite crear sesiones de pago para reservas individuales y múltiples,
+ * gestionando la redirección a Stripe y el retorno al sistema.
+ */
 @Service
 public class StripeService {
 
@@ -15,15 +21,21 @@ public class StripeService {
     private String baseUrl;
 
     /**
-     * Sesión de Stripe para UNA reserva (pago individual).
+     * Crea una sesión de pago en Stripe para una única reserva.
+     *
+     * @param reserva entidad de la reserva a pagar
+     * @return URL de la sesión de Stripe para completar el pago
+     * @throws Exception si ocurre un error al crear la sesión
      */
     public String createCheckoutSession(ReservaEntity reserva) throws Exception {
-        long amountInCents = reserva.getPrecioTotal().multiply(new BigDecimal(100)).longValue();
+
+        long amountInCents = reserva.getPrecioTotal()
+                .multiply(new BigDecimal(100))
+                .longValue();
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                // ⭐ successUrl incluye reservaId para que el controller sepa qué confirmar
                 .setSuccessUrl(baseUrl + "/api/v1/stripe/success?reservaId=" + reserva.getIdReserva())
                 .setCancelUrl(baseUrl + "/api/v1/stripe/cancel")
                 .addLineItem(
@@ -36,9 +48,12 @@ public class StripeService {
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName("Reserva JourneyMate #" + reserva.getIdReserva())
-                                                                .build())
-                                                .build())
-                                .build())
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .build()
+                )
                 .build();
 
         Session session = Session.create(params);
@@ -46,20 +61,26 @@ public class StripeService {
     }
 
     /**
-     * ⭐ Sesión de Stripe para VARIAS reservas (pago total agrupado).
-     * El precio es la suma de todas. Los IDs se pasan en el successUrl
-     * para que el controller los procese todos al volver.
+     * Crea una sesión de pago en Stripe para múltiples reservas agrupadas.
      *
-     * @param reservaVirtual entidad con el precio total sumado (no persistida)
-     * @param reservaIdsStr  IDs separados por coma, ej: "5,6,7"
+     * El importe total corresponde a la suma de todas las reservas.
+     * Los IDs se envían en la URL de retorno para su posterior procesamiento.
+     *
+     * @param reservaVirtual entidad temporal con el precio total agregado
+     * @param reservaIdsStr IDs de reservas separados por coma (ej: "5,6,7")
+     * @return URL de la sesión de Stripe para completar el pago
+     * @throws Exception si ocurre un error al crear la sesión
      */
-    public String createCheckoutSessionMultiple(ReservaEntity reservaVirtual, String reservaIdsStr) throws Exception {
-        long amountInCents = reservaVirtual.getPrecioTotal().multiply(new BigDecimal(100)).longValue();
+    public String createCheckoutSessionMultiple(ReservaEntity reservaVirtual,
+                                                String reservaIdsStr) throws Exception {
+
+        long amountInCents = reservaVirtual.getPrecioTotal()
+                .multiply(new BigDecimal(100))
+                .longValue();
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                // ⭐ successUrl incluye reservaIds (plural) para procesarlos todos
                 .setSuccessUrl(baseUrl + "/api/v1/stripe/success?reservaIds=" + reservaIdsStr)
                 .setCancelUrl(baseUrl + "/api/v1/stripe/cancel")
                 .addLineItem(
@@ -71,10 +92,15 @@ public class StripeService {
                                                 .setUnitAmount(amountInCents)
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                .setName("JourneyMate — Pago de " + reservaIdsStr.split(",").length + " reservas")
-                                                                .build())
-                                                .build())
-                                .build())
+                                                                .setName("JourneyMate — Pago de " +
+                                                                        reservaIdsStr.split(",").length +
+                                                                        " reservas")
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .build()
+                )
                 .build();
 
         Session session = Session.create(params);

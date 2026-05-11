@@ -4,17 +4,57 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO que representa la información de un coche de alquiler.
+ * Se utiliza para mostrar opciones de vehículos disponibles en el sistema.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CarDTO {
-    private String carName;      // Nombre del modelo (ej: Dodge Grand Caravan)
-    private String imageUrl;     // URL de la foto del coche
-    private Double price;        // Precio numérico (ej: 77.63)
-    private String currency;     // Moneda (ej: EUR)
-    private String vendorName;   // Empresa de alquiler (ej: Sixt, Payless)
-    private String transmission; // Manual o Automatic
-    private Integer seats;       // Número de plazas
-    private Integer bags;        // Suma de maletas grandes + pequeñas
-    private String deeplink;     // URL externa para completar la reserva (forward_url)
+
+    /**
+     * Nombre del modelo del coche (por ejemplo: Dodge Grand Caravan).
+     */
+    private String carName;
+
+    /**
+     * URL de la imagen del vehículo.
+     */
+    private String imageUrl;
+
+    /**
+     * Precio del alquiler del coche.
+     */
+    private Double price;
+
+    /**
+     * Código de la moneda del precio (EUR, USD, etc.).
+     */
+    private String currency;
+
+    /**
+     * Empresa de alquiler del vehículo (por ejemplo: Sixt, Payless).
+     */
+    private String vendorName;
+
+    /**
+     * Tipo de transmisión del vehículo (Manual o Automatic).
+     */
+    private String transmission;
+
+    /**
+     * Número de plazas disponibles en el coche.
+     */
+    private Integer seats;
+
+    /**
+     * Capacidad total de equipaje (maletas grandes + pequeñas).
+     */
+    private Integer bags;
+
+    /**
+     * Enlace externo para completar la reserva del vehículo.
+     */
+    private String deeplink;
 }

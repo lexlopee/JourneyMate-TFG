@@ -4,14 +4,42 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO que representa una ubicación disponible para alquiler de coches.
+ * Puede corresponder a aeropuertos, ciudades o distritos.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CarLocationDTO {
-    private String id;          // El hash Base64 (ej: eyJsYXRp...)
-    private String name;        // Nombre del lugar (ej: Aeropuerto JFK)
-    private String city;        // Ciudad (ej: New York)
-    private String country;     // País (ej: United States)
-    private String type;        // Tipo: airport, city, district
-    private String iataCode;    // Código IATA (ej: JFK) - puede ser null
+
+    /**
+     * Identificador único de la localización (hash Base64).
+     */
+    private String id;
+
+    /**
+     * Nombre del lugar (por ejemplo: Aeropuerto JFK).
+     */
+    private String name;
+
+    /**
+     * Ciudad donde se encuentra la localización.
+     */
+    private String city;
+
+    /**
+     * País donde se encuentra la localización.
+     */
+    private String country;
+
+    /**
+     * Tipo de localización (airport, city, district).
+     */
+    private String type;
+
+    /**
+     * Código IATA del aeropuerto (puede ser null si no aplica).
+     */
+    private String iataCode;
 }

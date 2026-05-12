@@ -5,7 +5,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
-import '../services/payment_service.dart';
 import '../widgets/payment/payment_sheet.dart';
 import 'booking_detail_screen.dart';
 
@@ -100,7 +99,10 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
   bool _loading = true, _logged = false;
   String _err = '';
 
-  double get _total => _pend.fold(0.0, (s, r) => s + r.precioTotal);
+  // Solo suma las reservas que están en estado pendiente Y cuya fecha es futura
+  double get _total => _pend
+      .where((r) => r.sinPagar && !r.fechaPasada)
+      .fold(0.0, (s, r) => s + r.precioTotal);
 
   @override
   void initState() {
@@ -145,20 +147,19 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
         }
       }
 
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         // PENDIENTES: sin pagar
-        _pend = pend.where((r) => r.sinPagar).toList();
-
+          _pend = pend.where((r) => r.sinPagar && !r.fechaPasada).toList();
         // CONFIRMADAS: pagadas y con fecha futura
-        _conf = todas.where((r) =>
-        r.estadoNombre.toLowerCase() == 'confirmada' && !r.fechaPasada).toList();
-
+          _conf = todas.where((r) =>
+          r.estadoNombre.toLowerCase() == 'confirmada' && !r.fechaPasada).toList();
         // HISTORIAL: completadas (fecha pasada) + canceladas
         // También incluye pendientes con fecha pasada
         _hist = [
           ...todas.where((r) {
             final e = r.estadoNombre.toLowerCase();
-            return e == 'completada' || e == 'cancelada';
+            return e == 'completada' || e == 'cancelada' || (e == 'confirmada' && r.fechaPasada);
           }),
           // Pendientes con fecha ya pasada también van al historial visualmente
           ...pend.where((r) => r.fechaPasada),
@@ -166,6 +167,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
 
         _loading = false;
       });
+      }
     } on ApiException catch (e) {
       if (mounted) setState(() { _err = 'Error ${e.statusCode}.'; _loading = false; });
     } catch (_) {

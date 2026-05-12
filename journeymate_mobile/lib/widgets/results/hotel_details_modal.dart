@@ -1,10 +1,3 @@
-// lib/widgets/results/hotel/hotel_details_modal.dart
-//
-// FIXES aplicados:
-// 1. ✅ _handleReserve usa AuthService real (no const vacío)
-// 2. ✅ Llama a api.createReserva con el cuerpo correcto
-// 3. ✅ Muestra link a /login si no hay sesión
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

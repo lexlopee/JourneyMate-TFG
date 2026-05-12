@@ -219,9 +219,6 @@ class FlightCard extends StatelessWidget {
     final stops = int.tryParse(flight['stops']?.toString() ?? '0') ?? 0;
     final isDirect  = stops == 0;
     final moneda = (flight['moneda'] ?? 'EUR').toString();
-    final aerolinea = (flight['aerolinea'] ?? flight['airline'] ?? 'AEROLÍNEA').toString();
-    final horaSalida = flight['horaSalida']?.toString() ?? '';
-    final horaLlegada = flight['horaLlegada']?.toString() ?? '';
 
     return Container(
       decoration: BoxDecoration(

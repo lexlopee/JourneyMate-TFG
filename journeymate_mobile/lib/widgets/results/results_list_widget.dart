@@ -6,6 +6,9 @@ import '../cards/result_cards.dart';
 import '../../utils/date_utils.dart';
 import 'hotel_details_modal.dart';
 import 'flight_details_modal.dart';
+import 'car_details_modal.dart';
+import 'activity_details_modal.dart';
+import 'cruise_details_modal.dart';
 import '../../services/search_service.dart';
 import '../common_widgets.dart';
 
@@ -221,15 +224,58 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
   }
 
   void _showActivityDetail(Map<String, dynamic> item) {
-    showModalBottomSheet(context: context, isScrollControlled: true, useSafeArea: true, backgroundColor: Colors.transparent, builder: (_) => _DetailSheet(title: item['nombre'] ?? 'Actividad', child: _GenericDetailContent(data: item)));
+    final slug = (item['slug'] ?? item['id'] ?? '').toString();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      builder: (context) => FutureBuilder(
+        future: SearchService.getActivityDetails(slug),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingModal();
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const ErrorModal(message: "No pudimos obtener los detalles de la actividad.");
+          }
+          return ActivityDetailsModal(
+            basicData: item,
+            details: snapshot.data as Map<String, dynamic>,
+            searchData: widget.searchData,
+          );
+        },
+      ),
+    );
   }
 
   void _showCruiseDetail(Map<String, dynamic> item) {
-    showModalBottomSheet(context: context, isScrollControlled: true, useSafeArea: true, backgroundColor: Colors.transparent, builder: (_) => _DetailSheet(title: item['nombreCrucero'] ?? 'Crucero', child: _GenericDetailContent(data: item)));
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CruiseDetailsModal(
+        cruise: item,
+        searchData: widget.searchData,
+      ),
+    );
   }
 
   void _showCarDetail(Map<String, dynamic> item) {
-    showModalBottomSheet(context: context, isScrollControlled: true, useSafeArea: true, backgroundColor: Colors.transparent, builder: (_) => _DetailSheet(title: item['carName'] ?? 'Coche', child: _CarDetailContent(car: item, searchData: widget.searchData)));
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      builder: (_) => CarDetailsModal(
+        car: item,
+        searchData: widget.searchData,
+      ),
+    );
   }
 }
 

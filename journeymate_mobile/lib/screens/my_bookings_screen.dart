@@ -71,6 +71,7 @@ IconData _tipoIcon(String t) {
 }
 
 Color _estadoColor(String e) {
+  if (e.toLowerCase() == 'expirada') return Colors.grey;
   final s = e.toLowerCase();
   if (s.contains('confirm'))  return const Color(0xFF059669);
   if (s.contains('pendient')) return const Color(0xFFD97706);
@@ -80,6 +81,7 @@ Color _estadoColor(String e) {
 }
 
 Color _estadoBg(String e) {
+  if (e.toLowerCase() == 'expirada') return const Color(0xFFF3F4F6);
   final s = e.toLowerCase();
   if (s.contains('confirm'))  return const Color(0xFFD1FAE5);
   if (s.contains('pendient')) return const Color(0xFFFEF3C7);
@@ -100,7 +102,8 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
   bool _loading = true, _logged = false;
   String _err = '';
 
-  double get _total => _pend.fold(0.0, (s, r) => s + r.precioTotal);
+  // Solo suma pendientes con fecha FUTURA (las que hay que pagar de verdad)
+  double get _total => _pend.where((r) => !r.fechaPasada).fold(0.0, (s, r) => s + r.precioTotal);
 
   @override
   void initState() {
@@ -146,22 +149,27 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
       }
 
       if (mounted) setState(() {
-        // PENDIENTES: sin pagar
-        _pend = pend.where((r) => r.sinPagar).toList();
+        // PENDIENTES: sin pagar Y con fecha futura
+        // Las pendientes con fecha pasada van directamente al historial
+        _pend = pend.where((r) => r.sinPagar && !r.fechaPasada).toList();
 
         // CONFIRMADAS: pagadas y con fecha futura
         _conf = todas.where((r) =>
         r.estadoNombre.toLowerCase() == 'confirmada' && !r.fechaPasada).toList();
 
-        // HISTORIAL: completadas (fecha pasada) + canceladas
-        // También incluye pendientes con fecha pasada
+        // HISTORIAL: completadas + canceladas + pendientes EXPIRADAS
+        // Las pendientes expiradas aparecen en historial como "EXPIRADA" sin botón de pagar
+        final pendientesExpiradas = pend.where((r) => r.sinPagar && r.fechaPasada).toList();
+        // Cambiar estado visual a EXPIRADA para mostrarlas diferente
+        for (final r in pendientesExpiradas) {
+          r.estadoNombre = 'EXPIRADA';
+        }
         _hist = [
           ...todas.where((r) {
             final e = r.estadoNombre.toLowerCase();
             return e == 'completada' || e == 'cancelada';
           }),
-          // Pendientes con fecha ya pasada también van al historial visualmente
-          ...pend.where((r) => r.fechaPasada),
+          ...pendientesExpiradas,
         ];
 
         _loading = false;
@@ -299,11 +307,12 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
   }
 
   Future<void> _pagarTodo() async {
-    if (_pend.isEmpty) return;
+    final activas = _pend.where((r) => !r.fechaPasada).toList();
+    if (activas.isEmpty) return;
     final result = await PaymentSheet.show(context,
-        reservaIds: _pend.map((r) => r.idReserva).toList(),
+        reservaIds: activas.map((r) => r.idReserva).toList(),
         precio: _total,
-        descripcion: '${_pend.length} reservas pendientes');
+        descripcion: '${activas.length} reservas pendientes');
     if (result == 'paid') await _load();
   }
 
@@ -394,7 +403,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
             Text('Gestiona tus viajes',
                 style: TextStyle(color: Colors.white60, fontSize: 12)),
           ])),
-      if (_logged && _pend.isNotEmpty)
+      if (_logged && _pend.isNotEmpty) // _pend ya solo tiene fecha futura
         GestureDetector(
           onTap: _pagarTodo,
           child: Container(

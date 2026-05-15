@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../services/payment_service.dart';
 import '../widgets/payment/payment_sheet.dart';
 import 'booking_detail_screen.dart';
 
@@ -99,10 +100,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
   bool _loading = true, _logged = false;
   String _err = '';
 
-  // Solo suma las reservas que están en estado pendiente Y cuya fecha es futura
-  double get _total => _pend
-      .where((r) => r.sinPagar && !r.fechaPasada)
-      .fold(0.0, (s, r) => s + r.precioTotal);
+  double get _total => _pend.fold(0.0, (s, r) => s + r.precioTotal);
 
   @override
   void initState() {
@@ -147,19 +145,20 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
         }
       }
 
-      if (mounted) {
-        setState(() {
+      if (mounted) setState(() {
         // PENDIENTES: sin pagar
-          _pend = pend.where((r) => r.sinPagar && !r.fechaPasada).toList();
+        _pend = pend.where((r) => r.sinPagar).toList();
+
         // CONFIRMADAS: pagadas y con fecha futura
-          _conf = todas.where((r) =>
-          r.estadoNombre.toLowerCase() == 'confirmada' && !r.fechaPasada).toList();
+        _conf = todas.where((r) =>
+        r.estadoNombre.toLowerCase() == 'confirmada' && !r.fechaPasada).toList();
+
         // HISTORIAL: completadas (fecha pasada) + canceladas
         // También incluye pendientes con fecha pasada
         _hist = [
           ...todas.where((r) {
             final e = r.estadoNombre.toLowerCase();
-            return e == 'completada' || e == 'cancelada' || (e == 'confirmada' && r.fechaPasada);
+            return e == 'completada' || e == 'cancelada';
           }),
           // Pendientes con fecha ya pasada también van al historial visualmente
           ...pend.where((r) => r.fechaPasada),
@@ -167,7 +166,6 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
 
         _loading = false;
       });
-      }
     } on ApiException catch (e) {
       if (mounted) setState(() { _err = 'Error ${e.statusCode}.'; _loading = false; });
     } catch (_) {
@@ -244,7 +242,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
           Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(2))),
-          const Icon(LucideIcons.calendarClock, size: 44, color: Color(0xFFD97706)),
+          const Icon(LucideIcons.calendar, size: 44, color: Color(0xFFD97706)),
           const SizedBox(height: 12),
           const Text('Fecha de reserva pasada',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900,
@@ -334,7 +332,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
           Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(2))),
-          Icon(danger ? LucideIcons.alertTriangle : LucideIcons.helpCircle,
+          Icon(danger ? LucideIcons.alertTriangle : LucideIcons.info,
               size: 40, color: danger ? const Color(0xFFDC2626) : AppColors.teal600),
           const SizedBox(height: 12),
           Text(title, style: const TextStyle(fontSize: 18,
@@ -523,14 +521,14 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
 
   Widget _empty(String msg) => Center(child: Column(mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(LucideIcons.packageOpen, size: 56, color: Colors.white.withOpacity(0.3)),
+        Icon(LucideIcons.package, size: 56, color: Colors.white.withOpacity(0.3)),
         const SizedBox(height: 14),
         Text(msg, style: const TextStyle(color: Colors.white60, fontSize: 14),
             textAlign: TextAlign.center),
       ]));
 
   Widget _errW() => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-    const Icon(LucideIcons.alertCircle, size: 48, color: Colors.white60),
+    const Icon(LucideIcons.alertTriangle, size: 48, color: Colors.white60),
     const SizedBox(height: 12),
     Text(_err, style: const TextStyle(color: Colors.white70, fontSize: 13),
         textAlign: TextAlign.center),
@@ -613,7 +611,7 @@ class _Card extends StatelessWidget {
               if (showDel)
               // Si la fecha pasó → "Cambiar fecha", si no → "Eliminar"
                 r.fechaPasada
-                    ? _btn(LucideIcons.calendarClock, 'Cambiar fecha',
+                    ? _btn(LucideIcons.calendar, 'Cambiar fecha',
                     const Color(0xFFD97706), onDel)
                     : _btn(LucideIcons.trash2, 'Eliminar',
                     const Color(0xFFDC2626), onDel),

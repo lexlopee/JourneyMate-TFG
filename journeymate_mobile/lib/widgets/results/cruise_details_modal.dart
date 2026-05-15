@@ -205,7 +205,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
         children: [
           // Naviera badge (≈ <Anchor/> barco en React)
           Row(children: [
-            const Icon(LucideIcons.anchor, size: 12, color: AppColors.teal300),
+            const Icon(LucideIcons.ship, size: 12, color: AppColors.teal300),
             const SizedBox(width: 6),
             Text(_barco.toUpperCase(),
                 style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900,
@@ -230,7 +230,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
           border: Border.all(color: Colors.white.withOpacity(0.2)),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(LucideIcons.moon, size: 10, color: Colors.white),
+          const Icon(LucideIcons.clock, size: 10, color: Colors.white),
           const SizedBox(width: 4),
           Text('$_noches noches',
               style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white)),
@@ -263,9 +263,9 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
 
   // ── Quick stats: noches / puerto / fecha (≈ grid de 3 en React) ───────────
   Widget _buildQuickStats() => Row(children: [
-    Expanded(child: _statBox(LucideIcons.moon,   'NOCHES',   '$_noches')),
+    Expanded(child: _statBox(LucideIcons.clock,   'NOCHES',   '$_noches')),
     const SizedBox(width: 8),
-    Expanded(child: _statBox(LucideIcons.anchor, 'PUERTO',   _puerto)),
+    Expanded(child: _statBox(LucideIcons.ship, 'PUERTO',   _puerto)),
     const SizedBox(width: 8),
     Expanded(child: _statBox(LucideIcons.calendar, 'SALIDA', _fecha.isNotEmpty ? _fmtFechaCorta(_fecha) : 'Ver fechas')),
   ]);
@@ -367,7 +367,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     children: [
       Row(children: [
         Container(width: 32, height: 32, decoration: BoxDecoration(color: AppColors.teal50, shape: BoxShape.circle),
-            child: const Icon(LucideIcons.anchor, size: 16, color: AppColors.teal600)),
+            child: const Icon(LucideIcons.ship, size: 16, color: AppColors.teal600)),
         const SizedBox(width: 10),
         const Text('TIPOS DE CAMAROTE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900,
             color: AppColors.teal900, letterSpacing: 1.5)),
@@ -514,8 +514,8 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
 
       // Ventajas incluidas (pensión completa / entretenimiento)
       ...[
-        (LucideIcons.checkCircle2, 'Pensión completa'),
-        (LucideIcons.checkCircle2, 'Entretenimiento a bordo'),
+        (LucideIcons.checkCircle, 'Pensión completa'),
+        (LucideIcons.checkCircle, 'Entretenimiento a bordo'),
       ].map((item) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Row(children: [
@@ -626,7 +626,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
               ),
               const SizedBox(width: 8),
               Icon(
-                _isBooked ? LucideIcons.checkCircle2 : LucideIcons.ship,
+                _isBooked ? LucideIcons.checkCircle : LucideIcons.ship,
                 size: 15,
                 color: _isBooked ? Colors.white : AppColors.teal900,
               ),

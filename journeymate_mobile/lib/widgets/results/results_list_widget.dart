@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/app_colors.dart';
-import '../../screens/search_screen.dart';
+import '../../screens/search_section.dart';
 import '../cards/result_cards.dart';
 import '../../utils/date_utils.dart';
 import 'hotel_details_modal.dart';
@@ -94,7 +94,7 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Row(children: [
-          Icon(LucideIcons.sparkles, size: 12, color: AppColors.teal600),
+          Icon(LucideIcons.star, size: 12, color: AppColors.teal600),
           SizedBox(width: 4),
           Text('JOURNEYMATE SELECCIONES', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2, color: AppColors.teal600)),
         ]),
@@ -119,8 +119,8 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
       child: Row(children: [
         const Padding(padding: EdgeInsets.only(right: 8), child: Text('Ordenar por:', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: AppColors.teal600))),
         ...[
-          ('default',    'Recomendados',  LucideIcons.slidersHorizontal),
-          ('price_asc',  'Más Barato',    LucideIcons.arrowUpNarrowWide),
+          ('default',    'Recomendados',  LucideIcons.settings),
+          ('price_asc',  'Más Barato',    LucideIcons.chevronDown),
           if (widget.section == Section.alojamiento) ('rating_desc', 'Mejor Valorados', LucideIcons.star),
         ].map((o) {
           final active = _sortBy == o.$1;
@@ -324,7 +324,7 @@ class CarCardWidget extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE5E7EB))),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(LucideIcons.building2, size: 10, color: AppColors.teal600),
+                    const Icon(LucideIcons.building, size: 10, color: AppColors.teal600),
                     const SizedBox(width: 4),
                     Text((car['vendorName'] ?? 'Proveedor').toString().toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: 1)),
                   ]),
@@ -341,8 +341,8 @@ class CarCardWidget extends StatelessWidget {
                 Wrap(spacing: 12, runSpacing: 8, children: [
                   _spec(LucideIcons.users, '${car['seats'] ?? 5} plazas'),
                   _spec(LucideIcons.briefcase, '${car['bags'] ?? 2} maletas'),
-                  _spec(LucideIcons.settings2, isAutomatic ? 'Automático' : 'Manual'),
-                  _spec(LucideIcons.fuel, 'Lleno'),
+                  _spec(LucideIcons.settings, isAutomatic ? 'Automático' : 'Manual'),
+                  _spec(LucideIcons.info, 'Lleno'),
                 ]),
                 const Divider(color: Color(0xFFF3F4F6), height: 32),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.end, children: [

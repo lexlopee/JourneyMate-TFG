@@ -136,7 +136,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
   Widget _buildStep1() => Column(key: const ValueKey(1), mainAxisSize: MainAxisSize.min, children: [
     // Icono
     Container(width: 64, height: 64, decoration: const BoxDecoration(color: AppColors.teal50, shape: BoxShape.circle),
-        child: const Icon(LucideIcons.checkCircle2, size: 36, color: AppColors.teal500)),
+        child: const Icon(LucideIcons.checkCircle, size: 36, color: AppColors.teal500)),
     const SizedBox(height: 12),
     const Text('¡Reserva creada!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900,
         color: AppColors.teal900, letterSpacing: -0.3)),
@@ -166,7 +166,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
     const SizedBox(height: 10),
     SizedBox(width: double.infinity, child: OutlinedButton.icon(
       onPressed: () => Navigator.pop(context),
-      icon: const Icon(LucideIcons.sparkles, size: 16, color: AppColors.teal500),
+      icon: const Icon(LucideIcons.star, size: 16, color: AppColors.teal500),
       label: const Text('SEGUIR EXPLORANDO', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 13)),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.teal800,
@@ -270,10 +270,10 @@ class _PaymentSheetState extends State<PaymentSheet> {
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(color: const Color(0xFFFEFCE8),
         borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFFDE68A))),
-    child: const Row(children: [
-      Icon(LucideIcons.checkCircle2, size: 15, color: Color(0xFFD97706)),
-      SizedBox(width: 8),
-      Expanded(child: Text('Modo Sandbox — no se cargará dinero real.',
+    child: Row(children: [
+      const Icon(LucideIcons.checkCircle, size: 15, color: Color(0xFFD97706)),
+      const SizedBox(width: 8),
+      const Expanded(child: Text('Modo Sandbox — no se cargará dinero real.',
           style: TextStyle(color: Color(0xFF92400E), fontSize: 11, fontWeight: FontWeight.w600))),
     ]),
   );

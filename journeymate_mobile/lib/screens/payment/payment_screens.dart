@@ -121,7 +121,7 @@ class PaymentCancelledScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(LucideIcons.xCircle, size: 64, color: Color(0xFFF87171)),
+                    const Icon(LucideIcons.x, size: 64, color: Color(0xFFF87171)),
                     const SizedBox(height: 24),
                     const Text('Pago cancelado', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.5)),
                     const SizedBox(height: 12),

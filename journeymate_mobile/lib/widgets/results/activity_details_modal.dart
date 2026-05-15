@@ -214,7 +214,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
                 color: AppColors.teal50,
-                child: const Icon(LucideIcons.imageOff, color: AppColors.teal200, size: 40),
+                child: const Icon(LucideIcons.image, color: AppColors.teal200, size: 40),
               ),
             ),
           ),
@@ -363,7 +363,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
     const SizedBox(width: 8),
     Expanded(child: _statBox(LucideIcons.smartphone, 'TICKET',    'Digital / Móvil')),
     const SizedBox(width: 8),
-    Expanded(child: _statBox(LucideIcons.languages,  'IDIOMA',    'ES / EN')),
+    Expanded(child: _statBox(LucideIcons.globe,  'IDIOMA',    'ES / EN')),
   ]);
 
   Widget _statBox(IconData icon, String label, String value) => Container(
@@ -473,7 +473,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
           color: const Color(0xFFECFDF5),
           border: const Color(0xFFD1FAE5),
           iconColor: const Color(0xFF059669),
-          icon: LucideIcons.checkCircle2,
+          icon: LucideIcons.checkCircle,
         )),
       if (_included.isNotEmpty && _notIncluded.isNotEmpty)
         const SizedBox(width: 8),
@@ -484,7 +484,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
           color: const Color(0xFFFFF1F2),
           border: const Color(0xFFFFE4E6),
           iconColor: const Color(0xFFF43F5E),
-          icon: LucideIcons.xCircle,
+          icon: LucideIcons.x,
         )),
     ],
   );
@@ -689,7 +689,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
                       fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               const SizedBox(width: 8),
               Icon(
-                  _isBooked ? LucideIcons.checkCircle2 : LucideIcons.ticket,
+                  _isBooked ? LucideIcons.checkCircle : LucideIcons.ticket,
                   size: 15, color: Colors.white),
             ]),
           ),

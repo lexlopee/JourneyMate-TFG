@@ -131,7 +131,7 @@ class HotelCard extends StatelessWidget {
                             color: AppColors.teal900,
                             borderRadius: BorderRadius.circular(16)
                         ),
-                        child: const Icon(LucideIcons.building2, color: Colors.white, size: 24),
+                        child: const Icon(LucideIcons.building, color: Colors.white, size: 24),
                       ),
                     ),
                   ],
@@ -259,7 +259,7 @@ class FlightCard extends StatelessWidget {
           decoration: BoxDecoration(color: AppColors.teal50.withOpacity(0.5), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.teal100.withOpacity(0.3))),
           child: Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Row(children: [Icon(LucideIcons.planeTakeoff, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('SALIDA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5))]),
+              const Row(children: [Icon(LucideIcons.plane, size: 12, color: AppColors.teal400), SizedBox(width: 4), Text('SALIDA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5))]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaSalida']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
               Text((flight['origenCode'] ?? flight['origen'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
@@ -270,14 +270,14 @@ class FlightCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: AppColors.teal100)),
-                child: const Icon(LucideIcons.moveRight, color: AppColors.teal500, size: 16),
+                child: const Icon(LucideIcons.arrowRight, color: AppColors.teal500, size: 16),
               ),
               const Divider(color: AppColors.teal200),
               Text(isDirect ? 'DIRECTO' : '$stops ESCALA${stops > 1 ? 'S' : ''}', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: isDirect ? AppColors.teal400 : const Color(0xFFF59E0B))),
             ])),
 
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('LLEGADA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5)), SizedBox(width: 4), Icon(LucideIcons.planeLanding, size: 12, color: AppColors.teal400)]),
+              const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('LLEGADA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.teal300, letterSpacing: 1.5)), SizedBox(width: 4), Icon(LucideIcons.plane, size: 12, color: AppColors.teal400)]),
               const SizedBox(height: 4),
               Text(formatTime(flight['horaLlegada']), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -1)),
               Text((flight['destinoCode'] ?? flight['destino'] ?? '').toString().toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal700)),
@@ -299,7 +299,7 @@ class FlightCard extends StatelessWidget {
               child: const Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('DETALLES', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 10)),
                 SizedBox(width: 6),
-                Icon(LucideIcons.moveRight, size: 14, color: Colors.white),
+                Icon(LucideIcons.arrowRight, size: 14, color: Colors.white),
               ]),
             ),
           ),
@@ -418,7 +418,7 @@ class CruiseCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white.withOpacity(0.2))),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(LucideIcons.moon, size: 10, color: Colors.white),
+              const Icon(LucideIcons.clock, size: 10, color: Colors.white),
               const SizedBox(width: 4),
               Text('$noches noches', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
             ]),
@@ -429,7 +429,7 @@ class CruiseCard extends StatelessWidget {
           Text(nombre.toString().toUpperCase(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.teal900, letterSpacing: -0.3), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
           Row(children: [
-            const Icon(LucideIcons.anchor, size: 10, color: AppColors.teal500),
+            const Icon(LucideIcons.ship, size: 10, color: AppColors.teal500),
             const SizedBox(width: 4),
             Text(barco.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.teal600, letterSpacing: 1.5)),
           ]),

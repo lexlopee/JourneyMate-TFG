@@ -23,26 +23,21 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late int _currentIndex;
-  String? _pendingSection;  // sección que SearchScreen debe pre-seleccionar
-  String? _pendingDestText; // destino que SearchScreen debe pre-rellenar
-  int _navVersion = 0;      // se incrementa cada vez que se navega, fuerza didUpdateWidget
+  String? _pendingSection; // sección que SearchScreen debe pre-seleccionar
 
   @override
   void initState() {
     super.initState();
-    _currentIndex    = widget.initialIndex;
-    _pendingSection  = widget.initialSection;
-    _pendingDestText = null;
+    _currentIndex   = widget.initialIndex;
+    _pendingSection = widget.initialSection;
   }
 
-  // Callback que HomeScreen llama al pulsar categorías o destinos
+  // FIX: callback que HomeScreen llama al pulsar categorías o destinos
   void _changeTab(int index, {String? section, String? destText}) {
     HapticFeedback.selectionClick();
     setState(() {
-      _currentIndex    = index;
-      _pendingSection  = section;
-      _pendingDestText = destText;
-      _navVersion++; // fuerza didUpdateWidget aunque el destino sea igual
+      _currentIndex   = index;
+      _pendingSection = section;
     });
   }
 
@@ -69,12 +64,8 @@ class _AppShellState extends State<AppShell> {
               // Tab 0 — Home: recibe el callback para cambiar de tab
               HomeScreen(onChangeTab: _changeTab),
 
-              // Tab 1 — Búsqueda: recibe la sección y el destino pendientes
-              SearchScreen(
-                initialTab:      _pendingSection,
-                initialDestText: _pendingDestText,
-                navVersion:      _navVersion,
-              ),
+              // Tab 1 — Búsqueda: recibe la sección pendiente
+              SearchScreen(initialTab: _pendingSection, navVersion: 0),
 
               // Tab 2 — Mis Reservas
               const MyBookingsScreen(),
@@ -122,11 +113,10 @@ class _AppShellState extends State<AppShell> {
 
   void _onTap(int index) {
     HapticFeedback.selectionClick();
-    if (index == _currentIndex) return;
+    if (index == _currentIndex) return; // ya estamos aquí
     setState(() {
-      _currentIndex    = index;
-      _pendingSection  = null;
-      _pendingDestText = null;
+      _currentIndex   = index;
+      _pendingSection = null; // limpiar sección al navegar manualmente
     });
   }
 }

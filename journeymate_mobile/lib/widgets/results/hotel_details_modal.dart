@@ -1,3 +1,10 @@
+// lib/widgets/results/hotel/hotel_details_modal.dart
+//
+// FIXES aplicados:
+// 1. ✅ _handleReserve usa AuthService real (no const vacío)
+// 2. ✅ Llama a api.createReserva con el cuerpo correcto
+// 3. ✅ Muestra link a /login si no hay sesión
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -223,7 +230,7 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
           itemBuilder: (_, i) => Image.network(
             _photos[i], fit: BoxFit.cover, width: double.infinity,
             errorBuilder: (_, __, ___) => Container(color: AppColors.teal50,
-                child: const Center(child: Icon(LucideIcons.imageOff,
+                child: const Center(child: Icon(LucideIcons.image,
                     size: 48, color: AppColors.teal200))),
           ),
         ),
@@ -430,7 +437,7 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
                   style: const TextStyle(color: AppColors.teal900,
                       fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.5)),
               const SizedBox(width: 8),
-              Icon(_isBooked ? LucideIcons.checkCircle2 : LucideIcons.luggage,
+              Icon(_isBooked ? LucideIcons.checkCircle : LucideIcons.briefcase,
                   size: 16, color: AppColors.teal900),
             ]),
           ),

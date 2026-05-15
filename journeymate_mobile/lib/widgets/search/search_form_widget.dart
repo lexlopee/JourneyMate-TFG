@@ -11,18 +11,21 @@ class SearchFormWidget extends StatelessWidget {
   final Section section;
   final Map<String, dynamic> searchData;
   final void Function(String field, dynamic value) onChanged;
+  // navVersion fuerza reconstrucción de _VuelosForm al navegar desde el home
+  final int navVersion;
 
   const SearchFormWidget({
     super.key,
     required this.section,
     required this.searchData,
     required this.onChanged,
+    this.navVersion = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     switch (section) {
-      case Section.vuelos:      return _VuelosForm(data: searchData, onChange: onChanged);
+      case Section.vuelos:      return _VuelosForm(key: ValueKey('vuelos_$navVersion'), data: searchData, onChange: onChanged);
       case Section.alojamiento: return _AlojamientoForm(data: searchData, onChange: onChanged);
       case Section.coches:      return _CochesForm(data: searchData, onChange: onChanged);
       case Section.actividades: return _ActividadesForm(data: searchData, onChange: onChanged);
@@ -38,7 +41,7 @@ class SearchFormWidget extends StatelessWidget {
 class _VuelosForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
-  const _VuelosForm({required this.data, required this.onChange});
+  const _VuelosForm({super.key, required this.data, required this.onChange});
 
   @override
   Widget build(BuildContext context) => Column(children: [

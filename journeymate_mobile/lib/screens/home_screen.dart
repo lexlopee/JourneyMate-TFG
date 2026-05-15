@@ -62,7 +62,7 @@ const _carouselImages = [
 // ─────────────────────────────────────────────────────────────────────────────
 class HomeScreen extends StatefulWidget {
   /// Callback que el AppShell puede inyectar para cambiar de tab.
-  final void Function(int tabIndex, {String? section})? onChangeTab;
+  final void Function(int tabIndex, {String? section, String? destText})? onChangeTab;
 
   const HomeScreen({super.key, this.onChangeTab});
 
@@ -95,14 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // FIX: navega al tab de búsqueda con la sección correcta
-  void _goSearch(String? section) {
+  void _goSearch(String? section, {String? destText}) {
     HapticFeedback.lightImpact();
     if (widget.onChangeTab != null) {
-      // Dentro del AppShell — cambia el tab sin go_router
-      widget.onChangeTab!(1, section: section);
+      widget.onChangeTab!(1, section: section, destText: destText);
     } else {
-      // Uso independiente — navega con go_router
-      final extra = section != null ? '?tab=$section' : '';
+      String extra = section != null ? '?tab=$section' : '';
+      if (destText != null) extra += '&destText=${Uri.encodeComponent(destText)}';
       context.go('/buscar$extra');
     }
   }
@@ -172,7 +171,6 @@ class _HomeScreenState extends State<HomeScreen> {
             GestureDetector(
               onTap: () {
                 if (_userName.isNotEmpty) {
-                  // Ya logueado → ir al tab de perfil
                   if (widget.onChangeTab != null) widget.onChangeTab!(3);
                   else context.go('/perfil');
                 } else {
@@ -279,8 +277,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSectionTitle(String title) => Padding(
     padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-    child: Text(title, style: const TextStyle(color: Colors.white60, fontSize: 10,
-        fontWeight: FontWeight.w900, letterSpacing: 3)),
+    child: Text(title, style: const TextStyle(color: Colors.white70, fontSize: 13,
+        fontWeight: FontWeight.w900, letterSpacing: 2)),
   );
 
   // ── Categorías (FIX: navegación funciona) ────────────────────────────────
@@ -312,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icon(c.icon, color: Colors.white, size: 26),
                   const SizedBox(height: 5),
                   Text(c.label, style: const TextStyle(color: Colors.white,
-                      fontWeight: FontWeight.w900, fontSize: 11)),
+                      fontWeight: FontWeight.w900, fontSize: 13)),
                 ])),
                 if (isSoon)
                   Positioned(top: 6, right: 6, child: Container(
@@ -345,9 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              // FIX: navega a búsqueda de vuelos con el destino preseleccionado
               if (widget.onChangeTab != null) {
-                widget.onChangeTab!(1, section: 'vuelos');
+                widget.onChangeTab!(1, section: 'vuelos', destText: d['destText']);
               } else {
                 context.go('/buscar?tab=vuelos&destText=${Uri.encodeComponent(d['destText']!)}');
               }
@@ -382,11 +379,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       decoration: BoxDecoration(color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(7)),
                       child: Text(d['tag']!, style: const TextStyle(color: Colors.white,
-                          fontSize: 8, fontWeight: FontWeight.w900)),
+                          fontSize: 10, fontWeight: FontWeight.w900)),
                     ),
                     const SizedBox(height: 4),
                     Text(d['nombre']!, style: const TextStyle(color: Colors.white,
-                        fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: -0.2)),
+                        fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: -0.2)),
                   ],
                 )),
               ]),

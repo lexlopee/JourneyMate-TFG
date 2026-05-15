@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
 import { MapPin, Loader2, Search } from 'lucide-react';
 
-// Ajustamos la interfaz para mapear lo que viene de Booking (vía tu Java)
 interface ActivityLocation {
   id: string;
   nombre: string;
@@ -53,12 +52,9 @@ export const ActivityAutocomplete = ({ label, placeholder, value, onSelect }: an
           signal: abortControllerRef.current.signal 
         });
 
-        // --- CAMBIO CRÍTICO AQUÍ ---
-        // 'data' ahora es el objeto { destinations: [...], products: [...] }
         const rawDestinations = data.destinations || [];
         const rawProducts = data.products || [];
 
-        // Mapeamos el formato de Booking al formato que usa tu componente
         const results: ActivityLocation[] = [
           ...rawDestinations.map((d: any) => ({
             id: d.id,

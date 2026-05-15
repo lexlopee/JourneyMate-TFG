@@ -73,7 +73,6 @@ export const AutocompleteInput = ({ label, placeholder, icon, value, onSelect }:
   }, [query]);
 
   return (
-    // 3. Asignamos la ref al contenedor principal
     <div ref={containerRef} className="relative w-full group">
       <div className="search-input-field bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all shadow-sm focus-within:ring-2 focus-within:ring-teal-500/20">
         <span className="text-[9px] font-black text-teal-800/40 block mb-1 uppercase tracking-widest">{label}</span>

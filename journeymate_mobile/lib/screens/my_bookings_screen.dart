@@ -1,11 +1,9 @@
-// lib/screens/my_bookings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
-import '../services/payment_service.dart';
 import '../widgets/payment/payment_sheet.dart';
 import 'booking_detail_screen.dart';
 
@@ -148,7 +146,8 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
         }
       }
 
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         // PENDIENTES: sin pagar Y con fecha futura
         // Las pendientes con fecha pasada van directamente al historial
         _pend = pend.where((r) => r.sinPagar && !r.fechaPasada).toList();
@@ -174,6 +173,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
 
         _loading = false;
       });
+      }
     } on ApiException catch (e) {
       if (mounted) setState(() { _err = 'Error ${e.statusCode}.'; _loading = false; });
     } catch (_) {
@@ -203,8 +203,6 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
   }
 
   // ── ELIMINAR (solo pendientes) ─────────────────────────────────────────────
-  // Si la fecha ya pasó → muestra aviso de que debe cambiar la fecha
-  // Si la fecha es futura → elimina con DELETE /reservas/{id}
   Future<void> _eliminar(Reserva r) async {
     if (!r.sinPagar) {
       _snack('Solo puedes eliminar reservas sin pagar.', err: true);
@@ -224,7 +222,7 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
     if (!ok) return;
 
     try {
-      // DELETE /api/v1/reservas/{id} → 204 No Content
+      // DELETE /api/v1/reservas/{id}
       await api.delete('/reservas/${r.idReserva}');
       setState(() {
         _pend.removeWhere((x) => x.idReserva == r.idReserva);
@@ -236,7 +234,6 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
   }
 
   // ── CAMBIAR FECHA (informativo — no toca el backend) ──────────────────────
-  // Solo muestra al usuario que debe contactar o gestionar la nueva fecha
   Future<void> _mostrarCambiarFecha(Reserva r) async {
     await showModalBottomSheet(
       context: context,
@@ -381,7 +378,6 @@ class _State extends State<MyBookingsScreen> with SingleTickerProviderStateMixin
     return r == true;
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.transparent,

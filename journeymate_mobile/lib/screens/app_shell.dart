@@ -1,8 +1,3 @@
-// lib/screens/app_shell.dart
-//
-// FIX: pasa el callback onChangeTab al HomeScreen para que las categorías
-// y destinos puedan cambiar el tab activo del Shell sin usar go_router.
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -23,7 +18,9 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late int _currentIndex;
-  String? _pendingSection; // sección que SearchScreen debe pre-seleccionar
+  String? _pendingSection;   // sección que SearchScreen debe pre-seleccionar
+  String? _pendingDestText;  // destino que SearchScreen debe prerellenar
+  int     _navVersion = 0;   // incrementar fuerza re-render del SearchScreen
 
   @override
   void initState() {
@@ -36,8 +33,10 @@ class _AppShellState extends State<AppShell> {
   void _changeTab(int index, {String? section, String? destText}) {
     HapticFeedback.selectionClick();
     setState(() {
-      _currentIndex   = index;
-      _pendingSection = section;
+      _currentIndex      = index;
+      _pendingSection    = section;
+      _pendingDestText   = destText;
+      _navVersion++;  // fuerza SearchScreen a detectar el cambio
     });
   }
 
@@ -65,7 +64,11 @@ class _AppShellState extends State<AppShell> {
               HomeScreen(onChangeTab: _changeTab),
 
               // Tab 1 — Búsqueda: recibe la sección pendiente
-              SearchScreen(initialTab: _pendingSection, navVersion: 0),
+              SearchScreen(
+                initialTab:    _pendingSection,
+                initialDestText: _pendingDestText,
+                navVersion:    _navVersion,
+              ),
 
               // Tab 2 — Mis Reservas
               const MyBookingsScreen(),
@@ -113,10 +116,11 @@ class _AppShellState extends State<AppShell> {
 
   void _onTap(int index) {
     HapticFeedback.selectionClick();
-    if (index == _currentIndex) return; // ya estamos aquí
+    if (index == _currentIndex) return;
     setState(() {
-      _currentIndex   = index;
-      _pendingSection = null; // limpiar sección al navegar manualmente
+      _currentIndex    = index;
+      _pendingSection  = null;
+      _pendingDestText = null;
     });
   }
 }

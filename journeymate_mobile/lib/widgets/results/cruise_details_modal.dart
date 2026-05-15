@@ -6,12 +6,8 @@ import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
 import '../../utils/date_utils.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CRUISE DETAILS MODAL — Equivalente a CruiseDetailsModal.tsx
-// Sigue el mismo patrón que ActivityDetailsModal
-// ══════════════════════════════════════════════════════════════════════════════
 class CruiseDetailsModal extends StatefulWidget {
-  final Map<String, dynamic> cruise;    // datos completos del crucero (de la lista)
+  final Map<String, dynamic> cruise;    // datos completos del crucero
   final Map<String, dynamic> searchData;
 
   const CruiseDetailsModal({
@@ -30,7 +26,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
   String _error       = '';
   int    _personas    = 1;   // selector de pasajeros, igual que el TSX
 
-  // ── Helpers de datos (espejo de las variables del TSX) ────────────────────
+  // ── Helpers de datos ────────────────────
   String get _nombre  => (widget.cruise['nombreCrucero'] ?? widget.cruise['cruise_name'] ?? 'Crucero').toString();
   String get _barco   => (widget.cruise['nombreBarco']   ?? widget.cruise['ship_name']   ?? 'N/A').toString();
   String get _puerto  => (widget.cruise['puertoSalida']  ?? widget.cruise['departure_port'] ?? 'N/A').toString();
@@ -90,7 +86,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
         return;
       }
 
-      // Calcular fecha de llegada = salida + noches + 1  (igual que el TSX)
+      // Calcular fecha de llegada = salida + noches + 1
       final fSalida  = DateTime.tryParse('${_fecha}T00:00:00') ?? DateTime.now();
       final fLlegada = fSalida.add(Duration(days: _noches + 1));
       final fechaRegreso = fLlegada.toIso8601String().split('T').first;
@@ -134,9 +130,6 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD — DraggableScrollableSheet idéntico a ActivityDetailsModal
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -178,7 +171,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     );
   }
 
-  // ── Hero: imagen + degradado + nombre superpuesto (≈ React hero section) ──
+  // ── Hero: imagen + degradado + nombre superpuesto ──
   Widget _buildHero() => SizedBox(
     height: 280,
     child: Stack(children: [
@@ -188,7 +181,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
           errorBuilder: (_, __, ___) => _heroBg())
           : _heroBg()),
 
-      // Degradado inferior (igual que el TSX gradient-to-t from-teal-950)
+      // Degradado inferior
       Positioned.fill(child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -221,7 +214,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
         ],
       )),
 
-      // Badge noches (≈ Positioned badge superior derecha en CruiseCard)
+      // Badge noches
       Positioned(top: 16, right: 60, child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
@@ -261,7 +254,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     child: const Center(child: Icon(LucideIcons.ship, size: 80, color: Color(0x33FFFFFF))),
   );
 
-  // ── Quick stats: noches / puerto / fecha (≈ grid de 3 en React) ───────────
+  // ── Quick stats: noches / puerto / fecha ───────────
   Widget _buildQuickStats() => Row(children: [
     Expanded(child: _statBox(LucideIcons.clock,   'NOCHES',   '$_noches')),
     const SizedBox(width: 8),
@@ -296,7 +289,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     ]),
   );
 
-  // ── Itinerario de paradas (≈ sección "Itinerario" del React) ─────────────
+  // ── Itinerario de paradas ─────────────
   Widget _buildItinerary() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -361,7 +354,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     ],
   );
 
-  // ── Tipos de camarote (≈ sección "Cabinas" del React) ────────────────────
+  // ── Tipos de camarote ────────────────────
   Widget _buildCabins() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -411,7 +404,7 @@ class _CruiseDetailsModalState extends State<CruiseDetailsModal> {
     ],
   );
 
-  // ── Tarjeta de precio con selector de personas (≈ columna lateral React) ──
+  // ── Tarjeta de precio con selector de personas ──
   Widget _buildPriceCard() => Container(
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(

@@ -5,13 +5,11 @@ import '../../utils/date_utils.dart';
 import '../../screens/search_section.dart';
 import '../../services/api_service.dart';
 
-// Equivalente a SearchForm.tsx + SearchInput.tsx + SearchSelect.tsx + SearchCounter.tsx
 
 class SearchFormWidget extends StatelessWidget {
   final Section section;
   final Map<String, dynamic> searchData;
   final void Function(String field, dynamic value) onChanged;
-  // navVersion: ignorado aquí, solo para compatibilidad con SearchScreen
   final int navVersion;
 
   const SearchFormWidget({
@@ -35,9 +33,6 @@ class SearchFormWidget extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// VUELOS
-// ══════════════════════════════════════════════════════════════════════════════
 class _VuelosForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
@@ -68,9 +63,6 @@ class _VuelosForm extends StatelessWidget {
   ]);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ALOJAMIENTO
-// ══════════════════════════════════════════════════════════════════════════════
 class _AlojamientoForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
@@ -93,10 +85,6 @@ class _AlojamientoForm extends StatelessWidget {
     ]),
   ]);
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// COCHES
-// ══════════════════════════════════════════════════════════════════════════════
 
 // Widget con autocomplete real — llama a /external/cars/autocomplete
 class _CarLocationField extends StatefulWidget {
@@ -265,9 +253,6 @@ class _CochesForm extends StatelessWidget {
   ]);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ACTIVIDADES
-// ══════════════════════════════════════════════════════════════════════════════
 class _ActividadesForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
@@ -285,9 +270,6 @@ class _ActividadesForm extends StatelessWidget {
   ]);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CRUCEROS
-// ══════════════════════════════════════════════════════════════════════════════
 class _CrucerosForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
@@ -315,10 +297,6 @@ class _ComingSoon extends StatelessWidget {
     child: const Center(child: Text('PRÓXIMAMENTE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 4, color: AppColors.teal600, fontSize: 12))),
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// COMPONENTES REUTILIZABLES (SearchInput / SearchSelect / SearchCounter)
-// ══════════════════════════════════════════════════════════════════════════════
 
 // ── Campo de texto ─────────────────────────────────────────────────────────
 class _TextSearchField extends StatelessWidget {

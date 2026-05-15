@@ -6,9 +6,6 @@ import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
 import '../../utils/date_utils.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CAR DETAILS MODAL — Equivalente a CarDetailsModal.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class CarDetailsModal extends StatefulWidget {
   final Map<String, dynamic> car;
   final Map<String, dynamic> searchData;
@@ -50,13 +47,13 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
     } catch (_) { return d; }
   }
 
-  // Añade :00 si el string es HH:mm — igual que formatWithSeconds en React
+  // Añade :00 si el string es HH:mm
   String _withSeconds(String? t) {
     if (t == null || t.isEmpty) return '10:00:00';
     return t.length == 5 ? '$t:00' : t;
   }
 
-  // ── Reserva — mismo patrón que Hotel y Vuelo ──────────────────────────────
+  // ── Reserva ──────────────────────────────
   Future<void> _handleReserve() async {
     if (_isReserving || _isBooked) return;
     setState(() { _isReserving = true; _error = ''; });
@@ -123,9 +120,6 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -160,7 +154,7 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
     );
   }
 
-  // ── Header degradado teal (= vuelos) ──────────────────────────────────────
+  // ── Header degradado teal ──────────────────────────────────────
   Widget _buildHeader() => Container(
     padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
     decoration: const BoxDecoration(
@@ -236,7 +230,7 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
     ]),
   );
 
-  // ── Grid de specs (igual que CarDetailsModal.tsx) ─────────────────────────
+  // ── Grid de specs─────────────────────────
   Widget _buildSpecsGrid() {
     final isAutomatic = (widget.car['transmission'] ?? '')
         .toString().toLowerCase().contains('auto');
@@ -315,7 +309,7 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
     ]),
   );
 
-  // ── Desglose del precio (fondo oscuro = CarDetailsModal.tsx) ──────────────
+  // ── Desglose del precio ──────────────
   Widget _buildPriceBlock() {
     final pricePerDay = _days > 0 ? _price / _days : _price;
 

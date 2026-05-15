@@ -1,10 +1,3 @@
-// lib/widgets/results/hotel/hotel_details_modal.dart
-//
-// FIXES aplicados:
-// 1. ✅ _handleReserve usa AuthService real (no const vacío)
-// 2. ✅ Llama a api.createReserva con el cuerpo correcto
-// 3. ✅ Muestra link a /login si no hay sesión
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -121,14 +114,11 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
     final r = _breakfast['rating'];
     return r is num && r > 0;
   }
-
-  // ── FIX 1: Reserva real con AuthService ───────────────────────────────────
   Future<void> _handleReserve() async {
     if (_isReserving || _isBooked) return;
     setState(() { _isReserving = true; _error = ''; });
 
     try {
-      // Leer token e idUsuario de SharedPreferences via AuthService
       final isLogged = await AuthService.isLoggedIn();
       if (!isLogged) {
         setState(() => _error = 'Debes iniciar sesión para reservar.');
@@ -444,7 +434,6 @@ class _HotelDetailsModalState extends State<HotelDetailsModal> {
         ),
       ]),
 
-      // FIX 2: Error con link a login si no está autenticado
       if (_error.isNotEmpty) ...[
         const SizedBox(height: 8),
         Container(

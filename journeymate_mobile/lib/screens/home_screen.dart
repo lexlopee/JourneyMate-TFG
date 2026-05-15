@@ -1,11 +1,3 @@
-// lib/screens/home_screen.dart
-//
-// FIXES:
-// 1. ✅ Categorías y destinos navegan correctamente (callback al AppShell)
-// 2. ✅ Footer eliminado
-// 3. ✅ Navbar: botón atrás ya no se superpone al texto (layout corregido)
-// 4. ✅ Carousel usa assets locales con extensiones correctas
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -55,11 +47,6 @@ const _carouselImages = [
   'assets/images/foto5.jpg',
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HomeScreen acepta un callback opcional para cambiar el tab del AppShell.
-// Cuando se usa dentro del AppShell, onChangeTab cambia el tab y pasa
-// el argumento de sección al SearchScreen.
-// ─────────────────────────────────────────────────────────────────────────────
 class HomeScreen extends StatefulWidget {
   /// Callback que el AppShell puede inyectar para cambiar de tab.
   final void Function(int tabIndex, {String? section, String? destText})? onChangeTab;
@@ -94,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // FIX: navega al tab de búsqueda con la sección correcta
+  // navega al tab de búsqueda con la sección correcta
   void _goSearch(String? section, {String? destText}) {
     HapticFeedback.lightImpact();
     if (widget.onChangeTab != null) {
@@ -110,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      // FIX: AITravelAssistant como FAB nativo (no Positioned manual)
+      // AITravelAssistant como FAB nativo (no Positioned manual)
       floatingActionButton: const AITravelAssistant(),
       body: RefreshIndicator(
         color: AppColors.teal600,
@@ -134,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── AppBar (FIX: sin botón atrás superpuesto) ─────────────────────────────
+  // ── AppBar ─────────────────────────────
   Widget _buildAppBar() => SliverAppBar(
     backgroundColor: Colors.transparent,
     elevation: 0,
@@ -281,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
         fontWeight: FontWeight.w900, letterSpacing: 2)),
   );
 
-  // ── Categorías (FIX: navegación funciona) ────────────────────────────────
+  // ── Categorías  ────────────────────────────────
   Widget _buildCategories() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -328,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Destinos (FIX: navegan al tab búsqueda con vuelos + destino) ──────────
+  // ── Destinos ──────────
   Widget _buildDestinos() {
     return SizedBox(
       height: 165,

@@ -5,21 +5,12 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:http/http.dart' as http;
 import '../../core/app_colors.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
-// BASE URL
-// ════════════════════════════════════════════════════════════════════════════
 const _kBaseUrl = 'http://10.0.2.2:8080/api/v1';
 
-// ════════════════════════════════════════════════════════════════════════════
-// CACHÉS GLOBALES
-// ════════════════════════════════════════════════════════════════════════════
 final _flightCache = <String, List<FlightLocation>>{};
 final _activityCache = <String, List<ActivityLocation>>{};
 final _carCache = <String, List<CarLocation>>{};
 
-// ════════════════════════════════════════════════════════════════════════════
-// HELPER VISUAL: Wrapper para campos
-// ════════════════════════════════════════════════════════════════════════════
 Widget _fieldWrap({required String label, required Widget child}) => Container(
   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
   decoration: BoxDecoration(
@@ -47,9 +38,6 @@ Widget _fieldWrap({required String label, required Widget child}) => Container(
   ]),
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// 1. AutocompleteInput — VUELOS
-// ════════════════════════════════════════════════════════════════════════════
 class FlightLocation {
   final String id, name, code, cityName, countryName, photoUri, type;
   const FlightLocation({
@@ -214,9 +202,6 @@ class _FlightSuggestionTile extends StatelessWidget {
   Widget _fb() => Container(width: 40, height: 40, decoration: BoxDecoration(color: AppColors.teal50, borderRadius: BorderRadius.circular(8)), child: const Center(child: Text('✈️')));
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// 2. ActivityAutocomplete — ACTIVIDADES
-// ════════════════════════════════════════════════════════════════════════════
 class ActivityLocation {
   final String id, nombre, descripcion;
   const ActivityLocation({required this.id, required this.nombre, required this.descripcion});
@@ -347,9 +332,6 @@ class _ActivitySuggestionTile extends StatelessWidget {
   ]);
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// 3. CarLocationInput — COCHES (CORREGIDO ÍNTEGRO)
-// ════════════════════════════════════════════════════════════════════════════
 class CarLocation {
   final String id; // ID técnico necesario para la API
   final String name, city, country, type;
@@ -363,7 +345,7 @@ class CarLocation {
   });
 
   factory CarLocation.fromJson(Map<String, dynamic> j) => CarLocation(
-      id: j['id']?.toString() ?? '', // Clave para evitar el 400 Bad Request
+      id: j['id']?.toString() ?? '',
       name: j['name'] ?? '',
       city: j['city'] ?? '',
       country: j['country'] ?? '',
@@ -513,9 +495,6 @@ class _CarSuggestionTile extends StatelessWidget {
   ]);
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// 4. CruiseSearchSelects — CRUCEROS
-// ════════════════════════════════════════════════════════════════════════════
 class _CodeName { final String code, name; const _CodeName(this.code, this.name); }
 
 class CruiseSearchSelects extends StatefulWidget {
@@ -588,9 +567,6 @@ class _CruiseSearchSelectsState extends State<CruiseSearchSelects> {
   ]);
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// HELPER GENÉRICO: Dropdown de sugerencias
-// ════════════════════════════════════════════════════════════════════════════
 class _SuggestionDropdown<T> extends StatelessWidget {
   final List<T> items;
   final Widget Function(T) itemBuilder;

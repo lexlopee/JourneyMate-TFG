@@ -5,22 +5,6 @@ import '../../utils/date_utils.dart';
 import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
 
-
-// ══════════════════════════════════════════════════════════════════════════════
-// FLIGHT DETAILS MODAL — Equivalente a FlightDetailsModal.tsx
-//
-// Uso desde search_screen.dart:
-//
-//   showModalBottomSheet(
-//     context: context,
-//     isScrollControlled: true,
-//     backgroundColor: Colors.transparent,
-//     builder: (_) => FlightDetailsModal(
-//       details: _flightDetails,   // respuesta de SearchService.getFlightDetails(token)
-//       onClose: () => Navigator.pop(context),
-//     ),
-//   );
-// ══════════════════════════════════════════════════════════════════════════════
 class FlightDetailsModal extends StatefulWidget {
   final Map<String, dynamic> details;
   final VoidCallback onClose;
@@ -187,9 +171,6 @@ class _FlightDetailsModalState extends State<FlightDetailsModal> {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -426,6 +407,7 @@ class _FlightDetailsModalState extends State<FlightDetailsModal> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFFF3F4F6))),
       child: Row(children: [
+
         // Logo aerolínea
         Container(
           width: 38, height: 38,

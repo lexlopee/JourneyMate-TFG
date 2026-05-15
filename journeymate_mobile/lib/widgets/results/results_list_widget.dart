@@ -12,9 +12,6 @@ import 'cruise_details_modal.dart';
 import '../../services/search_service.dart';
 import '../common_widgets.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET PRINCIPAL DE LISTA DE RESULTADOS
-// ══════════════════════════════════════════════════════════════════════════════
 class ResultsListWidget extends StatefulWidget {
   final List<dynamic> results;
   final Section section;
@@ -165,7 +162,6 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
   }
 
   void _showHotelDetail(Map<String, dynamic> item) {
-    // Obtenemos el ID de forma segura según la estructura de tu API[cite: 12]
     final String hotelId = (item['hotelId'] ?? item['id'] ?? '').toString();
 
     showModalBottomSheet(
@@ -177,12 +173,10 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
       builder: (context) => FutureBuilder(
         future: SearchService.getHotelDetails(hotelId, widget.searchData),
         builder: (context, snapshot) {
-          // 1. ESTADO: CARGANDO
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingModal();
           }
 
-          // 2. ESTADO: ERROR (API caída o ID inválido)
           if (snapshot.hasError || !snapshot.hasData) {
             return const ErrorModal(message: "No pudimos obtener los detalles del hotel en este momento.");
           }
@@ -279,9 +273,6 @@ class _ResultsListWidgetState extends State<ResultsListWidget> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CAR CARD WIDGET
-// ══════════════════════════════════════════════════════════════════════════════
 class CarCardWidget extends StatelessWidget {
   final Map<String, dynamic> car;
   final Map<String, dynamic> searchData;

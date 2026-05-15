@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-// Equivalente a LoadingVideo.tsx
-// El vídeo debe estar en: assets/animations/logo-loading.mp4
 class LoadingVideo extends StatefulWidget {
   final double size;
   const LoadingVideo({super.key, this.size = 180});
@@ -37,8 +35,6 @@ class _LoadingVideoState extends State<LoadingVideo> {
 
   @override
   Widget build(BuildContext context) {
-    // TRUCO: Si estamos en modo debug o si el vídeo da problemas,
-    // usa el spinner por defecto para que no bloquee la app.
     if (!_initialized) {
       return _buildSpinner();
     }

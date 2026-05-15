@@ -1,11 +1,3 @@
-// lib/screens/search_screen.dart
-//
-// FIXES:
-// 1. ✅ Scroll va al INICIO de resultados (no al final)
-// 2. ✅ Footer eliminado
-// 3. ✅ Coches: overflow corregido (SizedBox con constraints)
-// 4. ✅ GlobalKey en el widget de resultados para calcular offset exacto
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';

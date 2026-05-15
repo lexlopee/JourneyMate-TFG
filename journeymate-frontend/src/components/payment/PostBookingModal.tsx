@@ -52,7 +52,6 @@ export function PostBookingModal({ isOpen, onClose, reservaId, precio, descripci
     finally { setLoading(null); }
   };
 
-  // ── Vista 1: ¿Pagar ahora o seguir? ────────────────────
   if (!showPay) {
     return (
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-teal-950/70 backdrop-blur-md p-4">

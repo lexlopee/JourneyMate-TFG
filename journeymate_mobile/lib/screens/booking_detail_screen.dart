@@ -1,18 +1,9 @@
-// lib/screens/booking_detail_screen.dart
-//
-// Pantalla de detalle de reserva — equivalente visual a eDreams/Booking app
-// Se abre al pulsar cualquier reserva en MyBookingsScreen.
-// Adapta el contenido según el tipo: HOTEL | VUELO | COCHE | ACTIVIDAD | CRUCERO
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../core/app_colors.dart';
-import '../services/auth_service.dart';
 import '../services/api_service.dart';
 
-// ── Modelo reutilizado de MyBookingsScreen ────────────────────────────────────
-// (importa desde my_bookings_screen.dart en tu proyecto real)
 class BookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> reserva; // el JSON completo de la reserva
 
@@ -153,8 +144,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
   Future<void> _cancelar() async {
     final ok = await showModalBottomSheet<bool>(
       context: context, backgroundColor: Colors.transparent,
-      builder: (_) => _ConfirmSheet(
-        icon: LucideIcons.alertTriangle, iconColor: const Color(0xFFDC2626),
+      builder: (_) => const _ConfirmSheet(
+        icon: LucideIcons.alertTriangle, iconColor: Color(0xFFDC2626),
         title: 'Cancelar reserva',
         message: '¿Seguro que quieres cancelar esta reserva?\nEl reembolso se procesará en 3-5 días hábiles.',
         confirmLabel: 'Sí, cancelar', danger: true,
@@ -173,18 +164,17 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
         Navigator.pop(context, 'cancelled');
       }
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('No se pudo cancelar. Inténtalo de nuevo.', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Color(0xFFDC2626), behavior: SnackBarBehavior.floating,
       ));
+      }
     } finally {
       if (mounted) setState(() => _cancelling = false);
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD PRINCIPAL
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -212,7 +202,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
       onTap: () => Navigator.pop(context),
       child: Container(
         margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
+        decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
         child: const Icon(LucideIcons.arrowLeft, color: Colors.white, size: 20),
       ),
     ),
@@ -221,7 +211,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
         onTap: () => _copyToClipboard('$_id'),
         child: Container(
           margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
+          decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
           child: const Padding(
             padding: EdgeInsets.all(8),
             child: Icon(LucideIcons.share, color: Colors.white, size: 18),
@@ -278,7 +268,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     ),
   );
 
-  // ── Banner de estado (verde/amarillo/rojo) ────────────────────────────────
+  // ── Banner de estado ────────────────────────────────
   Widget _buildEstadoBanner() => Container(
     color: _estadoColor.withOpacity(0.1),
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -320,7 +310,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
   );
 
   Widget _buildTabContent() => SizedBox(
-    // Altura dinámica: no anidamos TabBarView (incompatible con CustomScrollView)
+    // Altura dinámica
     child: AnimatedBuilder(
       animation: _tabCtrl,
       builder: (_, __) => _tabs[_tabCtrl.index].content,
@@ -386,18 +376,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     ));
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // CONTENIDOS POR TIPO
-  // ══════════════════════════════════════════════════════════════════════════
-
   // ── VUELO — Tab Reserva ───────────────────────────────────────────────────
   Widget _buildVueloReserva() => _Section(children: [
-    _SectionTitle('Referencias de reserva'),
+    const _SectionTitle('Referencias de reserva'),
     _InfoRow(icon: LucideIcons.ticket,     label: 'Referencia JourneyMate', value: '#$_id'),
     _InfoRow(icon: LucideIcons.plane,      label: 'Aerolínea',    value: _s['descripcion']?.toString() ?? '—'),
     _InfoRow(icon: LucideIcons.creditCard, label: 'Precio total', value: '${_precio.toStringAsFixed(2)} €'),
     const SizedBox(height: 16),
-    _SectionTitle('Detalles del vuelo'),
+    const _SectionTitle('Detalles del vuelo'),
     _InfoRow(icon: LucideIcons.plane, label: 'Salida',   value: '${_fmt(_s['horaSalida']?.toString())} · ${_fmtTime(_s['horaSalida']?.toString())}'),
     _InfoRow(icon: LucideIcons.plane, label: 'Llegada',  value: '${_fmt(_s['horaLlegada']?.toString())} · ${_fmtTime(_s['horaLlegada']?.toString())}'),
     _InfoRow(icon: LucideIcons.users,        label: 'Pasajeros', value: '${_s['pasajeros'] ?? 1} adulto(s)'),
@@ -406,7 +392,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
 
   // ── VUELO — Tab Itinerario ────────────────────────────────────────────────
   Widget _buildVueloItinerario() => _Section(children: [
-    _SectionTitle('Vuelo de ida'),
+    const _SectionTitle('Vuelo de ida'),
     _FlightLeg(
       origin:       _s['origen']?.toString()       ?? '—',
       destination:  _s['destino']?.toString()       ?? '—',
@@ -419,7 +405,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     ),
     if (_s['horaLlegadaRegreso'] != null) ...[
       const SizedBox(height: 20),
-      _SectionTitle('Vuelo de vuelta'),
+      const _SectionTitle('Vuelo de vuelta'),
       _FlightLeg(
         origin:      _s['destino']?.toString()             ?? '—',
         destination: _s['origen']?.toString()              ?? '—',
@@ -433,11 +419,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     ],
   ]);
 
-  // ── VUELO — Tab Equipaje ──────────────────────────────────────────────────
+  // ── VUELO ──────────────────────────────────────────────────
   Widget _buildVueloEquipaje() => _Section(children: [
-    _SectionTitle('Equipaje incluido'),
-    _BagRow(icon: LucideIcons.briefcase, label: 'Artículo personal', detail: '1 pieza'),
-    _BagRow(icon: LucideIcons.briefcase,   label: 'Equipaje de mano',   detail: 'Según tarifa'),
+    const _SectionTitle('Equipaje incluido'),
+    const _BagRow(icon: LucideIcons.briefcase, label: 'Artículo personal', detail: '1 pieza'),
+    const _BagRow(icon: LucideIcons.briefcase,   label: 'Equipaje de mano',   detail: 'Según tarifa'),
     _BagRow(icon: LucideIcons.briefcase,     label: 'Maleta facturada',   detail: _s['maletas']?.toString() ?? 'No incluida'),
     const SizedBox(height: 16),
     Container(
@@ -452,12 +438,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     ),
   ]);
 
-  // ── HOTEL — Tab Detalles ──────────────────────────────────────────────────
+  // ── HOTEL ──────────────────────────────────────────────────
   Widget _buildHotelDetalles() => _Section(children: [
-    _SectionTitle('Fechas de estancia'),
+    const _SectionTitle('Fechas de estancia'),
     _CheckInOut(checkIn: _fecha, checkOut: _fechaFin.isNotEmpty ? _fechaFin : _s['horaLlegada']?.toString()),
     const SizedBox(height: 16),
-    _SectionTitle('Detalles de propiedad'),
+    const _SectionTitle('Detalles de propiedad'),
     _InfoRow(icon: LucideIcons.mapPin,  label: 'Dirección',   value: _s['descripcion_direccion']?.toString() ?? '—'),
     _InfoRow(icon: LucideIcons.star,    label: 'Estrellas',   value: '${_s['estrellas'] ?? '—'}'),
     _InfoRow(icon: LucideIcons.users,   label: 'Adultos',     value: '${_s['adultos'] ?? 1}'),
@@ -465,7 +451,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     _InfoRow(icon: LucideIcons.creditCard,label:'Precio total',value: '${_precio.toStringAsFixed(2)} €'),
   ]);
 
-  // ── HOTEL — Tab Habitación ────────────────────────────────────────────────
+  // ── HOTEL  ────────────────────────────────────────────────
   Widget _buildHotelHabitacion() => _Section(children: [
     _SectionTitle('Tu habitación'),
     _InfoRow(icon: LucideIcons.home, label: 'Tipo',      value: _s['tipoHabitacion']?.toString() ?? 'Habitación estándar'),
@@ -473,13 +459,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
     _InfoRow(icon: LucideIcons.coffee,    label: 'Régimen',   value: _s['regimen']?.toString() ?? 'Solo habitación'),
   ]);
 
-  // ── HOTEL — Tab Políticas ─────────────────────────────────────────────────
+  // ── HOTEL ─────────────────────────────────────────────────
   Widget _buildHotelPoliticas() => _Section(children: [
-    _SectionTitle('Check-in / Check-out'),
-    _InfoRow(icon: LucideIcons.arrowRight,  label: 'Check-in',  value: 'A partir de las 15:00'),
-    _InfoRow(icon: LucideIcons.logOut, label: 'Check-out', value: 'Antes de las 12:00'),
+    const _SectionTitle('Check-in / Check-out'),
+    const _InfoRow(icon: LucideIcons.arrowRight,  label: 'Check-in',  value: 'A partir de las 15:00'),
+    const _InfoRow(icon: LucideIcons.logOut, label: 'Check-out', value: 'Antes de las 12:00'),
     const SizedBox(height: 16),
-    _SectionTitle('Cancelación'),
+    const _SectionTitle('Cancelación'),
     Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -504,21 +490,21 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
 
   // ── COCHE ─────────────────────────────────────────────────────────────────
   Widget _buildCocheDetalle() => _Section(children: [
-    _SectionTitle('Vehículo'),
+    const _SectionTitle('Vehículo'),
     _InfoRow(icon: LucideIcons.car,       label: 'Modelo',        value: _s['modelo']?.toString()     ?? _nombre),
     _InfoRow(icon: LucideIcons.building, label: 'Proveedor',     value: _s['marca']?.toString()      ?? '—'),
     _InfoRow(icon: LucideIcons.users,     label: 'Plazas',        value: _s['plazas']?.toString()     ?? '5'),
     _InfoRow(icon: LucideIcons.briefcase, label: 'Maletas',       value: _s['maletas']?.toString()    ?? '2'),
     _InfoRow(icon: LucideIcons.settings, label: 'Transmisión',   value: _s['transmision']?.toString() ?? '—'),
-    _InfoRow(icon: LucideIcons.shieldCheck,label:'Seguro',        value: 'Básico incluido'),
+    const _InfoRow(icon: LucideIcons.shieldCheck,label:'Seguro',        value: 'Básico incluido'),
     _InfoRow(icon: LucideIcons.creditCard, label:'Precio total',  value: '${_precio.toStringAsFixed(2)} €'),
   ]);
 
   Widget _buildCocheRecogida() => _Section(children: [
-    _SectionTitle('Fechas y horarios'),
+    const _SectionTitle('Fechas y horarios'),
     _CheckInOut(label1: 'Recogida', label2: 'Devolución', checkIn: _fecha, checkOut: _fechaFin),
     const SizedBox(height: 16),
-    _SectionTitle('Lugar de recogida'),
+    const _SectionTitle('Lugar de recogida'),
     _InfoRow(icon: LucideIcons.mapPin, label: 'Punto',    value: _s['lugarRecogida']?.toString()   ?? '—'),
     _InfoRow(icon: LucideIcons.clock,  label: 'Hora rec.', value: _s['horaRecogida']?.toString()   ?? '—'),
     _InfoRow(icon: LucideIcons.clock,  label: 'Hora dev.', value: _s['horaDev']?.toString()        ?? '—'),
@@ -526,7 +512,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
 
   // ── CRUCERO ───────────────────────────────────────────────────────────────
   Widget _buildCruceroDetalle() => _Section(children: [
-    _SectionTitle('Información del crucero'),
+    const _SectionTitle('Información del crucero'),
     _InfoRow(icon: LucideIcons.ship,      label: 'Barco',          value: _s['nombreBarco']?.toString()   ?? '—'),
     _InfoRow(icon: LucideIcons.ship,    label: 'Puerto salida',  value: _s['puertoSalida']?.toString()  ?? '—'),
     _InfoRow(icon: LucideIcons.clock,      label: 'Noches',         value: _s['noches']?.toString()        ?? '—'),
@@ -535,7 +521,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
   ]);
 
   Widget _buildCruceroItinerario() => _Section(children: [
-    _SectionTitle('Puertos visitados'),
+    const _SectionTitle('Puertos visitados'),
     Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(color: AppColors.teal50, borderRadius: BorderRadius.circular(14)),
@@ -546,7 +532,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
 
   // ── ACTIVIDAD ─────────────────────────────────────────────────────────────
   Widget _buildActividadDetalle() => _Section(children: [
-    _SectionTitle('Datos de la actividad'),
+    const _SectionTitle('Datos de la actividad'),
     _InfoRow(icon: LucideIcons.ticket,    label: 'Actividad',    value: _nombre),
     _InfoRow(icon: LucideIcons.calendar,  label: 'Fecha',        value: _fmt(_fecha)),
     _InfoRow(icon: LucideIcons.clock,     label: 'Hora',         value: _fmtTime(_s['horaSalida']?.toString())),
@@ -555,7 +541,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
   ]);
 
   Widget _buildActividadInfo() => _Section(children: [
-    _SectionTitle('Información importante'),
+    const _SectionTitle('Información importante'),
     _InfoRow(icon: LucideIcons.mapPin,   label: 'Ubicación',  value: _s['descripcion_direccion']?.toString() ?? '—'),
     _InfoRow(icon: LucideIcons.clock,    label: 'Duración',   value: _s['duracion']?.toString()              ?? '—'),
     const SizedBox(height: 12),

@@ -1,10 +1,3 @@
-// lib/main.dart
-//
-// Versión mobile-first:
-// - AppShell con BottomNavigationBar en lugar de web navbar
-// - Rutas para login/register/pagos siguen siendo pusheadas encima del shell
-// - Sin footer web
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -42,17 +35,18 @@ void main() async {
 final GoRouter _router = GoRouter(
   initialLocation: '/',
   routes: [
-    // Shell principal con bottom nav
     GoRoute(
       path: '/',
       builder: (_, __) => const AppShell(initialIndex: 0),
     ),
     GoRoute(
       path: '/buscar',
-      builder: (_, state) => AppShell(
+      builder: (_, state) {
+        return const AppShell(
         initialIndex: 1,
-        // La SearchScreen leerá estos args desde su propio navigator
-      ),
+
+      );
+      },
     ),
     GoRoute(
       path: '/mis-reservas',
@@ -63,7 +57,6 @@ final GoRouter _router = GoRouter(
       builder: (_, __) => const AppShell(initialIndex: 3),
     ),
 
-    // Pantallas que se abren encima del shell (sin bottom nav)
     GoRoute(path: '/login',    builder: (_, __) => const LoginScreen()),
     GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
     GoRoute(

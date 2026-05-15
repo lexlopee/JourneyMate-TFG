@@ -5,9 +5,6 @@ import '../../core/app_colors.dart';
 import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ACTIVITY DETAILS MODAL — Equivalente a ActivityDetailsModal.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class ActivityDetailsModal extends StatefulWidget {
   final Map<String, dynamic> basicData;   // Datos de la tarjeta (lista)
   final Map<String, dynamic> details;     // Respuesta de /activities/details
@@ -34,7 +31,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
   final PageController _pageController = PageController();
 
 
-  // ── Helpers de datos (espejo de las variables del TSX) ────────────────────
+  // ── Helpers de datos────────────────────
   String get _nombre =>
       (widget.details['nombre'] ?? widget.basicData['nombre'] ?? 'Actividad').toString();
 
@@ -91,7 +88,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
     } catch (_) { return d; }
   }
 
-  // ── Reserva — mismo patrón que CarDetailsModal ────────────────────────────
+  // ── Reserva ────────────────────────────
   Future<void> _handleReserve() async {
     if (_isReserving || _isBooked) return;
     setState(() { _isReserving = true; _error = ''; });
@@ -116,7 +113,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
 
       final startDate = widget.searchData['startDate'] ?? '';
 
-      // Estructura idéntica al TSX: ActivityDetailsModal.handleReserve
+      // Estructura idéntica
       final body = {
         'idUsuario':     idUsuario,
         'idTipoReserva': 6,
@@ -146,9 +143,6 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -198,7 +192,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
     return SizedBox(
       height: 280,
       child: Stack(children: [
-        // 1. Carrusel (CAPA BASE)
+        // 1. Carrusel
         if (fotos.isEmpty)
           Container(
             color: AppColors.teal900,
@@ -219,7 +213,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
             ),
           ),
 
-        // 2. Degradado inferior (MOVIDO AQUÍ Y CON IgnorePointer)
+        // 2. Degradado inferior
         // Usamos IgnorePointer para que los eventos de toque pasen a través del degradado
         Positioned.fill(
           child: IgnorePointer(
@@ -235,7 +229,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
           ),
         ),
 
-        // 3. Nombre + rating (También con IgnorePointer por si acaso)
+        // 3. Nombre + rating
         Positioned(
           bottom: 20, left: 20, right: 60,
           child: IgnorePointer(
@@ -290,7 +284,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
           ),
         ),
 
-        // 4. BOTONES DE NAVEGACIÓN (CAPA SUPERIOR - Movidos al final del Stack)
+        // 4. BOTONES DE NAVEGACIÓN
         if (fotos.length > 1)
           Positioned.fill(
             child: Padding(
@@ -323,7 +317,7 @@ class _ActivityDetailsModalState extends State<ActivityDetailsModal> {
             ),
           ),
 
-        // 5. Contador de fotos e Info adicional (Encima de los botones si es necesario)
+        // 5. Contador de fotos e Info adicional
         if (fotos.length > 1)
           Positioned(bottom: 20, right: 20, child: IgnorePointer(
             child: Container(

@@ -31,8 +31,8 @@ class ParamsMapper {
 
   static Map<String, dynamic> vuelos(Map<String, dynamic> data) {
     final params = <String, dynamic>{
-      'fromId': data['fromId'] ?? '',  // Token base64 completo del autocomplete
-      'toId': data['toId'] ?? '',      // Token base64 completo del autocomplete
+      'fromId': data['fromId'] ?? '',
+      'toId': data['toId'] ?? '',
       'departDate': data['startDate'],
       'adults': data['adults'] ?? 1,
       'childrenAge': data['childrenAge'],
@@ -50,7 +50,6 @@ class ParamsMapper {
   }
 
   static Map<String, dynamic> coches(Map<String, dynamic> data) {
-    // Aquí data['fromId'] debe ser el token del autocomplete (ej: eyJsYXR...)
     final params = <String, dynamic>{
       'pickUpId': data['fromId'],
       'dropOffId': data['toId'] ?? data['fromId'],
@@ -68,7 +67,6 @@ class ParamsMapper {
     return params;
   }
 
-  // En ParamsMapper (source 3)
   static Map<String, dynamic> actividades(Map<String, dynamic> data, String ufi) {
     String sortValue = data['sort'] ?? 'trending';
     if (sortValue == 'BEST') sortValue = 'trending';

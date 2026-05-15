@@ -3,9 +3,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/app_colors.dart';
 import '../../utils/date_utils.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// HOTEL CARD — equivalente a HotelCard.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class HotelCard extends StatelessWidget {
   final Map<String, dynamic> hotel;
   final VoidCallback onViewDetails;
@@ -206,9 +203,6 @@ class HotelCard extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// FLIGHT CARD — equivalente a FlightCard.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class FlightCard extends StatelessWidget {
   final Map<String, dynamic> flight;
   final VoidCallback onViewDetails;
@@ -309,9 +303,6 @@ class FlightCard extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ACTIVITY CARD — equivalente a ActivityCard.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class ActivityCard extends StatelessWidget {
   final Map<String, dynamic> activity;
   final VoidCallback onViewDetails;
@@ -382,9 +373,6 @@ class ActivityCard extends StatelessWidget {
   Widget _placeholder() => Container(color: const Color(0xFFFFF7ED), child: const Center(child: Icon(LucideIcons.ticket, size: 40, color: Color(0xFFFBBF24))));
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CRUISE CARD — equivalente a CruiseCard.tsx
-// ══════════════════════════════════════════════════════════════════════════════
 class CruiseCard extends StatelessWidget {
   final Map<String, dynamic> cruise;
   final VoidCallback onViewDetails;

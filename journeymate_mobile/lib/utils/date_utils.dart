@@ -2,7 +2,6 @@ import 'package:intl/intl.dart';
 
 // ── Fechas ────────────────────────────────────────────────────────────────────
 
-/// Formatea una fecha ISO (YYYY-MM-DD) a "lun, 3 ene 2025"
 String formatDateSpanish(String? isoDate) {
   if (isoDate == null || isoDate.isEmpty) return '—';
   try {
@@ -13,7 +12,6 @@ String formatDateSpanish(String? isoDate) {
   }
 }
 
-/// Formatea "2025-01-03" → "03/01/2025"
 String formatDateShort(String? isoDate) {
   if (isoDate == null || isoDate.isEmpty) return '—';
   try {
@@ -24,7 +22,6 @@ String formatDateShort(String? isoDate) {
   }
 }
 
-/// Calcula días entre dos fechas ISO (mínimo 1)
 int daysBetween(String? start, String? end) {
   if (start == null || end == null) return 1;
   try {
@@ -36,13 +33,11 @@ int daysBetween(String? start, String? end) {
   }
 }
 
-/// Devuelve today + N días en formato YYYY-MM-DD
 String addDays(int n) {
   final d = DateTime.now().add(Duration(days: n));
   return DateFormat('yyyy-MM-dd').format(d);
 }
 
-/// Hoy en formato YYYY-MM-DD
 String get today => DateFormat('yyyy-MM-dd').format(DateTime.now());
 
 // ── Horas ─────────────────────────────────────────────────────────────────────

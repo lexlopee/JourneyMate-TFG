@@ -3,8 +3,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../core/app_colors.dart';
 import '../services/search_service.dart';
 
-// Equivalente a AITravelAssistant.tsx
-// PDF export → usa el paquete `pdf` + `printing` (ver pubspec)
 class AITravelAssistant extends StatefulWidget {
   const AITravelAssistant({super.key});
 
@@ -14,7 +12,7 @@ class AITravelAssistant extends StatefulWidget {
 
 class _AITravelAssistantState extends State<AITravelAssistant> with SingleTickerProviderStateMixin {
   bool   _isOpen     = false;
-  String _mode       = 'recommend'; // 'recommend' | 'plan'
+  String _mode       = 'recommend';
   bool   _isLoading  = false;
   String _result     = '';
 
@@ -51,13 +49,12 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
   }
 
   Future<void> _submit() async {
-    // 1. Validar según el modo activo[cite: 5, 7]
     if (_mode == 'recommend' && (_prefCtrl.text.isEmpty || _budgetCtrl.text.isEmpty)) return;
     if (_mode == 'plan' && _queryCtrl.text.isEmpty) return;
 
     setState(() {
       _isLoading = true;
-      _result = ''; // Limpiamos el resultado anterior como en React
+      _result = '';
     });
 
     try {
@@ -70,7 +67,6 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
 
       setState(() {
         _result = response;
-        // Opcional: Limpiar los controladores tras el éxito[cite: 5]
         _prefCtrl.clear();
         _budgetCtrl.clear();
         _queryCtrl.clear();
@@ -122,7 +118,6 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
         border: Border.all(color: AppColors.teal100),
       ),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        // Header
         Container(
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(color: AppColors.teal900, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
@@ -136,7 +131,6 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
               GestureDetector(onTap: _toggle, child: const Icon(LucideIcons.x, color: AppColors.teal300, size: 18)),
             ]),
             const SizedBox(height: 12),
-            // Mode toggle
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(color: AppColors.teal800.withOpacity(0.4), borderRadius: BorderRadius.circular(16)),
@@ -148,7 +142,6 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
           ]),
         ),
 
-        // Result area
         Container(
           height: 280,
           color: AppColors.teal50.withOpacity(0.2),
@@ -170,7 +163,6 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
           ),
         ),
 
-        // Input
         Container(
           padding: const EdgeInsets.all(12),
           decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)), border: Border(top: BorderSide(color: AppColors.teal100))),
@@ -276,14 +268,12 @@ class _BoldText extends StatelessWidget {
   }
 }
 
-// Widget para renderizar negritas dinámicas[cite: 5, 7]
 class _BoldTextParser extends StatelessWidget {
   final String text;
   const _BoldTextParser({required this.text});
 
   @override
   Widget build(BuildContext context) {
-    // Expresión regular para encontrar contenido entre asteriscos **[cite: 5]
     final parts = text.split(RegExp(r'(\*\*.*?\*\*)'));
 
     return RichText(
@@ -329,35 +319,29 @@ class _RobotPainter extends CustomPainter {
     final paint = Paint()..color = Colors.white..style = PaintingStyle.fill;
     final stroke = Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = w * 0.07..strokeCap = StrokeCap.round;
 
-    // Antena
     canvas.drawLine(Offset(w * 0.5, h * 0.0), Offset(w * 0.5, h * 0.18), stroke);
     canvas.drawCircle(Offset(w * 0.5, h * 0.0), w * 0.07, paint);
 
-    // Cabeza (rectángulo redondeado)
     final head = RRect.fromRectAndRadius(
       Rect.fromLTWH(w * 0.1, h * 0.18, w * 0.8, h * 0.48),
       Radius.circular(w * 0.15),
     );
     canvas.drawRRect(head, stroke);
 
-    // Ojos
     canvas.drawCircle(Offset(w * 0.33, h * 0.39), w * 0.09, paint);
     canvas.drawCircle(Offset(w * 0.67, h * 0.39), w * 0.09, paint);
 
-    // Boca (línea sonriente)
     final mouthPath = Path()
       ..moveTo(w * 0.3, h * 0.55)
       ..quadraticBezierTo(w * 0.5, h * 0.64, w * 0.7, h * 0.55);
     canvas.drawPath(mouthPath, stroke..strokeWidth = w * 0.06);
 
-    // Cuerpo
     final body = RRect.fromRectAndRadius(
       Rect.fromLTWH(w * 0.15, h * 0.7, w * 0.7, h * 0.28),
       Radius.circular(w * 0.1),
     );
     canvas.drawRRect(body, stroke..strokeWidth = w * 0.07);
 
-    // Brazos
     canvas.drawLine(Offset(w * 0.15, h * 0.76), Offset(w * 0.0, h * 0.84), stroke);
     canvas.drawLine(Offset(w * 0.85, h * 0.76), Offset(w * 1.0, h * 0.84), stroke);
   }

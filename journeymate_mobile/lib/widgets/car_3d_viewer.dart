@@ -1,4 +1,3 @@
-// lib/widgets/car_3d_viewer.dart
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 
@@ -84,9 +83,6 @@ class _Car3DViewerState extends State<Car3DViewer>
     final type = _rotate ? _allTypes[_idx] : widget.carType;
     final cfg  = _config[type] ?? _config['small']!;
 
-    // El WebView de ModelViewer añade ~5px de padding abajo que no podemos
-    // controlar. Usamos Transform.translate para subir el contenido 5px
-    // y ClipRect para que esos 5px extra no sean visibles.
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -98,9 +94,9 @@ class _Car3DViewerState extends State<Car3DViewer>
               opacity: _anim,
               child: IgnorePointer(
                 child: Transform.translate(
-                  offset: const Offset(0, -6), // sube 6px para absorber el padding interno
+                  offset: const Offset(0, -6),
                   child: SizedBox(
-                    height: widget.height + 12, // compensa el espacio extra
+                    height: widget.height + 12,
                     width: double.infinity,
                     child: ModelViewer(
                       src: cfg.model,

@@ -1,31 +1,8 @@
-// lib/widgets/payment/payment_sheet.dart
-//
-// Equivalente a PostBookingModal.tsx + PaymentModal.tsx
-// Se muestra como BottomSheet nativo en vez de modal web.
-// Abre Stripe/PayPal en el navegador del dispositivo con url_launcher.
-
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/app_colors.dart';
 import '../../services/payment_service.dart';
-
-// ── Uso desde cualquier screen ────────────────────────────────────────────────
-//
-//   await PaymentSheet.show(
-//     context,
-//     reservaId:   data.idReserva,
-//     precio:      car.price,
-//     descripcion: 'Coche · 3 días',
-//   );
-//
-//   // Para pago múltiple:
-//   await PaymentSheet.show(
-//     context,
-//     reservaIds:  [1, 2, 3],
-//     precio:      totalPendiente,
-//     descripcion: '3 reservas pendientes',
-//   );
 
 class PaymentSheet extends StatefulWidget {
   final int?       reservaId;
@@ -68,8 +45,6 @@ class PaymentSheet extends StatefulWidget {
 }
 
 class _PaymentSheetState extends State<PaymentSheet> {
-  // Paso 1 = "¿Pagar ahora o seguir?"  (equivale al primer estado de PostBookingModal)
-  // Paso 2 = selección de método
   int    _step    = 1;
   String _loading = ''; // '' | 'stripe' | 'paypal'
   String _error   = '';
@@ -108,7 +83,6 @@ class _PaymentSheetState extends State<PaymentSheet> {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -132,7 +106,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
     );
   }
 
-  // ── Paso 1: Reserva creada — ¿Pagar ahora? ─────────────────────────────────
+  // ── Reserva creada — ¿Pagar ahora? ─────────────────────────────────
   Widget _buildStep1() => Column(key: const ValueKey(1), mainAxisSize: MainAxisSize.min, children: [
     // Icono
     Container(width: 64, height: 64, decoration: const BoxDecoration(color: AppColors.teal50, shape: BoxShape.circle),
@@ -180,7 +154,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
         style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
   ]);
 
-  // ── Paso 2: Selección de método ───────────────────────────────────────────
+  // ── Selección de método ───────────────────────────────────────────
   Widget _buildStep2() => Column(key: const ValueKey(2), mainAxisSize: MainAxisSize.min, children: [
     // Volver
     Row(children: [
@@ -270,10 +244,10 @@ class _PaymentSheetState extends State<PaymentSheet> {
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(color: const Color(0xFFFEFCE8),
         borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFFDE68A))),
-    child: Row(children: [
-      const Icon(LucideIcons.checkCircle, size: 15, color: Color(0xFFD97706)),
-      const SizedBox(width: 8),
-      const Expanded(child: Text('Modo Sandbox — no se cargará dinero real.',
+    child: const Row(children: [
+      Icon(LucideIcons.checkCircle, size: 15, color: Color(0xFFD97706)),
+      SizedBox(width: 8),
+      Expanded(child: Text('Modo Sandbox — no se cargará dinero real.',
           style: TextStyle(color: Color(0xFF92400E), fontSize: 11, fontWeight: FontWeight.w600))),
     ]),
   );

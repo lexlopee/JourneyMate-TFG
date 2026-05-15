@@ -20,12 +20,10 @@ export const CruiseSearchSelects = ({
   const [loadingDest, setLoadingDest]   = useState(false);
   const [loadingPort, setLoadingPort]   = useState(false);
 
-  // Carga los destinos desde /api/v1/cruises/destinations
   useEffect(() => {
     setLoadingDest(true);
     api.get('/cruises/destinations')
       .then(({ data }) => {
-        // La API devuelve un JsonNode — normalizamos las dos estructuras posibles
         const raw: any[] = Array.isArray(data) ? data : (data?.destinations ?? data?.data ?? []);
         setDestinations(
           raw.map((d: any) => ({
@@ -38,7 +36,6 @@ export const CruiseSearchSelects = ({
       .finally(() => setLoadingDest(false));
   }, []);
 
-  // Carga los puertos desde /api/v1/cruises/ports
   useEffect(() => {
     setLoadingPort(true);
     api.get('/cruises/ports')
@@ -57,7 +54,6 @@ export const CruiseSearchSelects = ({
 
   return (
     <>
-      {/* SELECT DESTINO */}
       <div className="search-input-field bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all shadow-sm">
         <span className="text-[9px] font-black text-teal-800/40 block mb-1 uppercase tracking-widest">
           Zona / Destino
@@ -85,7 +81,6 @@ export const CruiseSearchSelects = ({
         </div>
       </div>
 
-      {/* SELECT PUERTO */}
       <div className="search-input-field bg-white/90 rounded-2xl p-3 text-left border border-teal-100/50 hover:bg-white transition-all shadow-sm">
         <span className="text-[9px] font-black text-teal-800/40 block mb-1 uppercase tracking-widest">
           Puerto de salida

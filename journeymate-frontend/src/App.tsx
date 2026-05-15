@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import anime from "animejs/lib/anime.es.js";
 
-// Componentes y Servicios
 import Navbar, { type Section } from './components/navbar';
 import Footer from "./components/Footer/Footer";
 import { SearchForm } from './components/search/SearchForm';
@@ -17,7 +16,6 @@ import { useSearchParams } from 'react-router-dom';
 import { CruiseDetailsModal } from './components/results/cruise/CruiseDetailsModal';
 
 
-// Servicios
 import { 
   performSearch, 
   getHotelDetails, 
@@ -26,15 +24,12 @@ import {
 } from './services/searchService'; 
 import { formatDateForBackend } from './utils/dateUtils';
 
-// Iconos
 import { Hotel, Plane, Ticket, Ship, Train, Search } from 'lucide-react';
 
 function App() {
-  // --- FECHAS POR DEFECTO ---
   const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
   const dayAfterTomorrowStr = new Date(Date.now() + 172800000).toISOString().split('T')[0];
 
-  // --- ESTADOS DE NAVEGACIÓN Y BÚSQUEDA ---
   const [searchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState<Section>('alojamiento');
   const [loading, setLoading] = useState(false);
@@ -61,36 +56,29 @@ function App() {
     cruisePort: '',
   });
 
-  // --- ESTADOS DE MODALES Y DETALLES ---
   const [modalLoading, setModalLoading] = useState(false);
 
-  // Hoteles
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedHotelBasic, setSelectedHotelBasic] = useState<any>(null);
   const [selectedHotelDetails, setSelectedHotelDetails] = useState<any>(null);
 
-  // Vuelos
   const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
   const [selectedFlightBasic, setSelectedFlightBasic] = useState<any>(null);
   const [selectedFlightDetails, setSelectedFlightDetails] = useState<any>(null);
 
-  // Actividades
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   const [selectedActivityBasic, setSelectedActivityBasic] = useState<any>(null);
   const [selectedActivityDetails, setSelectedActivityDetails] = useState<any>(null);
 
-  // Coches
   const [isCarModalOpen, setIsCarModalOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState<any>(null);
 
-  // Cruceros
   const [isCruiseModalOpen, setIsCruiseModalOpen] = useState(false);
   const [selectedCruise, setSelectedCruise] = useState<any>(null);
 
   const iconRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // --- LEER QUERY PARAMS AL MONTAR (desde Home) ---
   useEffect(() => {
     const tab     = searchParams.get('tab') as Section | null;
     const toId    = searchParams.get('toId');
@@ -105,9 +93,8 @@ function App() {
         ...(destText ? { destinationText: destText, destination: destText } : {}),
       }));
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // --- ANIMACIÓN DE ICONO ---
   useEffect(() => {
     if (iconRef.current) {
       anime({
@@ -118,7 +105,6 @@ function App() {
     }
   }, [activeSection]);
 
-  // --- MANEJADORES ---
   const handleChange = (field: string, value: any) => {
     setSearchData(prev => {
       const newData = { ...prev, [field]: value };
@@ -219,7 +205,6 @@ function App() {
 
       <main className="relative z-10 pt-24 sm:pt-28 pb-40 px-4 sm:px-6 flex flex-col items-center flex-grow">
         
-        {/* ICONO SECCIÓN */}
         <div ref={iconRef} className={`mb-8 bg-white/20 backdrop-blur-3xl border border-white/40 shadow-2xl rounded-[3rem] ${activeSection === 'coches' ? 'p-4' : 'p-8'}`}>
           {activeSection === 'alojamiento' && <Hotel size={70} className="text-teal-900" />}
           {activeSection === 'vuelos' && <Plane size={70} className="text-teal-900" />}
@@ -229,7 +214,6 @@ function App() {
           {activeSection === 'trenes' && <Train size={70} className="text-teal-900" />}
         </div>
 
-        {/* CONTENEDOR BUSCADOR */}
         <div className="w-full max-w-7xl backdrop-blur-2xl bg-white/40 rounded-[4rem] border border-white/60 shadow-2xl p-8 lg:p-12 text-center">
           <h2 className="text-5xl md:text-7xl font-black text-teal-900 tracking-tighter uppercase mb-2 leading-none">
             JourneyMate <span className="text-teal-600/40">{activeSection}</span>
@@ -256,7 +240,6 @@ function App() {
           </div>
         </div>
 
-        {/* CARGA PRINCIPAL */}
         {loading && (
           <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-teal-950/60 backdrop-blur-md">
             <LoadingVideo size={220} />
@@ -266,7 +249,6 @@ function App() {
           </div>
         )}
 
-        {/* LISTADO DE RESULTADOS */}
         <div ref={resultsRef} className="w-full mt-16 max-w-7xl mb-16">
           <ResultsList 
             results={results} 
@@ -280,7 +262,6 @@ function App() {
         </div>
       </main>
 
-      {/* --- MODALES --- */}
       <HotelDetailsModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

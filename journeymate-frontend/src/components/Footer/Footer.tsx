@@ -6,7 +6,6 @@ import {
   ArrowUpRight
 } from "lucide-react";
 
-// Iconos de RRSS como SVG inline — compatibles con cualquier versión de lucide-react
 const InstagramIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
@@ -48,16 +47,6 @@ export default function Footer() {
       });
     }
   }, []);
-
-  const handleSubscribe = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const input = e.currentTarget.querySelector("input") as HTMLInputElement;
-    if (input?.value) {
-      input.value = "";
-      input.placeholder = "¡Suscrito con éxito! ✓";
-      setTimeout(() => { input.placeholder = "Tu correo electrónico"; }, 3000);
-    }
-  };
 
   return (
     <footer

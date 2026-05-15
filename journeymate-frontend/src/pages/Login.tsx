@@ -39,7 +39,6 @@ export default function Login() {
     <div className="min-h-screen flex font-sans"
       style={{ background: 'linear-gradient(135deg, #0d4f4c 0%, #1cb5b0 50%, #e9fc9e 100%)' }}>
 
-      {/* Panel izquierdo — decorativo */}
       <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
@@ -61,7 +60,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Panel derecho — formulario */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-8 sm:p-10">
@@ -77,7 +75,6 @@ export default function Login() {
 
             <form onSubmit={handleLogin} className="space-y-4">
 
-              {/* Email */}
               <div className="relative">
                 <label className="block text-xs font-black text-teal-900/60 uppercase tracking-widest mb-1.5">
                   Correo electrónico
@@ -97,7 +94,6 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Password */}
               <div className="relative">
                 <label className="block text-xs font-black text-teal-900/60 uppercase tracking-widest mb-1.5">
                   Contraseña
@@ -121,14 +117,12 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Error */}
               {error && (
                 <div className="bg-red-50 border border-red-100 text-red-600 text-xs font-semibold px-4 py-3 rounded-xl text-center">
                   {error}
                 </div>
               )}
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}

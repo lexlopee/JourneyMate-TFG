@@ -74,7 +74,6 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
           rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5
           flex items-center justify-between gap-2">
 
-          {/* ⭐ LOGO — Link a / (home) */}
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             <span className="h-9 sm:h-11 flex items-center overflow-visible">
               <img
@@ -92,7 +91,6 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
             </span>
           </Link>
 
-          {/* TABS DESKTOP */}
           <div className="hidden lg:flex items-center gap-0.5 bg-teal-900/5 p-1 rounded-2xl border border-teal-900/5 mx-2">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => goTab(tab.id)}
@@ -106,7 +104,6 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
             ))}
           </div>
 
-          {/* TABS TABLET */}
           <div className="hidden md:flex lg:hidden items-center gap-1 mx-2">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => goTab(tab.id)} title={tab.label}
@@ -118,7 +115,6 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
             ))}
           </div>
 
-          {/* DERECHA */}
           <div className="flex items-center gap-2 shrink-0">
             {isLoggedIn ? (
               <div className="relative" ref={dropRef}>

@@ -12,7 +12,6 @@ import { CruiseSearchSelects } from '../complete/CruiseSearchSelects';
 
 export const SearchForm = ({ activeSection, searchData, handleChange, minDate }: any) => {
 
-  // ── Auto-avance al campo siguiente ─────────────────────────────────────
   const focusField = (fieldName: string) => {
     setTimeout(() => {
       // Intenta abrir Flatpickr si es campo de fecha
@@ -21,7 +20,6 @@ export const SearchForm = ({ activeSection, searchData, handleChange, minDate }:
         fp._flatpickr.open();
         return;
       }
-      // Fallback: focus normal
       const el = document.querySelector(`[data-field="${fieldName}"]`) as HTMLElement;
       if (el) { el.focus(); el.click(); }
     }, 80);
@@ -98,7 +96,6 @@ export const SearchForm = ({ activeSection, searchData, handleChange, minDate }:
     case 'alojamiento':
       return (
         <>
-          {/* ✅ Auto-avance: al terminar de escribir destino → abre fecha entrada */}
           <SearchInput
             label="Destino" icon={<Bed size={18} />} placeholder="¿A dónde vas?"
             val={searchData.destination?.replace(/_/g, ' ')}
@@ -126,7 +123,6 @@ export const SearchForm = ({ activeSection, searchData, handleChange, minDate }:
       );
 
     // ── COCHES ──────────────────────────────────────────────────────────
-    // ✅ Más compacto: misma estructura que los demás (grid normal, sin col-span-2)
     case 'coches':
       return (
         <>

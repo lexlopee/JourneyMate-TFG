@@ -1,5 +1,3 @@
-// src/components/Car3D.tsx
-
 import { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, ContactShadows, OrbitControls } from '@react-three/drei';
@@ -23,7 +21,6 @@ const CONFIG: Record<string, {
 
 const ALL_TYPES = ['small', 'medium', 'large', 'suvs', 'premium', 'carriers'];
 
-// ── Shuffle aleatorio sin repetir el mismo dos veces seguidas ─────────────
 function getNextRandom(currentIndex: number): number {
   const options = ALL_TYPES.map((_, i) => i).filter(i => i !== currentIndex);
   return options[Math.floor(Math.random() * options.length)];
@@ -98,17 +95,15 @@ export const Car3D = ({
     if (carType !== 'all') return;
 
     const interval = setInterval(() => {
-      // 1. Fade out
       setOpacity(0);
 
-      // 2. Cambiar modelo cuando ya está invisible
       setTimeout(() => {
         setCurrentIndex(prev => getNextRandom(prev));
         // 3. Fade in
         setOpacity(1);
-      }, 400); // duración del fade out
+      }, 400);
 
-    }, 3500); // cada 3.5 segundos
+    }, 3500);
 
     return () => clearInterval(interval);
   }, [carType]);
@@ -118,7 +113,6 @@ export const Car3D = ({
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      {/* ✅ Transición fade con CSS transition en opacity */}
       <div
         style={{
           height,

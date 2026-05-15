@@ -12,22 +12,20 @@ export const SearchInput = ({
   onChange,
   fieldName,
   min,
-  onEnter, // ✅ NUEVO: callback cuando se termina de escribir (para auto-avance)
+  onEnter,
 }: any) => {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Auto-avance al siguiente campo cuando el usuario deja de escribir ──
   const handleTextChange = (value: string) => {
     const clean = value.replace(/_/g, " ");
     onChange(clean);
 
-    // Si hay callback de "enter" (auto-avance), dispararlo con debounce
     if (onEnter && clean.length >= 2) {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         onEnter();
-      }, 700); // 700ms tras dejar de escribir
+      }, 700);
     }
   };
 
@@ -48,7 +46,6 @@ export const SearchInput = ({
   return (
     <div
       className={[
-        // ✅ SIN shadow-sm ni hover:shadow-md para evitar la sombra interior bug
         "relative search-input-field",
         "bg-white/90 rounded-2xl p-3 text-left",
         "border border-teal-100/50",

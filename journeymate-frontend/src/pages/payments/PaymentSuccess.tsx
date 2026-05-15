@@ -1,4 +1,3 @@
-// src/pages/PaymentSuccess.tsx
 import { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, BookOpen, Home } from 'lucide-react';

@@ -38,7 +38,8 @@ class SearchScreen extends StatefulWidget {
   final String? initialTab;
   final String? initialToId;
   final String? initialDestText;
-  const SearchScreen({super.key, this.initialTab, this.initialToId, this.initialDestText});
+  final int navVersion;
+  const SearchScreen({super.key, this.initialTab, this.initialToId, this.initialDestText, this.navVersion = 0});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -89,6 +90,40 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     });
 
     _loadUser();
+  }
+
+  // CLAVE: IndexedStack mantiene vivo el widget; didUpdateWidget reacciona
+  // cada vez que AppShell pasa nuevos props (tab o destino).
+  @override
+  void didUpdateWidget(SearchScreen old) {
+    super.didUpdateWidget(old);
+
+    final tabChanged  = widget.initialTab      != old.initialTab;
+    // Usamos navVersion para detectar CUALQUIER nueva navegación, aunque el
+    // destino sea el mismo (ej: Bali → Home → Bali de nuevo).
+    final destChanged = widget.navVersion != old.navVersion &&
+        widget.initialDestText != null;
+    if (!tabChanged && !destChanged) return;
+
+    setState(() {
+      if (tabChanged && widget.initialTab != null) {
+        _section = Section.values.firstWhere(
+              (s) => s.name == widget.initialTab,
+          orElse: () => _section,
+        );
+        _results = [];
+      }
+      if (destChanged && widget.initialDestText != null) {
+        _searchData['destinationText'] = widget.initialDestText!;
+        _searchData['destination']     = widget.initialDestText!;
+        _searchData['toId']            = '';
+      }
+    });
+
+    if (tabChanged) {
+      _iconAnimCtrl.reset();
+      _iconAnimCtrl.forward();
+    }
   }
 
   Future<void> _loadUser() async {
@@ -414,6 +449,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 section: _section,
                 searchData: _searchData,
                 onChanged: _handleChange,
+                navVersion: widget.navVersion,
               ),
               const SizedBox(height: 10),
               SizedBox(

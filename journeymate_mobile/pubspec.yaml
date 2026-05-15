@@ -11,43 +11,55 @@ dependencies:
     sdk: flutter
 
   # ── Navegación ────────────────────────────────────────────────
-  go_router: ^14.0.0                  # react-router-dom → go_router
+  go_router: ^14.0.0
 
   # ── Animaciones ───────────────────────────────────────────────
-  flutter_animate: ^4.5.0             # animejs → flutter_animate
+  flutter_animate: ^4.5.0
 
   # ── Red / HTTP ────────────────────────────────────────────────
-  http: ^1.2.0                        # fetch API → http
-  dio: ^5.4.3                         # axios (para servicios con interceptores)
+  http: ^1.2.0
+  dio: ^5.4.3
 
   # ── Almacenamiento local ──────────────────────────────────────
-  shared_preferences: ^2.3.0          # localStorage → shared_preferences
+  shared_preferences: ^2.3.0
 
   # ── 3D / Assets ───────────────────────────────────────────────
-  model_viewer_plus: ^1.9.0           # Car3D (.glb) → model_viewer_plus
-  video_player: ^2.9.1                # LoadingVideo (.mp4) → video_player
+  model_viewer_plus: ^1.9.0
+  video_player: ^2.9.1
 
   # ── Iconos ────────────────────────────────────────────────────
-  lucide_icons: ^0.257.0           # lucide-react → lucide_icons
+  lucide_icons: ^0.257.0
 
-  # ── Mapas (HotelMap) ─────────────────────────────────────────
-  google_maps_flutter: ^2.5.3       # Google Maps → google_maps_flutter
+  # ── Mapas ─────────────────────────────────────────────────────
+  google_maps_flutter: ^2.5.3
 
-  # ── Imágenes ─────────────────────────────────────────────────
-  cached_network_image: ^3.3.1        # lazy loading de imágenes
+  # ── Imágenes ──────────────────────────────────────────────────
+  cached_network_image: ^3.3.1
 
   # ── UI / Utilidades ───────────────────────────────────────────
-  intl: ^0.19.0                       # Intl.NumberFormat → intl
-  url_launcher: ^6.3.0                # abrir links externos
-  flutter_svg: ^2.0.10                # SVGs del footer (iconos RRSS)
+  intl: ^0.19.0
+  url_launcher: ^6.3.0
+  flutter_svg: ^2.0.10
 
-  # ── Cupertino Icons (viene por defecto, mantenlo) ─────────────
+  # ── Cupertino Icons ───────────────────────────────────────────
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^4.0.0
+
+  # ✅ AQUÍ VA
+  flutter_launcher_icons: ^0.13.1
+
+# ✅ ESTO VA FUERA DE TODO
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#0D9488"
+  adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter:
   uses-material-design: true
@@ -55,6 +67,7 @@ flutter:
   assets:
     # Vídeo de loading
     - assets/animations/logo-loading.mp4
+
     # Modelos 3D de coches
     - assets/animations/car-small.glb
     - assets/animations/car-medium.glb
@@ -62,15 +75,6 @@ flutter:
     - assets/animations/car-sport.glb
     - assets/animations/car-suv.glb
     - assets/animations/car-van.glb
+
     # Imágenes generales
     - assets/images/
-
-  # Si tienes fuentes propias descomenta esto:
-  # fonts:
-  #   - family: Geist
-  #     fonts:
-  #       - asset: assets/fonts/Geist-Regular.ttf
-  #       - asset: assets/fonts/Geist-Bold.ttf
-  #         weight: 700
-  #       - asset: assets/fonts/Geist-Black.ttf
-  #         weight: 900

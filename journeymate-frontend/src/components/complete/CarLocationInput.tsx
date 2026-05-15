@@ -30,7 +30,6 @@ export const CarLocationInput = ({ label, placeholder, value, onSelect }: any) =
     
     setLoading(true);
     try {
-      // Llamada a tu endpoint de coches
       const res = await fetch(`http://localhost:8080/api/v1/external/cars/autocomplete?query=${encodeURIComponent(text)}`);
       if (res.ok) {
         const data = await res.json();

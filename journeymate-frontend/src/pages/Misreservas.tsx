@@ -153,7 +153,6 @@ export default function MisReservas() {
       if (rH.ok) {
         const todas: Reserva[] = await rH.json();
 
-        // Auto-mover al historial: CONFIRMADA con fecha ya pasada → marcar COMPLETADA en backend
         const porCompletar = todas.filter(r =>
           r.estadoNombre?.toLowerCase() === "confirmada" && estaExpirada(r.fechaReserva)
         );
@@ -163,17 +162,15 @@ export default function MisReservas() {
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ estado: "COMPLETADA" }),
           }).catch(() => {});
-          r.estadoNombre = "COMPLETADA"; // actualizar localmente sin recargar
+          r.estadoNombre = "COMPLETADA";
         }
 
-        // ✅ CONFIRMADAS: pagadas cuya fecha AÚN NO ha llegado
         setConfirmadas(
           todas.filter(r =>
             r.estadoNombre?.toLowerCase() === "confirmada" && !estaExpirada(r.fechaReserva)
           )
         );
 
-        // ✅ HISTORIAL: COMPLETADA + CANCELADA + CONFIRMADAS con fecha pasada
         setHistorial(
           todas.filter(r => {
             const e = r.estadoNombre?.toLowerCase();
@@ -240,7 +237,6 @@ export default function MisReservas() {
   const confirmarCancelacion = async () => {
     if (!cancelReserva) return;
 
-    // ✅ Validar en el momento de confirmar si aún se puede cancelar
     if (!puedeCancel(cancelReserva.fechaReserva)) {
       alert("No se puede cancelar esta reserva porque ya ha llegado el día de entrada.");
       setCancelReserva(null);

@@ -55,30 +55,25 @@ export const AITravelAssistant = () => {
     element.style.color = '#134e4a';
     element.style.fontFamily = 'Arial, sans-serif';
 
-    // 1. LIMPIEZA DEL TEXTO (Quitar saludos y preguntas finales)
     const lines = recommendation.split('\n');
 
-    // Encontramos el índice de la última línea que realmente es contenido (no pregunta)
     let lastValidIndex = lines.length;
     for (let i = lines.length - 1; i >= 0; i--) {
       const line = lines[i].toLowerCase();
-      // Si la línea tiene un signo de interrogación o frases de cierre, seguimos subiendo
       if (line.includes('?') ||
         line.includes('¿te gustaría') ||
         line.includes('cuéntame') ||
         line.includes('quieres que')) {
         lastValidIndex = i;
       } else if (line.trim() !== '') {
-        // En cuanto encontramos una línea con texto real que no es pregunta, paramos de borrar
         break;
       }
     }
 
     const contentHtml = lines
-      .slice(0, lastValidIndex) // Cortamos lo que sobra al final
+      .slice(0, lastValidIndex)
       .filter(line => {
         const cleanLine = line.trim();
-        // Filtro de saludos iniciales
         const isGreeting =
           cleanLine.toLowerCase().startsWith('aquí tienes') ||
           cleanLine.toLowerCase().startsWith('¡hola') ||
@@ -111,7 +106,6 @@ export const AITravelAssistant = () => {
     </div>
   `;
 
-    // 3. CONFIGURACIÓN (CON AS CONST)
     const opt = {
       margin: 15,
       filename: 'Itinerario_Limpio_JourneyMate.pdf',

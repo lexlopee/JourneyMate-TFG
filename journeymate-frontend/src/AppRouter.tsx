@@ -11,9 +11,7 @@ const AppRouter = () => {
   return (
     <Router>
       <Routes>
-        {/* ⭐ Home como página de inicio */}
         <Route path="/"         element={<Home />} />
-        {/* Buscador — antes era / */}
         <Route path="/buscar"   element={<App />} />
         <Route path="/login"    element={<Login />} />
         <Route path="/register" element={<Register />} />

@@ -1,34 +1,28 @@
 import { formatDateForBackend } from '../utils/dateUtils';
 
-/**
- * Normaliza el texto para el backend (ej: "Nueva York" -> "Nueva_York")
- */
 const normalize = (text: string) => {
   if (!text) return "";
   return text.trim().replace(/\s+/g, "_");
 };
 
 export const paramsMapper = {
-  // Coincide con @GetMapping("/search") en Java
   alojamiento: (data: any, destId: string) => ({
     destId: destId,
     searchType: 'CITY',
-    checkinDate: formatDateForBackend(data.startDate), // Param @RequestParam en Java
-    checkoutDate: formatDateForBackend(data.endDate),  // Param @RequestParam en Java
+    checkinDate: formatDateForBackend(data.startDate),
+    checkoutDate: formatDateForBackend(data.endDate),
     adults: Number(data.adults) || 2,
     roomQty: Number(data.roomQty) || 1,
     currencyCode: 'EUR',
     pageNo: 1
   }),
 
-  // Coincide con @GetMapping("/details") en Java
-  // AQUÍ ESTÁ LA MAGIA: Mismos valores de 'data', distintos nombres de params
   hotelDetails: (hotelId: string, data: any) => ({
     hotelId: hotelId,
-    arrivalDate: formatDateForBackend(data.startDate),   // Usa la misma fecha que checkinDate
-    departureDate: formatDateForBackend(data.endDate),   // Usa la misma fecha que checkoutDate
-    adults: Number(data.adults),                         // Misma ocupación
-    roomQty: Number(data.roomQty),                       // Mismas habitaciones
+    arrivalDate: formatDateForBackend(data.startDate),
+    departureDate: formatDateForBackend(data.endDate),
+    adults: Number(data.adults),
+    roomQty: Number(data.roomQty),
     childrenAge: data.childrenAge || null,
     currencyCode: 'EUR'
   }),
@@ -46,8 +40,6 @@ export const paramsMapper = {
       pageNo: 1
     };
 
-    // Solo mandar returnDate si es explícitamente diferente a departDate
-    // (evita mandar ida-y-vuelta cuando el usuario solo quiere un vuelo de ida)
     if (data.endDate && data.endDate.trim() !== "" && data.endDate !== data.startDate) {
       params.returnDate = data.endDate;
     }

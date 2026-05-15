@@ -7,7 +7,7 @@ interface Option {
 
 interface Props {
   label: string;
-  icon: ReactNode; // ✅ Solo ReactNode — LucideIcon causaba conflicto de tipos
+  icon: ReactNode;
   value: string;
   options: Option[];
   onChange: (val: string) => void;

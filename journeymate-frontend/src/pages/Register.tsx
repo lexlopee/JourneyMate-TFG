@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, User, Phone, Calendar, ArrowRight, Plane } from "lucide-react";
 
-// ── Selector de fecha con tres selects ───────────────────
 function DateSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const parts = value ? value.split("-") : ["", "", ""];
   const [year, setYear]   = useState(parts[0]);
@@ -95,7 +94,6 @@ export default function Register() {
     <div className="min-h-screen flex font-sans"
       style={{ background: 'linear-gradient(135deg, #0d4f4c 0%, #1cb5b0 50%, #e9fc9e 100%)' }}>
 
-      {/* Panel izquierdo decorativo */}
       <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
@@ -122,7 +120,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Panel derecho — formulario */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
         <div className="w-full max-w-md py-8">
           <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-8 sm:p-10">
@@ -138,7 +135,6 @@ export default function Register() {
 
             <form onSubmit={handleRegister} className="space-y-4">
 
-              {/* Nombre + Primer apellido */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Nombre</label>
@@ -158,7 +154,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Segundo apellido */}
               <div>
                 <label className={labelClass}>2º apellido <span className="normal-case text-teal-400/60">(opcional)</span></label>
                 <div className="relative">
@@ -168,7 +163,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Teléfono */}
               <div>
                 <label className={labelClass}>Teléfono <span className="normal-case text-teal-400/60">(opcional)</span></label>
                 <div className="relative">
@@ -178,7 +172,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Fecha de nacimiento — 3 selects */}
               <div>
                 <label className={`${labelClass} flex items-center gap-1.5`}>
                   <Calendar size={11} className="text-teal-400" /> Fecha de nacimiento
@@ -186,7 +179,6 @@ export default function Register() {
                 <DateSelector value={fechaNacimiento} onChange={setFechaNacimiento} />
               </div>
 
-              {/* Email */}
               <div>
                 <label className={labelClass}>Correo electrónico</label>
                 <div className="relative">
@@ -196,7 +188,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <label className={labelClass}>Contraseña</label>
                 <div className="relative">
@@ -211,14 +202,12 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Error */}
               {error && (
                 <div className="bg-red-50 border border-red-100 text-red-600 text-xs font-semibold px-4 py-3 rounded-xl text-center">
                   {error}
                 </div>
               )}
 
-              {/* Submit */}
               <button type="submit" disabled={loading}
                 className="w-full bg-gradient-to-r from-teal-500 to-teal-700 text-white
                   py-3.5 rounded-xl font-black uppercase tracking-widest text-sm

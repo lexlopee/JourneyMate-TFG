@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Star, Clock, MapPin, CheckCircle2, XCircle,
+  X, Star, Clock, CheckCircle2, XCircle,
   Calendar, Info, ChevronRight, Image as ImageIcon,
   ShieldCheck, Languages, Smartphone
 } from 'lucide-react';

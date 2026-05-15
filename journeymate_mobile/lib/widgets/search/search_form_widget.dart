@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/app_colors.dart';
 import '../../utils/date_utils.dart';
-import '../../screens/search_screen.dart';
-import 'autocomplete_inputs.dart';
+import '../../screens/search_section.dart';
+import '../../services/api_service.dart';
 
 // Equivalente a SearchForm.tsx + SearchInput.tsx + SearchSelect.tsx + SearchCounter.tsx
 
@@ -11,7 +11,7 @@ class SearchFormWidget extends StatelessWidget {
   final Section section;
   final Map<String, dynamic> searchData;
   final void Function(String field, dynamic value) onChanged;
-  // navVersion fuerza reconstrucción de _VuelosForm al navegar desde el home
+  // navVersion: ignorado aquí, solo para compatibilidad con SearchScreen
   final int navVersion;
 
   const SearchFormWidget({
@@ -25,7 +25,7 @@ class SearchFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (section) {
-      case Section.vuelos:      return _VuelosForm(key: ValueKey('vuelos_$navVersion'), data: searchData, onChange: onChanged);
+      case Section.vuelos:      return _VuelosForm(data: searchData, onChange: onChanged);
       case Section.alojamiento: return _AlojamientoForm(data: searchData, onChange: onChanged);
       case Section.coches:      return _CochesForm(data: searchData, onChange: onChanged);
       case Section.actividades: return _ActividadesForm(data: searchData, onChange: onChanged);
@@ -41,31 +41,13 @@ class SearchFormWidget extends StatelessWidget {
 class _VuelosForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
-  const _VuelosForm({super.key, required this.data, required this.onChange});
+  const _VuelosForm({required this.data, required this.onChange});
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    AutocompleteInput(
-      label: 'Origen',
-      placeholder: 'Ej: Madrid',
-      icon: LucideIcons.planeTakeoff,
-      value: data['originText'] ?? '',
-      onSelect: (item) {
-        onChange('originText', item.name);
-        onChange('fromId', item.id); // Token base64 completo — NO el code IATA
-      },
-    ),
+    _TextSearchField(label: 'Origen', icon: LucideIcons.plane, hint: 'Ej: Madrid', value: data['originText'] ?? '', onChanged: (v) { onChange('originText', v); onChange('fromId', v); }),
     const SizedBox(height: 8),
-    AutocompleteInput(
-      label: 'Destino',
-      placeholder: 'Ej: Barcelona',
-      icon: LucideIcons.planeLanding,
-      value: data['destinationText'] ?? '',
-      onSelect: (item) {
-        onChange('destinationText', item.name);
-        onChange('toId', item.id); // Token base64 completo — NO el code IATA
-      },
-    ),
+    _TextSearchField(label: 'Destino', icon: LucideIcons.plane, hint: 'Ej: Barcelona', value: data['destinationText'] ?? '', onChanged: (v) { onChange('destinationText', v); onChange('toId', v); }),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Salida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -79,7 +61,7 @@ class _VuelosForm extends StatelessWidget {
       Expanded(child: _SelectField(
         label: 'Clase', icon: LucideIcons.briefcase,
         value: data['cabinClass'] ?? 'ECONOMY',
-        options: const [('Económica','ECONOMY'), ('Business','BUSINESS')],
+        options: const [('Económica','ECONOMY'), ('Business','BUSINESS'), ('Primera Clase','FIRST')],
         onChanged: (v) => onChange('cabinClass', v),
       )),
     ]),
@@ -96,7 +78,7 @@ class _AlojamientoForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Destino', icon: LucideIcons.bedDouble, hint: '¿A dónde vas?', value: (data['destination'] ?? '').replaceAll('_', ' '), onChanged: (v) { onChange('destination', v.replaceAll(' ', '_')); onChange('destinationText', v); }),
+    _TextSearchField(label: 'Destino', icon: LucideIcons.home, hint: '¿A dónde vas?', value: (data['destination'] ?? '').replaceAll('_', ' '), onChanged: (v) { onChange('destination', v.replaceAll(' ', '_')); onChange('destinationText', v); }),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Entrada', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -107,7 +89,7 @@ class _AlojamientoForm extends StatelessWidget {
     Row(children: [
       Expanded(child: _CounterField(label: 'Adultos', icon: LucideIcons.users, value: data['adults'] ?? 1, min: 1, onChanged: (v) => onChange('adults', v))),
       const SizedBox(width: 8),
-      Expanded(child: _CounterField(label: 'Habitaciones', icon: LucideIcons.bedDouble, value: data['roomQty'] ?? 1, min: 1, onChanged: (v) => onChange('roomQty', v))),
+      Expanded(child: _CounterField(label: 'Habitaciones', icon: LucideIcons.home, value: data['roomQty'] ?? 1, min: 1, onChanged: (v) => onChange('roomQty', v))),
     ]),
   ]);
 }
@@ -115,6 +97,127 @@ class _AlojamientoForm extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════════
 // COCHES
 // ══════════════════════════════════════════════════════════════════════════════
+
+// Widget con autocomplete real — llama a /external/cars/autocomplete
+class _CarLocationField extends StatefulWidget {
+  final String value;
+  final void Function(String id, String name) onSelect;
+  const _CarLocationField({required this.value, required this.onSelect});
+  @override
+  State<_CarLocationField> createState() => _CarLocationFieldState();
+}
+
+class _CarLocationFieldState extends State<_CarLocationField> {
+  final _ctrl = TextEditingController();
+  final _focus = FocusNode();
+  List<Map<String, dynamic>> _suggestions = [];
+  bool _loading = false;
+  bool _showSuggestions = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl.text = widget.value;
+    _focus.addListener(() {
+      if (!_focus.hasFocus) {
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) setState(() => _showSuggestions = false);
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() { _ctrl.dispose(); _focus.dispose(); super.dispose(); }
+
+  Future<void> _search(String query) async {
+    if (query.length < 2) { setState(() { _suggestions = []; _showSuggestions = false; }); return; }
+    setState(() => _loading = true);
+    try {
+      final res = await api.get('/external/cars/autocomplete', params: {'query': query});
+      final list = (res as List? ?? []).map((e) => e as Map<String, dynamic>).toList();
+      if (mounted) setState(() { _suggestions = list; _showSuggestions = list.isNotEmpty; });
+    } catch (_) {
+      if (mounted) setState(() => _suggestions = []);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    _fieldWrap(
+      label: 'Lugar de recogida',
+      child: Row(children: [
+        _loading
+            ? const SizedBox(width: 16, height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.teal500))
+            : const Icon(LucideIcons.car, size: 16, color: AppColors.teal500),
+        const SizedBox(width: 8),
+        Expanded(child: TextField(
+          controller: _ctrl,
+          focusNode: _focus,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.teal900),
+          decoration: const InputDecoration(
+            hintText: 'Ciudad o aeropuerto',
+            hintStyle: TextStyle(color: AppColors.teal300, fontSize: 12),
+            border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero,
+          ),
+          onChanged: _search,
+        )),
+        if (_ctrl.text.isNotEmpty)
+          GestureDetector(
+            onTap: () { _ctrl.clear(); _suggestions = []; setState(() => _showSuggestions = false); widget.onSelect('', ''); },
+            child: const Icon(LucideIcons.x, size: 14, color: AppColors.teal300),
+          ),
+      ]),
+    ),
+    if (_showSuggestions && _suggestions.isNotEmpty)
+      Container(
+        margin: const EdgeInsets.only(top: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 16, offset: const Offset(0, 4))],
+        ),
+        child: Column(children: _suggestions.take(6).map((loc) {
+          final name = loc['name']?.toString() ?? '';
+          final city = loc['city']?.toString() ?? '';
+          final country = loc['country']?.toString() ?? '';
+          final id = loc['id']?.toString() ?? '';
+          return GestureDetector(
+            onTap: () {
+              _ctrl.text = name;
+              widget.onSelect(id, name);
+              setState(() => _showSuggestions = false);
+              _focus.unfocus();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: AppColors.teal100.withOpacity(0.5))),
+              ),
+              child: Row(children: [
+                Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(color: AppColors.teal50, borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(LucideIcons.mapPin, size: 14, color: AppColors.teal600),
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.teal900)),
+                  if (city.isNotEmpty || country.isNotEmpty)
+                    Text('$city${city.isNotEmpty && country.isNotEmpty ? ", " : ""}$country',
+                        style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600)),
+                ])),
+              ]),
+            ),
+          );
+        }).toList()),
+      ),
+  ]);
+}
+
 class _CochesForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
@@ -122,13 +225,12 @@ class _CochesForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    CarLocationInput(
-      label: 'Lugar de recogida',
-      placeholder: 'Ciudad o aeropuerto',
+    _CarLocationField(
       value: data['originText'] ?? '',
-      onSelect: (item) {
-        onChange('originText', item.name);
-        onChange('fromId', item.id); // ID técnico para pickUpId en el backend
+      onSelect: (id, name) {
+        onChange('fromId', id);
+        onChange('toId', id);
+        onChange('originText', name);
       },
     ),
     const SizedBox(height: 8),
@@ -138,7 +240,7 @@ class _CochesForm extends StatelessWidget {
       Expanded(child: _SelectField(
         label: 'Hora recogida', icon: LucideIcons.clock,
         value: data['pickupTime'] ?? '10:00',
-        options: halfHourOptions.map((h) => (h, h)).toList(), // Asegúrate de tener halfHourOptions definido
+        options: halfHourOptions.map((h) => (h, h)).toList(),
         onChanged: (v) => onChange('pickupTime', v),
       )),
     ]),
@@ -173,16 +275,7 @@ class _ActividadesForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    ActivityAutocomplete(
-      label: 'Ciudad',
-      placeholder: 'Ej: Madrid, París, Roma...',
-      value: data['destinationText'] ?? '',
-      onSelect: (item) {
-        onChange('destinationText', item.nombre);
-        onChange('destination', item.nombre);
-        onChange('activityUfi', item.id); // Token UFI: eyJ1ZmkiOi0yMDkyMTc0fQ== — se usa directamente en la búsqueda
-      },
-    ),
+    _TextSearchField(label: 'Ciudad', icon: LucideIcons.mapPin, hint: 'Ej: Madrid, París, Roma...', value: data['destinationText'] ?? '', onChanged: (v) { onChange('destinationText', v); onChange('destination', v); }),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Fecha desde', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -202,20 +295,9 @@ class _CrucerosForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    CruiseSearchSelects(
-      destinationValue: data['cruiseDestination'] ?? '',
-      portValue: data['cruisePort'] ?? '',
-      onDestinationChange: (code, label) {
-        onChange('cruiseDestination', code);
-        onChange('destination', code);
-        onChange('destinationText', label);
-      },
-      onPortChange: (code, label) {
-        onChange('cruisePort', code);
-        onChange('origin', code);
-        onChange('originText', label);
-      },
-    ),
+    _TextSearchField(label: 'Zona / Destino', icon: LucideIcons.globe, hint: 'Ej: Mediterráneo', value: data['cruiseDestination'] ?? '', onChanged: (v) { onChange('cruiseDestination', v); onChange('destination', v); onChange('destinationText', v); }),
+    const SizedBox(height: 8),
+    _TextSearchField(label: 'Puerto de salida', icon: LucideIcons.ship, hint: 'Ej: Barcelona', value: data['cruisePort'] ?? '', onChanged: (v) { onChange('cruisePort', v); onChange('origin', v); onChange('originText', v); }),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Salida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -303,7 +385,7 @@ class _DateField extends StatelessWidget {
 class _SelectField extends StatelessWidget {
   final String label, value;
   final IconData icon;
-  final List<(String, String)> options;
+  final List<(String, String)> options; // (label, value)
   final ValueChanged<String> onChanged;
   const _SelectField({required this.label, required this.icon, required this.value, required this.options, required this.onChanged});
 
@@ -317,7 +399,6 @@ class _SelectField extends StatelessWidget {
         child: DropdownButton<String>(
           value: options.any((o) => o.$2 == value) ? value : options.first.$2,
           isDense: true,
-          isExpanded: true,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.teal900),
           icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.teal400),
           items: options.map((o) => DropdownMenuItem(value: o.$2, child: Text(o.$1))).toList(),

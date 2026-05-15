@@ -100,9 +100,11 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
           GestureDetector(
             onTap: _toggle,
             child: Container(
-              width: 64, height: 64,
+              width: 48, height: 48,
               decoration: BoxDecoration(color: AppColors.teal900, shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppColors.teal900.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))]),
-              child: Icon(_isOpen ? LucideIcons.x : LucideIcons.bot, color: Colors.white, size: 28),
+              child: _isOpen
+                  ? const Icon(LucideIcons.x, color: Colors.white, size: 20)
+                  : const _RobotIcon(size: 22),
             ),
           ),
         ],
@@ -127,7 +129,7 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
           child: Column(children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               const Row(children: [
-                Icon(LucideIcons.sparkles, color: AppColors.teal400, size: 18),
+                Icon(LucideIcons.star, color: AppColors.teal400, size: 18),
                 SizedBox(width: 8),
                 Text('JOURNEYMATE AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 2)),
               ]),
@@ -158,7 +160,7 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
           ]))
               : _result.isEmpty
               ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(LucideIcons.bot, size: 40, color: AppColors.teal200),
+            const _RobotIcon(size: 40),
             const SizedBox(height: 8),
             Text(_mode == 'recommend' ? '¿A dónde quieres ir hoy?' : 'Cuéntame y te haré un plan', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1, color: AppColors.teal300)),
           ]))
@@ -302,4 +304,64 @@ class _BoldTextParser extends StatelessWidget {
       ),
     );
   }
+}
+
+// ── Icono robot personalizado (igual al original) ────────────────────────────
+class _RobotIcon extends StatelessWidget {
+  final double size;
+  const _RobotIcon({this.size = 22});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _RobotPainter()),
+    );
+  }
+}
+
+class _RobotPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final paint = Paint()..color = Colors.white..style = PaintingStyle.fill;
+    final stroke = Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = w * 0.07..strokeCap = StrokeCap.round;
+
+    // Antena
+    canvas.drawLine(Offset(w * 0.5, h * 0.0), Offset(w * 0.5, h * 0.18), stroke);
+    canvas.drawCircle(Offset(w * 0.5, h * 0.0), w * 0.07, paint);
+
+    // Cabeza (rectángulo redondeado)
+    final head = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.1, h * 0.18, w * 0.8, h * 0.48),
+      Radius.circular(w * 0.15),
+    );
+    canvas.drawRRect(head, stroke);
+
+    // Ojos
+    canvas.drawCircle(Offset(w * 0.33, h * 0.39), w * 0.09, paint);
+    canvas.drawCircle(Offset(w * 0.67, h * 0.39), w * 0.09, paint);
+
+    // Boca (línea sonriente)
+    final mouthPath = Path()
+      ..moveTo(w * 0.3, h * 0.55)
+      ..quadraticBezierTo(w * 0.5, h * 0.64, w * 0.7, h * 0.55);
+    canvas.drawPath(mouthPath, stroke..strokeWidth = w * 0.06);
+
+    // Cuerpo
+    final body = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.15, h * 0.7, w * 0.7, h * 0.28),
+      Radius.circular(w * 0.1),
+    );
+    canvas.drawRRect(body, stroke..strokeWidth = w * 0.07);
+
+    // Brazos
+    canvas.drawLine(Offset(w * 0.15, h * 0.76), Offset(w * 0.0, h * 0.84), stroke);
+    canvas.drawLine(Offset(w * 0.85, h * 0.76), Offset(w * 1.0, h * 0.84), stroke);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -30,7 +30,7 @@ class ErrorModal extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(40))
     ),
     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Icon(LucideIcons.alertCircle, size: 48, color: Colors.redAccent),
+      const Icon(LucideIcons.alertTriangle, size: 48, color: Colors.redAccent),
       const SizedBox(height: 16),
       const Text("¡UPS! ALGO SALIÓ MAL", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.teal900)),
       const SizedBox(height: 8),

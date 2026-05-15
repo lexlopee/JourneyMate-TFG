@@ -16,23 +16,10 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../utils/date_utils.dart';
 import '../widgets/loading_video.dart';
-import '../widgets/car_3d_viewer.dart';
 import '../widgets/ai_travel_assistant.dart';
 import '../widgets/search/search_form_widget.dart';
 import '../widgets/results/results_list_widget.dart';
-
-enum Section {
-  alojamiento('Alojamiento', LucideIcons.hotel),
-  vuelos('Vuelos',           LucideIcons.plane),
-  coches('Coches',           LucideIcons.car),
-  actividades('Actividades', LucideIcons.ticket),
-  cruceros('Cruceros',       LucideIcons.ship),
-  trenes('Trenes',           LucideIcons.train);
-
-  const Section(this.label, this.icon);
-  final String label;
-  final IconData icon;
-}
+import '../screens/search_section.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialTab;
@@ -389,28 +376,13 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         child: ScaleTransition(
           scale: _iconAnim,
           child: Container(
-            // FIX 5: Coches — padding controlado + constraints para evitar overflow
-            padding: _section == Section.coches
-                ? const EdgeInsets.all(8)
-                : const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(40),
               border: Border.all(color: Colors.white.withOpacity(0.4)),
             ),
-            child: _section == Section.coches
-                ? ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 140,
-                maxHeight: 120, // altura fija para evitar "BOTTOM OVERFLOWED"
-              ),
-              child: Car3DViewer(
-                carType: _searchData['carType'] ?? 'all',
-                height: 110,
-                showLabel: true,
-              ),
-            )
-                : Icon(_section.icon, size: 64, color: AppColors.teal900),
+            child: Icon(_section.icon, size: 64, color: AppColors.teal900),
           ),
         ),
       ),

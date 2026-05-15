@@ -254,7 +254,7 @@ class _FlightDetailsModalState extends State<FlightDetailsModal> {
         // Badges: tipo de viaje + aerolínea + ruta
         Wrap(spacing: 6, runSpacing: 6, children: [
           _headerBadge(
-            _isRoundTrip ? LucideIcons.arrowLeftRight : LucideIcons.arrowRight,
+            _isRoundTrip ? LucideIcons.arrowRight : LucideIcons.arrowRight,
             _isRoundTrip ? 'IDA Y VUELTA' : 'SOLO IDA',
           ),
           _headerBadge(LucideIcons.ticket, _aerolinea.toUpperCase()),
@@ -510,7 +510,7 @@ class _FlightDetailsModalState extends State<FlightDetailsModal> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(color: const Color(0xFF16A34A),
                 borderRadius: BorderRadius.circular(10)),
-            child: const Icon(LucideIcons.leaf, size: 16, color: Colors.white)),
+            child: const Icon(LucideIcons.star, size: 16, color: Colors.white)),
         const SizedBox(width: 12),
         const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('VUELO MÁS SOSTENIBLE', style: TextStyle(fontSize: 9,
@@ -628,8 +628,8 @@ class _FlightDetailsModalState extends State<FlightDetailsModal> {
                   style: const TextStyle(color: Colors.white, fontSize: 10,
                       fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               const SizedBox(width: 8),
-              Icon(_isBooked ? LucideIcons.checkCircle2
-                  : (_isRoundTrip ? LucideIcons.arrowLeftRight : LucideIcons.arrowRight),
+              Icon(_isBooked ? LucideIcons.checkCircle
+                  : (_isRoundTrip ? LucideIcons.arrowRight : LucideIcons.arrowRight),
                   size: 15, color: Colors.white),
             ]),
           ),

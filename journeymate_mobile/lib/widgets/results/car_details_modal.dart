@@ -226,7 +226,7 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
             maxLines: 2, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 6),
         Row(children: [
-          const Icon(LucideIcons.building2, size: 12, color: AppColors.teal400),
+          const Icon(LucideIcons.building, size: 12, color: AppColors.teal400),
           const SizedBox(width: 4),
           Text((widget.car['vendorName'] ?? '').toString(),
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
@@ -244,8 +244,8 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
     final specs = [
       (LucideIcons.users,      'PLAZAS',      '${widget.car['seats'] ?? 5}'),
       (LucideIcons.briefcase,  'MALETAS',     '${widget.car['bags'] ?? 2}'),
-      (LucideIcons.settings2,  'TRANSMISIÓN', isAutomatic ? 'Auto' : 'Manual'),
-      (LucideIcons.fuel,       'COMBUSTIBLE', 'Lleno'),
+      (LucideIcons.settings,  'TRANSMISIÓN', isAutomatic ? 'Auto' : 'Manual'),
+      (LucideIcons.info,       'COMBUSTIBLE', 'Lleno'),
       (LucideIcons.shieldCheck,'SEGURO',      'Básico incluido'),
     ];
 
@@ -438,7 +438,7 @@ class _CarDetailsModalState extends State<CarDetailsModal> {
                           letterSpacing: 1.5)),
                   const SizedBox(width: 8),
                   Icon(
-                      _isBooked ? LucideIcons.checkCircle2 : LucideIcons.car,
+                      _isBooked ? LucideIcons.checkCircle : LucideIcons.car,
                       size: 15, color: Colors.white),
                 ]),
               ),

@@ -137,7 +137,7 @@ export default function MisReservas() {
     try {
       // Pendientes
       const rA = await fetch(
-        `http://localhost:8080/api/v1/reservas/usuario/${cleanId}`,
+        `https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/usuario/${cleanId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (rA.ok) {
@@ -147,7 +147,7 @@ export default function MisReservas() {
 
       // Historial completo
       const rH = await fetch(
-        `http://localhost:8080/api/v1/reservas/usuario/${cleanId}/historial`,
+        `https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/usuario/${cleanId}/historial`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (rH.ok) {
@@ -157,7 +157,7 @@ export default function MisReservas() {
           r.estadoNombre?.toLowerCase() === "confirmada" && estaExpirada(r.fechaReserva)
         );
         for (const r of porCompletar) {
-          fetch(`http://localhost:8080/api/v1/reservas/${r.idReserva}/estado`, {
+          fetch(`https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/${r.idReserva}/estado`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ estado: "COMPLETADA" }),
@@ -248,7 +248,7 @@ export default function MisReservas() {
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
       const res = await fetch(
-        `http://localhost:8080/api/v1/reservas/${cancelReserva.idReserva}/estado`,
+        `https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/${cancelReserva.idReserva}/estado`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -273,7 +273,7 @@ export default function MisReservas() {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/reservas/${idReserva}`, {
+      const res = await fetch(`https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/${idReserva}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -309,7 +309,7 @@ export default function MisReservas() {
           destino:     ["VUELO","TREN","CRUCERO"].includes(tipoServicio) ? "—" : undefined,
         },
       };
-      const res = await fetch("http://localhost:8080/api/v1/reservas/completa", {
+      const res = await fetch("https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/completa", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),

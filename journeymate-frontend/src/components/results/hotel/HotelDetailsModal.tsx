@@ -80,7 +80,7 @@ export const HotelDetailsModal = ({ isOpen, onClose, details, loading, searchDat
           fechaSalida: searchData?.startDate ?? null,
         },
       };
-      const response = await fetch('http://localhost:8080/api/v1/reservas/completa', {
+      const response = await fetch('https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/reservas/completa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),

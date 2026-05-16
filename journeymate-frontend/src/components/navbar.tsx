@@ -29,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
     setIsLoggedIn(true);
     const saved = localStorage.getItem("userName");
     if (saved) { setUserName(saved); return; }
-    fetch(`http://localhost:8080/usuarios/${String(Number(idUsuario))}`, {
+    fetch(`https://journeymate-backend-ifbynfjw3a-ew.a.run.app/usuarios/${String(Number(idUsuario))}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(r => r.ok ? r.json() : Promise.reject())

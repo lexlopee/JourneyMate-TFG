@@ -351,6 +351,10 @@ export default function MisReservas() {
   // ── Card ────────────────────────────────────────────────────────────────────
   const ReservaCard = ({ r, cardTab }: { r: Reserva; cardTab: Tab }) => {
     const [confirmElim, setConfirmElim] = useState(false);
+<<<<<<< HEAD
+=======
+    const cancelable = puedeCancel(r.fechaReserva);
+>>>>>>> ef7fd9b9f28060e5dbffd667b7a016200b2487cb
 
     return (
       <div className="bg-white/75 backdrop-blur border border-white/60 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">

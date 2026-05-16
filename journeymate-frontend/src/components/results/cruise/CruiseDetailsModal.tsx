@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Ship, Moon, MapPin, Anchor, Calendar, CheckCircle2, ChevronRight, Info } from 'lucide-react';
 
+<<<<<<< HEAD
 export const CruiseDetailsModal = ({ isOpen, onClose, cruise, searchData: _searchData }: any) => {
+=======
+export const CruiseDetailsModal = ({ isOpen, onClose, cruise, searchData }: any) => {
+>>>>>>> ef7fd9b9f28060e5dbffd667b7a016200b2487cb
     const [loginError, setLoginError] = useState('');
     const [isReserving, setIsReserving] = useState(false);
     const [isBooked, setIsBooked] = useState(false);

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const String _baseUrl = 'http://10.0.2.2:8080/api/v1';
-const String _authUrl = 'http://10.0.2.2:8080/auth';
+const String _baseUrl = 'https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1';
+const String _authUrl = 'https://journeymate-backend-ifbynfjw3a-ew.a.run.app/auth';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();

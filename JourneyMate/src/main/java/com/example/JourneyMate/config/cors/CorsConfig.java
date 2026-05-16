@@ -16,8 +16,13 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
 
-        // Poner todos los origenes en la misma lista
-        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
+        config.setAllowedOrigins(List.of(
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "https://journeymate-485617.web.app",
+            "https://journeymate-485617.firebaseapp.com",
+            "https://journeymate-backend-ifbynfjw3a-ew.a.run.app"
+        ));
 
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

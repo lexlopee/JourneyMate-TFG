@@ -57,3 +57,6 @@ src/main/resources/application-secrets.properties
 ### --- SISTEMA ---
 .DS_Store
 Thumbs.db
+*.tar.gz
+*.gz
+target/

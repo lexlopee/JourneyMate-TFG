@@ -55,7 +55,7 @@ export function PaymentModal({
         : { idReserva: reservaId };
 
       const res = await fetch(
-        'http://localhost:8080/api/v1/stripe/create-checkout',
+        'https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/stripe/create-checkout',
         {
           method: 'POST',
           headers: {
@@ -92,7 +92,7 @@ export function PaymentModal({
         : { idReserva: reservaId };
 
       const res = await fetch(
-        'http://localhost:8080/api/v1/payment/create',
+        'https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/payment/create',
         {
           method: 'POST',
           headers: {

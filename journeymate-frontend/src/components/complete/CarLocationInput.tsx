@@ -30,7 +30,7 @@ export const CarLocationInput = ({ label, placeholder, value, onSelect }: any) =
     
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/external/cars/autocomplete?query=${encodeURIComponent(text)}`);
+      const res = await fetch(`https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/external/cars/autocomplete?query=${encodeURIComponent(text)}`);
       if (res.ok) {
         const data = await res.json();
         setSuggestions(data || []);

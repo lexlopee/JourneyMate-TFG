@@ -24,7 +24,7 @@ export function PostBookingModal({ isOpen, onClose, reservaId, precio, descripci
     setLoading('stripe'); setError('');
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8080/api/v1/stripe/create-checkout', {
+      const res = await fetch('https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ idReserva: reservaId }),
@@ -40,7 +40,7 @@ export function PostBookingModal({ isOpen, onClose, reservaId, precio, descripci
     setLoading('paypal'); setError('');
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8080/api/v1/payment/create', {
+      const res = await fetch('https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/payment/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ idReserva: reservaId }),

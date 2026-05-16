@@ -126,8 +126,8 @@ export const AITravelAssistant = () => {
 
     try {
       const url = mode === 'recommend'
-        ? `http://localhost:8080/api/v1/ai/recommend?pref=${encodeURIComponent(preference)}&budget=${encodeURIComponent(budget)}`
-        : `http://localhost:8080/api/v1/ai/itinerary?query=${encodeURIComponent(query)}`;
+        ? `https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/ai/recommend?pref=${encodeURIComponent(preference)}&budget=${encodeURIComponent(budget)}`
+        : `https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1/ai/itinerary?query=${encodeURIComponent(query)}`;
 
       const response = await fetch(url);
       const text = await response.text();

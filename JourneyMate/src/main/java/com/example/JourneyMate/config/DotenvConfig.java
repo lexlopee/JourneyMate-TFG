@@ -18,6 +18,7 @@ public class DotenvConfig {
         Dotenv dotenv = Dotenv.configure()
                 .directory(".")
                 .filename(".env")
+                .ignoreIfMissing()  // NO falla si no existe .env (en producción)
                 .load();
 
         Map<String, Object> envMap = new HashMap<>();

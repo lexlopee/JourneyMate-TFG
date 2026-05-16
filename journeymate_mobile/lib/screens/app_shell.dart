@@ -53,32 +53,25 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Container(
-          decoration: const BoxDecoration(gradient: AppColors.gradientMain),
-          child: IndexedStack(
+      child: Container(
+        decoration: const BoxDecoration(gradient: AppColors.gradientMain),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: IndexedStack(
             index: _currentIndex,
             children: [
-              // Tab 0 — Home: recibe el callback para cambiar de tab
               HomeScreen(onChangeTab: _changeTab),
-
-              // Tab 1 — Búsqueda: recibe la sección pendiente
               SearchScreen(
-                initialTab:    _pendingSection,
+                initialTab: _pendingSection,
                 initialDestText: _pendingDestText,
-                navVersion:    _navVersion,
+                navVersion: _navVersion,
               ),
-
-              // Tab 2 — Mis Reservas
               const MyBookingsScreen(),
-
-              // Tab 3 — Perfil
               const ProfileScreen(),
             ],
           ),
+          bottomNavigationBar: _buildBottomNav(),
         ),
-        bottomNavigationBar: _buildBottomNav(),
       ),
     );
   }

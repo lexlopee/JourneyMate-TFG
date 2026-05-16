@@ -4,7 +4,7 @@ import '../../core/app_colors.dart';
 import '../../utils/date_utils.dart';
 import '../../screens/search_section.dart';
 import '../../services/api_service.dart';
-
+import 'autocomplete_inputs.dart';
 
 class SearchFormWidget extends StatelessWidget {
   final Section section;
@@ -277,14 +277,25 @@ class _CrucerosForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Zona / Destino', icon: LucideIcons.globe, hint: 'Ej: Mediterráneo', value: data['cruiseDestination'] ?? '', onChanged: (v) { onChange('cruiseDestination', v); onChange('destination', v); onChange('destinationText', v); }),
-    const SizedBox(height: 8),
-    _TextSearchField(label: 'Puerto de salida', icon: LucideIcons.ship, hint: 'Ej: Barcelona', value: data['cruisePort'] ?? '', onChanged: (v) { onChange('cruisePort', v); onChange('origin', v); onChange('originText', v); }),
+    CruiseSearchSelects(
+      destinationValue: data['cruiseDestination'] ?? '',
+      portValue:        data['cruisePort']        ?? '',
+      onDestinationChange: (code, label) {
+        onChange('cruiseDestination', code);
+        onChange('destination',       code);
+        onChange('destinationText',   label);
+      },
+      onPortChange: (code, label) {
+        onChange('cruisePort',  code);
+        onChange('origin',      code);
+        onChange('originText',  label);
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
-      Expanded(child: _DateField(label: 'Salida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
+      Expanded(child: _DateField(label: 'Salida',  value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
       const SizedBox(width: 8),
-      Expanded(child: _DateField(label: 'Regreso', value: data['endDate'], onChanged: (v) => onChange('endDate', v))),
+      Expanded(child: _DateField(label: 'Regreso', value: data['endDate'],   onChanged: (v) => onChange('endDate', v))),
     ]),
   ]);
 }

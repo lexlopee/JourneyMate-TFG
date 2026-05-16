@@ -80,31 +80,36 @@ class _AITravelAssistantState extends State<AITravelAssistant> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 24, right: 24,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (_isOpen)
-            ScaleTransition(
-              scale: _scaleAnim,
-              alignment: Alignment.bottomRight,
-              child: _buildPanel(),
-            ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: _toggle,
-            child: Container(
-              width: 48, height: 48,
-              decoration: BoxDecoration(color: AppColors.teal900, shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppColors.teal900.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))]),
-              child: _isOpen
-                  ? const Icon(LucideIcons.x, color: Colors.white, size: 20)
-                  : const _RobotIcon(size: 22),
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (_isOpen)
+          ScaleTransition(
+            scale: _scaleAnim,
+            alignment: Alignment.bottomRight,
+            child: _buildPanel(),
           ),
-        ],
-      ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: _toggle,
+          child: Container(
+            width: 48, height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.teal900,
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(
+                color: AppColors.teal900.withOpacity(0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              )],
+            ),
+            child: _isOpen
+                ? const Icon(LucideIcons.x, color: Colors.white, size: 20)
+                : const _RobotIcon(size: 22),
+          ),
+        ),
+      ],
     );
   }
 

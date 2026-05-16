@@ -118,10 +118,7 @@ class JourneyMateApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
       routerConfig: _router,
-      builder: (context, child) => Container(
-        decoration: const BoxDecoration(gradient: AppColors.gradientMain),
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) => child ?? const SizedBox.shrink(),
     );
   }
 }

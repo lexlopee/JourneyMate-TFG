@@ -259,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ]),
         ),
       ),
-    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.15);
+    );
   }
 
   Widget _buildSectionTitle(String title) => Padding(
@@ -375,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )),
               ]),
             ),
-          ).animate(delay: (i * 70).ms).fadeIn(duration: 350.ms).slideX(begin: 0.15);
+          );
         },
       ),
     );

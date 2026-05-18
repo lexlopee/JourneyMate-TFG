@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/ai_travel_assistant.dart';
@@ -20,7 +20,7 @@ const _categories = [
   _Category('coches',      'Coches',      LucideIcons.car,    [Color(0xFFFBBF24), Color(0xFFD97706)]),
   _Category('actividades', 'Actividades', LucideIcons.ticket, [Color(0xFFA78BFA), Color(0xFF7C3AED)]),
   _Category('cruceros',    'Cruceros',    LucideIcons.ship,   [Color(0xFF60A5FA), Color(0xFF2563EB)]),
-  _Category('trenes',      'Trenes',      LucideIcons.car,  [Color(0xFFF87171), Color(0xFFDC2626)]),
+  _Category('trenes',      'Trenes',      LucideIcons.train,  [Color(0xFFF87171), Color(0xFFDC2626)]),
 ];
 
 const _destinos = [

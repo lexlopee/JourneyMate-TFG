@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../core/app_colors.dart';
-import '../../utils/date_utils.dart';
 import '../../screens/search_section.dart';
 import '../../services/api_service.dart';
+import '../../utils/date_utils.dart';
 import 'autocomplete_inputs.dart';
 
 class SearchFormWidget extends StatelessWidget {
@@ -33,6 +34,7 @@ class SearchFormWidget extends StatelessWidget {
   }
 }
 
+// ── VUELOS — ahora usa AutocompleteInput real ──────────────────────────────
 class _VuelosForm extends StatelessWidget {
   final Map<String, dynamic> data;
   final void Function(String, dynamic) onChange;
@@ -40,9 +42,27 @@ class _VuelosForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Origen', icon: LucideIcons.plane, hint: 'Ej: Madrid', value: data['originText'] ?? '', onChanged: (v) { onChange('originText', v); onChange('fromId', v); }),
+    AutocompleteInput(
+      label: 'Origen',
+      placeholder: 'Ej: Madrid',
+      icon: LucideIcons.planeTakeoff,
+      value: data['originText'] ?? '',
+      onSelect: (loc) {
+        onChange('fromId', loc.id);
+        onChange('originText', loc.name);
+      },
+    ),
     const SizedBox(height: 8),
-    _TextSearchField(label: 'Destino', icon: LucideIcons.plane, hint: 'Ej: Barcelona', value: data['destinationText'] ?? '', onChanged: (v) { onChange('destinationText', v); onChange('toId', v); }),
+    AutocompleteInput(
+      label: 'Destino',
+      placeholder: 'Ej: Barcelona',
+      icon: LucideIcons.planeLanding,
+      value: data['destinationText'] ?? '',
+      onSelect: (loc) {
+        onChange('toId', loc.id);
+        onChange('destinationText', loc.name);
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Salida', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -56,7 +76,7 @@ class _VuelosForm extends StatelessWidget {
       Expanded(child: _SelectField(
         label: 'Clase', icon: LucideIcons.briefcase,
         value: data['cabinClass'] ?? 'ECONOMY',
-        options: const [('Económica','ECONOMY'), ('Business','BUSINESS'), ('Primera Clase','FIRST')],
+        options: const [('Económica','ECONOMY'), ('Business','BUSINESS')],
         onChanged: (v) => onChange('cabinClass', v),
       )),
     ]),
@@ -260,7 +280,16 @@ class _ActividadesForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(children: [
-    _TextSearchField(label: 'Ciudad', icon: LucideIcons.mapPin, hint: 'Ej: Madrid, París, Roma...', value: data['destinationText'] ?? '', onChanged: (v) { onChange('destinationText', v); onChange('destination', v); }),
+    ActivityAutocomplete(
+      label: 'Ciudad',
+      placeholder: 'Ej: Madrid, París, Roma...',
+      value: data['destinationText'] ?? '',
+      onSelect: (loc) {
+        onChange('destinationText', loc.nombre);
+        onChange('destination', loc.id);
+        onChange('activityUfi', loc.id);
+      },
+    ),
     const SizedBox(height: 8),
     Row(children: [
       Expanded(child: _DateField(label: 'Fecha desde', value: data['startDate'], onChanged: (v) => onChange('startDate', v))),
@@ -309,7 +338,7 @@ class _ComingSoon extends StatelessWidget {
   );
 }
 
-// ── Campo de texto ─────────────────────────────────────────────────────────
+// ── Campo de texto simple (sin autocomplete) ───────────────────────────────
 class _TextSearchField extends StatelessWidget {
   final String label, hint, value;
   final IconData icon;
@@ -374,7 +403,7 @@ class _DateField extends StatelessWidget {
 class _SelectField extends StatelessWidget {
   final String label, value;
   final IconData icon;
-  final List<(String, String)> options; // (label, value)
+  final List<(String, String)> options;
   final ValueChanged<String> onChanged;
   const _SelectField({required this.label, required this.icon, required this.value, required this.options, required this.onChanged});
 
@@ -388,6 +417,7 @@ class _SelectField extends StatelessWidget {
         child: DropdownButton<String>(
           value: options.any((o) => o.$2 == value) ? value : options.first.$2,
           isDense: true,
+          isExpanded: true,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.teal900),
           icon: const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.teal400),
           items: options.map((o) => DropdownMenuItem(value: o.$2, child: Text(o.$1))).toList(),
@@ -451,3 +481,10 @@ Widget _fieldWrap({required String label, required Widget child}) => Container(
     child,
   ]),
 );
+
+// ── Opciones de media hora ─────────────────────────────────────────────────
+final halfHourOptions = List.generate(48, (i) {
+  final h = (i ~/ 2).toString().padLeft(2, '0');
+  final m = (i % 2 == 0) ? '00' : '30';
+  return '$h:$m';
+});

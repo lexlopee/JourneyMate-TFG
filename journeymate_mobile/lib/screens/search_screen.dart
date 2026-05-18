@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import '../core/app_colors.dart';
-import '../services/search_service.dart';
+import '../screens/search_section.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/search_service.dart';
 import '../utils/date_utils.dart';
-import '../widgets/loading_video.dart';
 import '../widgets/ai_travel_assistant.dart';
-import '../widgets/search/search_form_widget.dart';
+import '../widgets/loading_video.dart';
 import '../widgets/results/results_list_widget.dart';
-import '../screens/search_section.dart';
+import '../widgets/search/search_form_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialTab;

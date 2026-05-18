@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../core/app_colors.dart';
 import '../services/api_service.dart';
+import '../widgets/payment/payment_sheet.dart';
 
 class BookingDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> reserva; // el JSON completo de la reserva
+  final Map<String, dynamic> reserva;
 
   const BookingDetailScreen({super.key, required this.reserva});
 
@@ -172,6 +174,25 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
       }
     } finally {
       if (mounted) setState(() => _cancelling = false);
+    }
+  }
+
+  // ── Pagar ─────────────────────────────────────────────────────────────────
+  Future<void> _pagar() async {
+    final result = await PaymentSheet.show(context,
+        reservaId: _id,
+        precio: _precio,
+        descripcion: _nombre);
+
+    // Si el usuario completa el pago correctamente
+    if (result == 'paid') {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('✅ ¡Pago realizado con éxito!', style: TextStyle(fontWeight: FontWeight.w700)),
+          backgroundColor: Color(0xFF059669), behavior: SnackBarBehavior.floating,
+        ));
+        Navigator.pop(context, 'cancelled');
+      }
     }
   }
 
@@ -348,11 +369,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen>
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pasarela de pago próximamente 🚀',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                    backgroundColor: AppColors.teal700, behavior: SnackBarBehavior.floating),
-              ),
+              onPressed: _pagar,
               icon: const Icon(LucideIcons.creditCard, size: 16),
               label: const Text('PAGAR AHORA', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               style: ElevatedButton.styleFrom(

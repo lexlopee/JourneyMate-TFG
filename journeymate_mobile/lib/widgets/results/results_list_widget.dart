@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../core/app_colors.dart';
 import '../../screens/search_section.dart';
-import '../cards/result_cards.dart';
-import '../../utils/date_utils.dart';
-import 'hotel_details_modal.dart';
-import 'flight_details_modal.dart';
-import 'car_details_modal.dart';
-import 'activity_details_modal.dart';
-import 'cruise_details_modal.dart';
 import '../../services/search_service.dart';
+import '../../utils/date_utils.dart';
+import '../cards/result_cards.dart';
 import '../common_widgets.dart';
+import 'activity_details_modal.dart';
+import 'car_details_modal.dart';
+import 'cruise_details_modal.dart';
+import 'flight_details_modal.dart';
+import 'hotel_details_modal.dart';
 
 class ResultsListWidget extends StatefulWidget {
   final List<dynamic> results;

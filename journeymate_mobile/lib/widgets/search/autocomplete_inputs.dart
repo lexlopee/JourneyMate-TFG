@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:http/http.dart' as http;
+import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../core/app_colors.dart';
 
 const _kBaseUrl = 'https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1';

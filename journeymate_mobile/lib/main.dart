@@ -4,12 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/app_colors.dart';
-import 'services/auth_service.dart';
-
 import 'screens/app_shell.dart';
 import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
 import 'screens/payment/payment_screens.dart';
+import 'screens/register_screen.dart';
+import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

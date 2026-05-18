@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../core/app_colors.dart';
 import '../services/search_service.dart';
 
@@ -258,16 +259,44 @@ class _BoldText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final parts = text.split(RegExp(r'(\*\*.*?\*\*)'));
+    final regex = RegExp(r'\*\*([^*]+)\*\*');
+    final spans = <InlineSpan>[];
+    int last = 0;
+
+    for (final match in regex.allMatches(text)) {
+      if (match.start > last) {
+        spans.add(TextSpan(text: text.substring(last, match.start)));
+      }
+      spans.add(WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          decoration: BoxDecoration(
+            color: const Color(0x1A0D9488),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            match.group(1) ?? '',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: AppColors.teal800,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ));
+      last = match.end;
+    }
+
+    if (last < text.length) {
+      spans.add(TextSpan(text: text.substring(last)));
+    }
+
     return RichText(
       text: TextSpan(
         style: const TextStyle(fontSize: 12, color: Color(0xFF0F3D3A), height: 1.5),
-        children: parts.map((p) {
-          if (p.startsWith('**') && p.endsWith('**')) {
-            return TextSpan(text: p.substring(2, p.length - 2), style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.teal800, backgroundColor: Color(0x1A0D9488)));
-          }
-          return TextSpan(text: p);
-        }).toList(),
+        children: spans,
       ),
     );
   }
@@ -279,7 +308,7 @@ class _BoldTextParser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final parts = text.split(RegExp(r'(\*\*.*?\*\*)'));
+    final parts = text.split(RegExp(r'(\*\*[^*]+\*\*)'));
 
     return RichText(
       text: TextSpan(
@@ -290,7 +319,6 @@ class _BoldTextParser extends StatelessWidget {
               text: part.substring(2, part.length - 2),
               style: const TextStyle(
                   fontWeight: FontWeight.w900,
-                  backgroundColor: Color(0x222DD4BF)
               ),
             );
           }

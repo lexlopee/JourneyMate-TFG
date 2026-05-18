@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../services/auth_service.dart';
+
 import '../core/app_colors.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,11 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: const BoxDecoration(gradient: AppColors.gradientDark),
         child: Row(
           children: [
-            // ── Panel izquierdo decorativo (solo tablet/desktop) ──────────
             if (MediaQuery.of(context).size.width > 900)
               Expanded(child: _LeftPanel()),
-
-            // ── Formulario ────────────────────────────────────────────────
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
@@ -77,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
           Container(
             width: 56, height: 56,
             decoration: BoxDecoration(
@@ -95,12 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
           Text('Inicia sesión en tu cuenta', style: TextStyle(fontSize: 14, color: AppColors.teal600.withOpacity(0.7))),
           const SizedBox(height: 32),
 
-          // Email
           _buildLabel('Correo electrónico'),
           _buildField(controller: _emailCtrl, hint: 'tu@email.com', icon: LucideIcons.mail, keyboardType: TextInputType.emailAddress),
           const SizedBox(height: 16),
 
-          // Password
           _buildLabel('Contraseña'),
           _buildField(
             controller: _passCtrl,
@@ -114,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Error
           if (_error.isNotEmpty) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -124,7 +118,6 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 12),
           ],
 
-          // Botón
           SizedBox(
             width: double.infinity,
             height: 52,
@@ -147,7 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Link a registro
           RichText(
             text: TextSpan(
               style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
@@ -213,7 +205,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ── Panel decorativo izquierdo ────────────────────────────────────────────────
 class _LeftPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

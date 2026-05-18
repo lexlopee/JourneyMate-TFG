@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../core/app_colors.dart';
-import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
+import '../../services/auth_service.dart';
 
 class HotelDetailsModal extends StatefulWidget {
   final Map<String, dynamic> details;

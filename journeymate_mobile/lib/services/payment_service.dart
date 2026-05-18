@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'auth_service.dart';
-import 'api_service.dart';
 
-// URL base — misma que api_service.dart
-const String _baseUrl = 'http://10.0.2.2:8080/api/v1';
+import 'package:http/http.dart' as http;
+
+import 'api_service.dart';
+import 'auth_service.dart';
+
+const String _baseUrl = 'https://journeymate-backend-ifbynfjw3a-ew.a.run.app/api/v1';
 
 class PaymentService {
 

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../core/app_colors.dart';
 import 'home_screen.dart';
-import 'search_screen.dart';
 import 'my_bookings_screen.dart';
 import 'profile_screen.dart';
+import 'search_screen.dart';
 
 class AppShell extends StatefulWidget {
   final int initialIndex;

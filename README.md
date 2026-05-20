@@ -2,6 +2,8 @@
 JourneyMate es una plataforma turística multiplataforma (web y móvil) desarrollada como Trabajo Fin de Grado.
 Permite a los usuarios buscar, comparar y reservar servicios turísticos desde una única aplicación, integrando mapas interactivos, rutas personalizadas, comparador de precios y autenticación segura.
 
+Página web desplegada -> https://journeymate-485617.web.app/  
+
 ## Descripción del proyecto
 JourneyMate centraliza todo el proceso de planificación de viajes: búsqueda de vuelos, hoteles, actividades, rutas turísticas y puntos de interés.
 El sistema está compuesto por una aplicación web (React), una aplicación móvil (Flutter) y un backend REST desarrollado con Spring Boot, conectado a una base de datos PostgreSQL y a múltiples APIs externas.

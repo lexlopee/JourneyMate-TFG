@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 const _config = <String, _CarCfg>{
   'small':    _CarCfg('assets/animations/car-small.glb',  'Pequeño'),
@@ -98,19 +97,7 @@ class _Car3DViewerState extends State<Car3DViewer>
                   child: SizedBox(
                     height: widget.height + 12,
                     width: double.infinity,
-                    child: ModelViewer(
-                      src: cfg.model,
-                      alt: cfg.label,
-                      autoRotate: true,
-                      autoRotateDelay: 0,
-                      rotationPerSecond: '20deg',
-                      cameraControls: false,
-                      disableZoom: true,
-                      disablePan: true,
-                      disableTap: true,
-                      backgroundColor: Colors.transparent,
-                      shadowIntensity: 0.10,
-                    ),
+
                   ),
                 ),
               ),
